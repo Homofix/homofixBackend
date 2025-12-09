@@ -1,0 +1,226 @@
+{% load static %}
+{% load product_tags %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Invoice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <style>
+        * {
+            box-sizing: border-box;
+          }
+        body {
+            font-family: 'Roboto', sans-serif;
+            letter-spacing: 2px;
+            height:100%
+        }
+
+        .container {
+            border: 1px solid black;
+            /* padding: 10px; */
+        }
+
+        .left-side {
+            width: 60%;
+            float: left;
+            border-right: 1px solid black;
+        }
+
+        .right-side {
+            width: 40%;
+            float: left;
+        }
+/* 
+        .cmp span {
+            font-size: px;
+        } */
+
+        #total {
+            width: 33.33%;
+            float: right;
+            margin-top: 25px;
+            /* text-align: right; */
+            /* border-bottom: 1px solid black; */
+        }
+
+        #demm {
+            width: 60%;
+            float: left;
+            border-bottom: 1px solid black;
+        }
+
+        #nano {
+            width: 40%;
+            float: right;
+            border-bottom: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <section>
+        <h1 style="text-align: center;">Invoice</h1>
+        <img src="/home/ubuntu/homofix/static/logodark.png" alt="" width="200px">
+        <div class="container">
+            <div class="left-side p-2">
+               
+                <p > <b> Homofix Technologies Private Limited</b><p>
+                <p > <b> Office Address: </b> 2
+                        nd Floor, WP - 501 D, Unit No. 209, Shiv Market, Wazirpur Village,
+                        Ashok Vihar, New Delhi, Delhi – 110052
+                </p>
+                <div>
+                    
+                    <div class="cmp"><span> <b>GST :</b> </span> <span>07AAGCH4863F1ZI</span></div>
+                </div>
+                <!-- Content for the left side goes here -->
+            </div>
+            <div class="right-side p-2">
+                <div>
+                    <!-- <div class="cmp"><span> <b>Order Id :</b> </span> <span>279025549</span></div>
+                    <br> -->
+                    <div class="cmp"><span> <b>Booking Id :</b> </span> <span> {{booking.booking_id.order_id}}</span></div>
+                    <div class="cmp"><span> <b>Invoice No :</b> </span> <span> {{booking.invoice_no}}</span></div>
+                    <!-- <br> -->
+                    {% comment %} <div class="cmp"><span> <b>Booking Date :</b> </span> <span>{{booking.booking_id.booking_date|date:"M. d, Y" }}</span></div> {% endcomment %}
+                    <div class="cmp"><span> <b>Date :</b> </span> <span>{{booking.updated_at}}</span></div>
+                </div>
+                <!-- Content for the right side goes here -->
+            </div>
+            <div style="clear: both;"></div>
+            <div class="left-side p-2" style="border-top: 1px solid black;">
+                <p><b>Invoice To</b></p>
+                <div>
+                    <div class="cmp"><span> <b>Name :</b> </span> <span>{{booking.booking_id.customer.admin.first_name}}</span></div>
+                    <div class="cmp"><span> <b>Address :</b> </span> <span>{{booking.booking_id.customer.address}}</span></div>
+                    <div class="cmp"><span> <b>Pin code :</b> </span> <span>{{booking.booking_id.customer.zipcode}}</span></div>
+                    <div class="cmp"><span> <b>State :</b> </span> <span>{{booking.booking_id.customer.state}}</span></div>
+                    {% if booking.booking_id.customer.gst_no %}
+                    <div class="cmp"><span> <b>GST :</b> </span> <span>{{booking.booking_id.customer.gst_no}}</span></div>
+                    {% endif %}
+                </div>
+                <!-- Content for the left side goes here -->
+            </div>
+            <div class="right-side p-2" style="border-top: 1px solid black;">
+               
+            </div>
+            <div style="clear: both;"></div>
+        </div>
+        <h6 class="text-center mt-3"><b>LIST OF ITEMS</b></h6>
+        <table class="table table-bordered border-dark">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Product Name</th>
+                    <th scope="col" style="width: 10px;">Qty</th>
+                    <th scope="col">Rate</th>
+                    
+                    <th scope="col">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for i in booking.booking_id.booking_product.all %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{i.product.name}}</td>
+                    <td>{{i.quantity}}</td>
+                    <td>{{i.product.selling_price}}</td>
+                
+                    <td>{% call_amt_invoice i.quantity i.product.selling_price  %}</td>
+                </tr>
+                {% endfor %}
+              
+               
+            </tbody>
+        </table>
+        <h6 class="text-center mt-3"><b>LIST OF Addon</b></h6>
+        <table class="table table-bordered border-dark">
+            <thead>
+
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Addon Name</th>
+                    <th scope="col" style="width: 10px;">Qty</th>
+                    <th scope="col">Rate</th>
+                   
+                    <th scope="col">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for adon in addon %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{adon.spare_parts_id.spare_part}}</td>
+                    <td>{{adon.quantity}}</td>
+                    <td>{{adon.spare_parts_id.price}}</td>
+                    
+                    <td>{% call_addon_amt_invoice adon.quantity adon.spare_parts_id.price %}</td>
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+        <div id="total">
+            <div id="demm">
+                {% if booking.booking_id.coupon_id %}
+                <p>Subtotal </p>
+                {% else %}
+                <p>Subtotal </p> 
+                {% endif %}
+                {% if booking.booking_id.coupon_id %}
+                <p>Coupon Discount</p>
+                {% else %}
+                <p>Coupon Discount</p>
+                {% endif %}
+                <p>Net Amount</p>
+                <p>Tax</p>
+            </div>
+            <div id="nano">
+                {% if booking.booking_id.coupon_id %}
+                <p>{% call_subtotal_invoice booking.booking_id.total_amount booking.booking_id.coupon_discount_amount %}</p>
+               {% else %}
+                <p>{{booking.booking_id.total_amount}}</p> 
+                {% endif %}
+                {% if booking.booking_id.coupon_id %}
+                <p>{{booking.booking_id.coupon_discount_amount}}</p>
+                {% else %}
+                <p>0</p>
+                {% endif %}
+                <p>{{booking.booking_id.total_amount}}</p>
+                <p>{{booking.booking_id.tax_amount}}</p>
+            </div>
+            <div id="demm">
+                <p>Total</p>
+            </div>
+            <div id="nano">
+                <p>{{booking.booking_id.final_amount}}</p>
+            </div>
+            <div style="clear: both;"></div>
+        </div>
+    </section>
+    <div style="clear: both;"></div>
+    <div style="border-bottom: 1px solid black; margin-top: 50px;">
+        
+        
+    </div>
+    <div>
+        <h1 class="text-center">Homofix Technologies PVT Ltd </h1>
+        <p class="text-center">Corporate Office: 2nd Floor, WP-501-D, Unit 209, Shiv Market, Wazirpur Village ,
+        </p>
+        <p class="text-center">Ashok Vihar, New Delhi, Central Delhi, Delhi - 110052</p>
+        <p class="text-center">Regd Office: 5139, Awas Vikas 3, Kalyanpur,Kanpur,Uttar Pradesh, India,208017</p>
+        <p class="text-center">Email: info@homofixcompany.com</p>
+        <p class="text-center">Contact no- 8130105760</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

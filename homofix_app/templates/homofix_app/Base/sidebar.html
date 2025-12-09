@@ -1,0 +1,508 @@
+{% load static %}
+<!--sidebar wrapper -->
+
+<div class="sidebar-wrapper" data-simplebar="true">
+    <div class="sidebar-header">
+        <div>
+            <img src="{% static 'assets/images/logolight.png' %}" class="logo-icon" alt="logo icon">
+        </div>
+        <div>
+            <h4 class="logo-text">HF</h4>
+        </div>
+        <div class="toggle-icon ms-auto"><i class='bx bx-arrow-to-left'></i>
+        </div>
+    </div>
+    <!--navigation-->
+    <ul class="metismenu" id="menu">
+        <li>
+            <a href="{% url 'admin_dashboard' %}" class="">
+                <div class="parent-icon"><i class='bx bx-home-circle'></i>
+                </div>
+                <div class="menu-title">Dashboard</div>
+            </a>
+           
+        </li>
+        
+        <li class="menu-label"><hr></li>
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-cookie'></i>
+                </div>
+                <div class="menu-title">Category</div>
+            </a>
+            <ul>
+                <li> <a href="{% url 'category' %}"><i class="bx bx-right-arrow-alt"></i>Category</a>
+                </li>
+                <li> <a href="{% url 'subcategory' %}"><i class="bx bx-right-arrow-alt"></i>Sub Category</a>
+                </li>
+               
+             
+              
+               
+            </ul>
+        </li>
+
+        
+{% comment %} 
+        <li>
+            <a href="javascript:;" class="has-arrow">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Products</div>
+            </a>
+            <ul>
+                
+                 <li> <a href="{% url 'product' %}"><i class="bx bx-right-arrow-alt"></i>Product List</a>
+                <li> <a href="{% url 'add_faq' %}"><i class="bx bx-right-arrow-alt"></i>FAQs</a>
+                </li>
+            </ul>
+        </li> {% endcomment %}
+
+
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Products</div>
+            </a>
+            <ul>
+                <li> <a href="{% url 'product' %}"><i class="bx bx-right-arrow-alt"></i>Product List</a>
+                </li>
+                <li> <a href="{% url 'add_faq' %}"><i class="bx bx-right-arrow-alt"></i>FAQs</a>
+                </li>
+               
+             
+              
+               
+            </ul>
+        </li>
+
+       
+       
+         
+
+        
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Addons</div>
+            </a>
+            <ul>
+                <li>
+                    <a href="{% url 'addons' %}">
+                        <div class="parent-icon"><i class='bx bx-right-arrow-alt'></i>
+                        </div>
+                        <div class="menu-title">Addon Products</div>
+                    </a>
+                </li>  
+                <li> <a href="{% url 'addons_details' %}"><i class="bx bx-right-arrow-alt"></i>Addon Details</a>
+                </li>
+               
+             
+              
+               
+            </ul>
+        </li>
+
+
+        
+         
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-user-circle'></i>
+                </div>
+                <div class="menu-title">Expert</div>
+            </a>
+            <ul>
+                <li>
+                    <a href="{% url 'technician' %}">
+                        <div class="parent-icon"><i class='bx bx-user-circle'></i>
+                        </div>
+                        <div class="menu-title">Expert</div>
+                    </a>
+                </li>
+                <li> 
+                    
+                    <a href="{% url 'ListofNewExpert' %}">
+                        <div class="parent-icon"><span class="alert-count">{% if new_expert_count != null %}{{new_expert_count}} {% else %} 0 {% endif %}</span><i class='bx bx-user-circle'></i>
+                        </div>
+                        <div class="menu-title">New Expert</div>
+                    </a>
+                </li>
+  
+               
+            </ul>
+        </li>
+
+
+       
+
+        <li>
+            <a href="{% url 'admin_support' %}">
+                <div class="parent-icon"><i class='bx bx-user-circle'></i>
+                </div>
+                <div class="menu-title">Support</div>
+            </a>
+        </li>
+
+       
+
+        
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Booking</div>
+            </a>
+            <ul>
+                <a href="{% url 'ListofNewExpert' %}">
+                   
+                </a>
+                <li> 
+                    <a href="{% url 'booking_list' %}"><span class="alert-count">{% if booking_count != null %}{{booking_count}} {% else %} 0 {% endif %}</span><i class="bx bx-right-arrow-alt"></i>New Booking List</a>
+                </li>
+                <li> <a href="{% url 'list_of_task' %}"><i class="bx bx-right-arrow-alt"></i>Assign Booking</a>
+                </li>
+                <li> <a href="{% url 'Listofcancel' %}"><i class="bx bx-right-arrow-alt"></i>Cancel Booking</a>
+                </li>
+                <li> <a href="{% url 'Listofcancel_expert' %}"><i class="bx bx-right-arrow-alt"></i>Expert Cancel Booking</a>
+                </li>
+                
+              
+               
+            </ul>
+        </li>
+        
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Completed Booking</div>
+            </a>
+            <ul>
+               
+                <li> 
+                    <a href="{% url 'admin_booking_complete' %}"><i class="bx bx-right-arrow-alt"></i> Complete-Booking</a>
+                </li>
+                <li> 
+                    <a href="{% url 'Listofrebooking' %}"><span class="alert-count">{% if rebooking_count != null %}{{rebooking_count}} {% else %} 0 {% endif %}</span><i class="bx bx-right-arrow-alt"></i> Rebooking List</a>
+                </li>
+                
+                
+              
+               
+            </ul>
+        </li>
+
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Cusotmer</div>
+            </a>
+            <ul>
+               
+                <li> 
+                    <a href="{% url 'admin_customer_list' %}"><span class="alert-count">{% if customer_count != null %}{{customer_count}} {% else %} 0 {% endif %}</span><i class="bx bx-right-arrow-alt"></i> List of Customer </a>
+                </li>
+                
+                
+              
+               
+            </ul>
+        </li>
+
+       
+       
+        
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Settlement</div>
+            </a>
+            <ul class="">
+               
+                <li> 
+                    <a href="{% url 'admin_share_percentage' %}"></span><i class="bx bx-right-arrow-alt"></i> Set Percentage</a>
+                </li> 
+                
+                <li> 
+                    <a href="{% url 'admin_share_list' %}"></span><i class="bx bx-right-arrow-alt"></i> Settlement List</a>
+                </li> 
+                
+              
+               
+            </ul>
+        </li>
+        
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Customer Payment</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'admin_customer_payment' %}"></span><i class="bx bx-right-arrow-alt"></i> List Of Payment</a>
+                </li> 
+                
+                {% comment %} <li> 
+                    <a href="{% url 'admin_share_list' %}"></span><i class="bx bx-right-arrow-alt"></i> List of Share</a>
+                </li>  {% endcomment %}
+                
+              
+               
+            </ul>
+        </li>
+
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Admin Details</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'admin_list' %}"></span><i class="bx bx-right-arrow-alt"></i> List Of Admin</a>
+                </li> 
+                
+                {% comment %} <li> 
+                    <a href="{% url 'admin_share_list' %}"></span><i class="bx bx-right-arrow-alt"></i> List of Share</a>
+                </li>  {% endcomment %}
+                
+              
+               
+            </ul>
+        </li>
+
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Withdraw</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'admin_withdraw_request' %}"></span><i class="bx bx-right-arrow-alt"></i> Withdraw Request</a>
+                </li> 
+                
+                {% comment %} <li> 
+                    <a href="{% url 'admin_share_list' %}"></span><i class="bx bx-right-arrow-alt"></i> List of Share</a>
+                </li>  {% endcomment %}
+                
+              
+               
+            </ul>
+        </li>
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Recharge</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'recharge' %}"></span><i class="bx bx-right-arrow-alt"></i> List of Recharge</a>
+                </li> 
+                
+                {% comment %} <li> 
+                    <a href="{% url 'admin_share_list' %}"></span><i class="bx bx-right-arrow-alt"></i> List of Share</a>
+                </li>  {% endcomment %}
+                
+              
+               
+            </ul>
+        </li>
+
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Coupon</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'coupon' %}"></span><i class="bx bx-right-arrow-alt"></i> List of Coupon</a>
+                </li> 
+                
+                {% comment %} <li> 
+                    <a href="{% url 'admin_share_list' %}"></span><i class="bx bx-right-arrow-alt"></i> List of Share</a>
+                </li>  {% endcomment %}
+                
+              
+               
+            </ul>
+        </li>
+
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Blog</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'view_blog' %}"></span><i class="bx bx-right-arrow-alt"></i> View Blog</a>
+                </li> 
+                
+                
+              
+               
+            </ul>
+        </li>
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Offers</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'view_offers' %}"></span><i class="bx bx-right-arrow-alt"></i>Offers List</a>
+                </li> 
+                
+                
+              
+               
+            </ul>
+        </li>
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Most Viewed</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'most_view_list' %}"></span><i class="bx bx-right-arrow-alt"></i>MostView List</a>
+                </li> 
+                
+                
+              
+               
+            </ul>
+        </li>
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Home Page Service</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'homepageservice_view_list' %}"></span><i class="bx bx-right-arrow-alt"></i>Home Page Service</a>
+                </li> 
+                
+                
+              
+               
+            </ul>
+        </li>
+        {% comment %} <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Attendence</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href=""></span><i class="bx bx-right-arrow-alt"></i> Attendence List</a>
+                </li> 
+                
+                
+              
+               
+            </ul>
+        </li> {% endcomment %}
+
+
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Carrer</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'contact_us' %}"></span><i class="bx bx-right-arrow-alt"></i>Career List</a>
+                </li>
+                {% comment %} <li> 
+                    <a href="{% url 'applicant_carrer' %}"></span><i class="bx bx-right-arrow-alt"></i>Applicant Career List</a>
+                </li>
+                  {% endcomment %}
+                
+                
+              
+               
+            </ul>
+        </li>
+        <li class="">
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Custom Page</div>
+            </a>
+            <ul class="mb-3">
+               
+                <li> 
+                    <a href="{% url 'page_legal_list' %}"></span><i class="bx bx-right-arrow-alt"></i>Custom Page</a>
+                </li>
+                {% comment %} <li> 
+                    <a href="{% url 'applicant_carrer' %}"></span><i class="bx bx-right-arrow-alt"></i>Applicant Career List</a>
+                </li>
+                  {% endcomment %}
+                
+                
+              
+               
+            </ul>
+        </li>
+
+        
+        
+        <li> 
+            <a href="{% url 'admin_job_enquiry' %}"></span><i class="bx bx-right-arrow-alt"></i>Job Enquiry</a>
+        </li>
+        <li>
+            <a href="{% url "pincode" %}">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Pincode</div>
+            </a>
+        </li>
+        <li>
+            <a href="{% url "universal_slot" %}">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Universal Slot</div>
+            </a>
+        </li>
+        <li>
+            <a href="{% url "slot" %}">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Slot</div>
+            </a>
+        </li>
+        
+       
+       
+   
+       
+    </ul>
+    <!--end navigation-->
+</div>
+<!--end sidebar wrapper -->

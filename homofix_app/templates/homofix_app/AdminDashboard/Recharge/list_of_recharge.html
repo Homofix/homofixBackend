@@ -1,0 +1,159 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block title %}Recharge{% endblock title %}
+{% block main-content %}
+<style>
+    .nowrap {
+        white-space: nowrap;
+      }
+      .testing{
+        width:90px !important;
+        height: 30px !important; 
+        font-size: 15px !important;
+        {% comment %} font-size: 42px !important;
+        height: 51px !important; {% endcomment %}
+
+      }
+</style>
+
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Recharge</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Recharge List</li>
+                </ol>
+            </nav>
+        </div>
+        
+    </div>
+    <!--end breadcrumb-->
+  
+    <h6 class="mb-0 text-uppercase">List of Recharge</h6>
+    <hr>
+	{% include 'homofix_app/Base/messages.html' %}
+	
+	
+    <div class="card">
+        
+        <div class="card-body">
+            
+            <div class="table-responsive">
+                
+                <table id="example2" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#SR No.</th>
+                            <th>Expert ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Payment ID</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                           
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in recharge %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{i.technician_id.expert_id}}</td>
+                            <td>{{i.technician_id.admin.first_name}}</td>
+                            <td>{{i.technician_id.admin.last_name}}</td>
+                            <td>{{i.technician_id.admin.username}}</td>
+                            <td>{{i.technician_id.admin.email}}</td>        
+                            <td>{{i.technician_id.mobile}}</td>
+                            <td>{{i.payment_id}}</td>
+                            <td>{{i.amount}}</td>
+                            <td class="nowrap">{{i.date}}</td>
+                            <td>{{i.status}}</td>
+  
+                            
+                            
+                           
+                            
+                        </tr>
+                       
+                        {% endfor %}
+                       
+                    </tbody>
+
+                    
+                    
+                </table>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col">
+    <!-- Button trigger modal -->
+    {% comment %} <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Vertically Centered</button> {% endcomment %}
+    <!-- Modal -->
+   {% include 'homofix_app/AdminDashboard/Technician/add_technician_modal.html' %}
+</div>
+
+
+{% comment %} <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+
+
+<script>
+	$(document).on('submit', '#technicianform',function(e){
+		e.preventDefault();
+		var category_id = $('#category_id').val()
+		var username = $('#username').val()
+		var email = $('#email').val()
+		var password = $('#password').val()
+		
+		
+
+		$.ajax({
+			type: 'POST',
+			url:"{% url 'technician' %}",
+			data:{
+				category_id:category_id,
+				username:username,
+				email:email,
+				password:password,
+				csrfmiddlewaretoken:$("input[name=csrfmiddlewaretoken]").val()
+			},
+			success:function(data){
+				if(data.status == "Save"){
+					// alert("Form Submitted Successfully")
+					$('#technicianform').trigger("reset");
+					$('#msg').text("Technician Add Successfully")
+				 }
+				if(data.status == "error"){
+					// alert("Form Submitted Successfully")
+					
+					$('#msg').text("Username is already Taken")
+				 }
+				 if(data.status == "0"){
+					$('#msg').text("Unable to save")
+					
+				}
+				
+
+				
+				
+				
+				
+
+			}
+		})
+	})
+
+</script> {% endcomment %}
+  
+{% endblock main-content %}

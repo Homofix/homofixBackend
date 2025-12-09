@@ -1,0 +1,103 @@
+
+{% load custom_filters %}
+<div class="modal fade" id="exampleVerticallycenteredModal{{i.product.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rebooking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <P class="text-center mt-2" id="msg"></P>
+        
+            
+            <form action="{% url 'admin_rebooking_update'%}" method = "POST"  id="productform">
+                {% csrf_token %}
+            <div class="row">
+                <div class="col-xl-9 mx-auto">
+
+                  
+
+                   <input type="text" value="{{i.booking.id}}" name="booking_prod_id" hidden>
+
+                    
+                   
+                    <div class="row mb-3">
+                        <label for="inputDate{{i.booking.id}}" class="col-sm-12 col-form-label">Select Date</label>
+                        <div class="col-sm-12">
+                            <input class="form-control" type="date" id="inputDate{{i.booking.id}}" name="booking_date" value="{{i.booking.booking_date|date:'Y-m-d'}}" onchange="fetchSlots{{i.booking.id}}(this.value, {{i.booking.zipcode}})" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="slotSelect{{i.booking.id}}" class="form-label">Select Slot</label>
+                        <div class="col-sm-12">
+                            <select class="form-control" id="slotSelect{{i.booking.id}}" name="slot" required>
+                                <option value="">Select a slot</option>
+                                {% if i.booking.slot %}
+                                    <option value="{{i.booking.slot}}" selected>{{i.booking.slot|get_slot_display}}</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <script>
+                        function fetchSlots{{i.booking.id}}(date, pincode) {
+                            if (!date) return;
+                            var slotSelect = document.getElementById('slotSelect{{i.booking.id}}');
+                            slotSelect.innerHTML = '<option value="">Select a slot</option>';
+                            slotSelect.innerHTML += '<option value="" disabled>Loading slots...</option>';
+                            // Subcategory from current booking product
+                            var params = new URLSearchParams();
+                            params.append('date', date);
+                            params.append('pincode', pincode);
+                            {% if i.booking_product %}
+                            params.append('subcategory_ids[]', {{ i.booking_product.product.subcategory.id }});
+                            {% endif %}
+                            fetch(`/Accounts/Admin/get_available_slots?` + params.toString())
+                                .then(response => response.json())
+                                .then(data => {
+                                    slotSelect.innerHTML = '<option value="">Select a slot</option>';
+                                    if (data.slots && data.slots.length > 0) {
+                                        data.slots.forEach(slot => {
+                                            var option = document.createElement('option');
+                                            option.value = slot.id;
+                                            if (slot.status === 'available') {
+                                                option.textContent = slot.display + " (Remaining: " + slot.remaining_slots + " of " + slot.limit + ")";
+                                            } else {
+                                                option.textContent = slot.display + " (Not Available)";
+                                                option.disabled = true;
+                                            }
+                                            slotSelect.appendChild(option);
+                                        });
+                                    } else {
+                                        slotSelect.innerHTML += '<option value="" disabled>No slots available</option>';
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching slots:', error);
+                                    slotSelect.innerHTML = '<option value="">Select a slot</option>';
+                                    slotSelect.innerHTML += '<option value="" disabled>Error loading slots</option>';
+                                });
+                        }
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var dateInput = document.getElementById('inputDate{{i.booking.id}}');
+                            if (dateInput && dateInput.value) {
+                                fetchSlots{{i.booking.id}}(dateInput.value, {{i.booking.zipcode}});
+                            }
+                        });
+                    </script>
+                   
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+                
+                {% comment %} <button type="submit" class="btn btn-primary">Save </button> {% endcomment %}
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,42 @@
+{% for message in messages %}
+{% if message.tags == 'success' %}
+<div class="alert border-0 alert-dismissible fade show py-2">
+    <div class="d-flex align-items-center">
+        <div class="font-35 text-white"><i class="bx bxs-check-circle"></i>
+        </div>
+        <div class="ms-3 w-75">
+            <h6 class="mb-0 text-white">{{message}}</h6>
+            {% comment %} <div class="text-white">{{message}}</div> {% endcomment %}
+        </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% elif message.tags == 'error' %}
+<div class="alert border-0 alert-dismissible fade show py-2">
+    <div class="d-flex align-items-center">
+        <div class="font-35 text-white"><i class="bx bxs-message-square-x"></i>
+        </div>
+        <div class="ms-3 w-75">
+            <h6 class="mb-0 text-white text-center">{{message}}</h6>
+            {% comment %} <div class="text-white"></div> {% endcomment %}
+        </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% else %}
+<div class="alert border-0 alert-dismissible fade show py-2">
+    <div class="d-flex align-items-center">
+        <div class="font-35 text-white"><i class="bx bx-info-circle"></i>
+        </div>
+        <div class="ms-3 w-75">
+            <h6 class="mb-0 text-white">{{message}}</h6>
+            {% comment %} <div class="text-white">{{message}}</div> {% endcomment %}
+        </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+
+{% endif %}
+
+{% endfor %}

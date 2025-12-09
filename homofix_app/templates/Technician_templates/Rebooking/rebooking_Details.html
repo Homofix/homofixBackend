@@ -1,0 +1,201 @@
+{% extends 'Technician_templates/Base/base.html' %}
+{% load static %}
+{% block main-content %}
+<style>
+   .nowrap {
+   white-space: nowrap;
+   }
+</style>
+<div class="page-content">
+   <!--breadcrumb-->
+   <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+      <div class="breadcrumb-title pe-3">Taks</div>
+      <div class="ps-3">
+         <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+               <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+               </li>
+               <li class="breadcrumb-item active" aria-current="page">Task List</li>
+            </ol>
+         </nav>
+      </div>
+   </div>
+   <!--end breadcrumb-->
+   <h6 class="mb-0 text-uppercase">List of Task</h6>
+   <hr>
+   {% include 'homofix_app/Base/messages.html' %}
+   {% comment %} 
+   <div class="ms-auto mt-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleDangerModal"><a
+      href="javascript:;" class="btn btn-light radius-30 mt-2 mt-lg-0"><i class="bx bxs-plus-square"></i>Add New
+      Order</a>
+   </div>
+   {% endcomment %}
+   <div class="card">
+      <div class="card-body">
+         <div class="table-responsive">
+            <table id="example2" class=" table  mb-0">
+               <thead class="table-light">
+                  <tr>
+                     <th>Order#</th>
+                     <th>Category</th>
+                     <th>Subcategory</th>
+                     <th>Product</th>
+                     <th>Customer</th>
+                     <th>Status</th>
+                     <th class="nowrap">Product Price</th>
+                     <th>Date</th>
+                     <th class="nowrap">View Details</th>
+                     <th>Action</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {% for i in rebooking %}
+                  <tr>
+                     <!-- Display task details -->
+                     <td>#{{ i.booking_product.booking.order_id }}</td>
+                     <td>
+                       {{i.booking_product.product.subcategory.Category_id.category_name}}
+                     </td>
+
+                     <td>
+                        {{i.booking_product.product.subcategory.name}}
+                     </td>
+                     <td>
+                       {{i.booking_product.product.name}}
+                     </td>
+                     <td>{{ i.booking_product.booking.customer.admin.username }}</td>
+                     <td>
+                        <div class="badge rounded-pill bg-light p-2 text-uppercase px-3">
+                           <i class='bx bxs-circle me-1'></i>{{ i.status }}
+                        </div>
+                     </td>
+                     <td>Rs
+                        {{i.booking_product.product.price}}
+                       
+                     </td>
+                     <td class="nowrap">{{ i.date }}</td>
+                     <td class="nowrap"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal{{i.booking_product.booking.customer.id}}">View Details</button></td>
+
+                     <div class="modal fade" id="exampleDarkModal{{i.booking_product.booking.customer.id}}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-sm modal-dialog-centered">
+                           <div class="modal-content bg-dark">
+                              <div class="modal-header">
+                                 <h5 class="modal-title text-white">Customer Details</h5>
+                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body text-white">
+                                 
+                                    
+                                <div class="col">
+                                    <div class="card radius-15 bg-danger">
+                                      <div class="card-body text-center">
+                                        <div class="p-4 radius-15">
+                                          <img src="{% static 'assets/images/avatars/customer.png' %}" width="110" height="110" class="rounded-circle shadow p-1 bg-white" alt="">
+                                          {% comment %} <h6 class="mt-2">Customer Details</h6> {% endcomment %}
+                                          <hr>
+                                          <p class="mb-0 text-white">Name: {{i.booking_product.booking.customer.admin.username}}</p>
+                                          <p class="mb-0 text-white">City: {{i.booking_product.booking.city}}</p>
+                                          <p class="mb-0 text-white">State: {{i.booking_product.booking.state}}</p>
+                                          <p class="mb-0 text-white">Mobile: {{i.booking_product.booking.customer.mobile}}</p>
+                                          <p class="mb-0 text-white">ZipCode: {{i.booking_product.booking.zip_code}}</p>
+                                          <p class="mb-0 text-white">Address: {{i.booking_product.booking.city}}, {{i.booking.state}}</p>
+                                          
+                                          {% comment %} <div class="list-inline contacts-social mt-3 mb-3"> <a href="javascript:;" class="list-inline-item border-0"><i class="bx bxl-facebook"></i></a>
+                                          <a href="javascript:;" class="list-inline-item border-0"><i class="bx bxl-twitter"></i></a>
+                                          <a href="javascript:;" class="list-inline-item border-0"><i class="bx bxl-google"></i></a>
+                                          <a href="javascript:;" class="list-inline-item border-0"><i class="bx bxl-linkedin"></i></a>
+                                          </div> {% endcomment %}
+                                          {% comment %} <div class="d-grid"> <a href="#" class="btn btn-white radius-15">Contact Me</a>
+                                          </div> {% endcomment %}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                    
+                                    
+                                
+                                 {% comment %} 
+                                 <p>{{task.booking.customer.admin.username}}</p>
+                                 {% endcomment %}
+                                 {% comment %} 
+                                 <p>Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
+                                 <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
+                                 <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
+                                 <p>Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
+                                 {% endcomment %}
+                              </div>
+                              {% comment %} <div class="modal-footer">
+                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                 <button type="button" class="btn btn-dark">Save changes</button>
+                              </div> {% endcomment %}
+                           </div>
+                        </div>
+                     </div>
+                     <!-- Display a form to update the booking status -->
+                     {% comment %} 
+                     <td>
+                        <form method="POST" action="{% url 'update_booking_status' task.booking.id %}">
+                           {% csrf_token %}
+                           <select class="form-select" name="status" id="status">
+                           {% for choice in task.booking.STATUS_CHOICES %}
+                           <option value="{{ choice.0 }}" {% if task.booking.status == choice.0 %}selected{% endif %}>
+                           {{ choice.1 }}
+                           </option>
+                           {% endfor %}
+                           </select>
+                           <button type="submit" class="btn btn-primary">Update</button>
+                        </form>
+                     </td>
+                     {% endcomment %}
+                     <td>
+                        <form method="POST" action="{% url 'update_rebooking_status' i.id %}">
+                           {% csrf_token %}
+                           <div class="d-flex align-items-center">
+                              <select style="width:130px;" class="form-select me-1" name="status" id="status">
+                                 {% if task.booking.status == "completed" %}
+                                 <option value="completed">Completed</option>
+                                 {% else %}
+                                 <option value="Inprocess">InProcess</option>
+                                 <option value="completed">Completed</option>
+                                 {% endif %}
+                                 
+                                 
+
+                              </select>
+                              {% comment %} <select style="width:130px;" class="form-select me-1" name="status" id="status">
+                              {% for choice in task.booking.STATUS_CHOICES %}
+                              <option value="{{ choice.0 }}" {% if task.booking.status_choice == choice.0 %}selected{% endif %}>
+                              {{ choice.1 }}
+                              </option>
+                              {% endfor %}
+                              </select> {% endcomment %}
+                              {% comment %} {% if task.status == cancelled or task.booking.status == "completed" %}
+                              <button type="submit" class="btn btn-success" disabled>Update</button>
+                              {% else %}
+                              <button type="submit" class="btn btn-success">Update</button>
+                              {% endif %} {% endcomment %}
+                              {% if i.status == "completed" %}
+                              <button type="submit" class="btn btn-success" disabled>Update</button>
+                              {% else %}
+                              <button type="submit" class="btn btn-success">Update</button>
+
+                              
+                              {% endif %}
+                           </div>
+                        </form>
+                     </td>
+                  </tr>
+                  {% endfor %}
+               </tbody>
+            </table>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+<div class="col">
+   <!-- Modal -->
+   {% include 'Support_templates/Orders/mobile_no_modal.html' %}
+</div>
+{% endblock main-content %}

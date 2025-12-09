@@ -1,0 +1,334 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block main-content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<div class="page-content">
+   <!--breadcrumb-->
+   <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+      <div class="breadcrumb-title pe-3">New Order</div>
+      <div class="ps-3">
+         <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+               <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+               </li>
+               <li class="breadcrumb-item active" aria-current="page">Add New Order</li>
+            </ol>
+         </nav>
+      </div>
+   </div>
+   <!--end breadcrumb-->
+   <div class="card">
+      <div class="card-body p-4">
+         <h5 class="card-title">Add New Order</h5>
+         <hr>
+         <div class="form-body mt-4">
+            <form action="" method="POST">
+               {% csrf_token %}
+               <div class="row">
+                  <div class="col-lg-12">
+                     <div class="border border-3 p-4 rounded">
+                         <div class="mb-3">
+                           <label for="inputProductTitle" class="form-label">Category</label>
+                           <select class="single-select" name="category_name" id="select_category" required>
+                              <option value="" disabled selected>---SELECT---</option>
+                              {% for i in category %}
+                              <option value="{{i.id}}">{{i.category_name}}</option>
+                              {% endfor %}
+                           </select>
+                        </div> 
+
+                         <div class="mb-3">
+                           <label for="inputProductTitle" class="form-label">Subcategory</label>
+                           <select class="single-select" name="subcategory_name" id="select_subcategory" required>
+                              
+                              <option class="text-black" value="" selected disabled> --Select--</option>
+                           </select>
+                        </div> 
+                        <div class="mb-3">
+                           <label for="inputProductTitle" class="form-label">Product Name</label>
+                           <select class="single-select" name="product_id" id="product-select" onchange="showQuantity()" multiple  required>
+                              
+                              <option class="text-black" value="" selected disabled> --Select--</option>
+                           </select>
+                        </div>
+                        {% for i in prod %}
+                        <div class="row" id="{{i.id}}-quantity" style="display: none;">
+                           
+                              <div class="col-12 col-lg-9 mx-auto">
+                                 <div class="">
+                                    <div class="">
+                                       <div class="accordion" id="accordionExample">
+                                          <div class="accordion-item">
+                                             <h2 class="accordion-header" id="headingFour">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour{{i.id}}" aria-expanded="false" aria-controls="collapseFour">
+                                                {{i.name}} Details
+                                                </button>
+                                             </h2>
+                                             <div id="collapseFour{{i.id}}" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+                                                <div class="accordion-body">
+                                                  <div class="card-body">
+                                                    <hr>
+                                                    <dl class="row">
+                                                       <dt class="col-sm-3">{{i.category.category_name}}</dt>
+                                                       <dd class="col-sm-9">{{i.name}}</dd>
+                                                       <dt class="col-sm-3">Price</dt>
+                                                       <dd class="col-sm-9">{{i.price}}</dd>
+                                                       <dt class="col-sm-3" hidden>Price</dt>
+                                                       <dd class="col-sm-9"><input type="text" value="{{i.price}}" name="price" hidden></dd>
+                                                       
+                                                       
+                                                    </dl>
+                                                    <div class="row row-cols-auto row-cols-1 row-cols-md-3 align-items-center">
+                                                       <div class="col">
+                                                          <label class="form-label">Quantity</label>
+                                                          <div class="input-group input-spinner">
+                                                           
+                                                            <button class="btn btn-light" onclick="increaseValue(this)">+</button>
+                                                            <input class="form-control" type="text" name="quantity" value="1">
+                                                            <button class="btn btn-light" onclick="decreaseValue(this)">-</button>
+
+                                                          </div>
+                                                       </div>
+                                                    </div>
+                                                 </div>
+                                                   
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           
+                        </div>
+                        {% endfor %}
+
+                        
+
+                        
+
+                         <h4 id="total-amount" class="mb-3 text-center text-warning"></h4>  
+                         <input type="text" id="total-amount2" name="total_amount"hidden>
+                        
+                        {% comment %} <input type="text" id="total-amount"> {% endcomment %}
+                        <div class="mb-3">
+                           <label for="inputDateTime" class="form-label">Select Date & Time</label>
+                           <input class="form-control" type="datetime-local"  id="inputDateTime" name="booking_date" required>
+                        </div>
+                        <div class="mb-3">
+                           <label for="inputCity" class="form-label">City</label>
+                           <input class="form-control" type="text" id="inputCity" name="city"  required>
+                           {% comment %} <input class="form-control" type="text"  id="inputCity" name="city"> {% endcomment %}
+                        </div>
+                        <div class="mb-3">
+                           <label for="inputDateTime" class="form-label">State</label>
+                           {% comment %} <input class="form-control" type="datetime-local"  id="inputDateTime" name="booking_date"> {% endcomment %}
+                           <select class="single-select" name="state" id="" required>
+                              <option value="" disabled selected>---SELECT---</option>
+                              {% for state in state_choices %}
+                              {% comment %} 
+                              <option value="{{state.0}}">{{i.name}}</option>
+                              {% endcomment %}
+                              <option value="{{ state.0 }}" {% if state.0 == technician.state %}selected{% endif %}>{{ state.1 }}</option>
+                              {% endfor %}
+                           </select>
+                           {% comment %} <select class="single-select" name="state" class="form-control" required>
+                           <option selected disabled ,"true"> --- Select State ---</option>
+                           {% for state in state_choices %}
+                           <option value="{{ state.0 }}" {% if state.0 == technician.state %}selected{% endif %}>{{ state.1 }}</option>
+                           {% endfor %}
+                           </select> {% endcomment %}
+                        </div>
+                        <div class="mb-3">
+                           <label for="inputDateTime" class="form-label">Area</label>
+                           <input class="form-control" type="text" name="area" required>
+                        </div>
+                        <div class="mb-3">
+                           <label for="inputDateTime" class="form-label">Zip Code</label>
+                           <input class="form-control" type="number" name="zip_code" required>
+                        </div>
+                        <div class="mb-3">
+                           <label for="inputProductaddress" class="form-label">Address</label>
+                           <textarea class="form-control" id="inputProductaddress" rows="3" name="address" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                           <label for="inputProductDescription" class="form-label">Description</label>
+                           <textarea class="form-control" id="inputProductDescription" rows="3" name="description"></textarea>
+                        </div>
+                        <input class="btn btn-primary" type="submit" value="submit">
+                     </div>
+                  </div>
+               </div>
+               <!--end row-->
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+<script>
+  function increaseValue(element) {
+    var input = element.parentNode.querySelector('input[name="quantity"]');
+    var value = parseInt(input.value, 10);
+    value = isNaN(value) ? 0 : value;
+    value++;
+    input.value = value;
+   showQuantity(); // Call showQuantity function to update total amount
+  }
+
+ function decreaseValue(element) {
+    var input = element.parentNode.querySelector('input[name="quantity"]');
+    var value = parseInt(input.value, 10);
+    value = isNaN(value) ? 0 : value;
+    value--;
+    if (value < 1) {
+      value = 1;
+    }
+    input.value = value;
+   showQuantity();
+  } 
+
+  function showQuantity() {
+   
+   var select = document.getElementById("product-select");
+   var options = select.options;
+   var totalAmount = 0;
+   for (var i = 0; i < options.length; i++) {
+     var id = options[i].value + "-quantity";
+     var div = document.getElementById(id);
+     if (options[i].selected) {
+       div.style.display = "block";
+       var rate = options[i].getAttribute("data-rate");
+       var quantity = div.querySelector("input[name='quantity']").value;
+       console.log("qauntity",quantity)
+       quantity = parseInt(quantity, 10); // convert quantity to an integer
+       var amount = rate * quantity;
+       totalAmount += amount;
+       div.querySelector("input[name='quantity']").value = quantity; // update the quantity field
+     } else {
+       div.style.display = "none";
+     }
+   }
+   document.getElementById("total-amount").innerHTML = "Total Amount: " + totalAmount;
+   document.getElementById("total-amount2").value = totalAmount;
+ }
+
+
+</script> 
+{% comment %} <script>
+  function increaseValue(element) {
+    var input = element.parentNode.querySelector('input[name="quantity"]');
+    var value = parseInt(input.value, 10);
+    value = isNaN(value) ? 0 : value;
+    value++;
+    input.value = value;
+   // showQuantity(); // Call showQuantity function to update total amount
+  }
+
+ function decreaseValue(element) {
+    var input = element.parentNode.querySelector('input[name="quantity"]');
+    var value = parseInt(input.value, 10);
+    value = isNaN(value) ? 0 : value;
+    value--;
+    if (value < 1) {
+      value = 1;
+    }
+    input.value = value;
+   // showQuantity();
+  } 
+
+  function showQuantity() {
+    var select = document.getElementById("product-select");
+    var options = select.options;
+    var totalAmount = 0;
+    for (var i = 0; i < options.length; i++) {
+      var id = options[i].value + "-quantity";
+      var div = document.getElementById(id);
+      if (options[i].selected) {
+        div.style.display = "block";
+        var rate = options[i].getAttribute("data-rate");
+        var quantity = div.querySelector("input[name='quantity']").value;
+        var amount = rate * quantity;
+        totalAmount += amount;
+      } else {
+        div.style.display = "none";
+      }
+    }
+    document.getElementById("total-amount").innerHTML = "Total Amount: " + totalAmount;
+    document.getElementById("total-amount2").value = totalAmount;
+  }
+
+  
+  
+</script> {% endcomment %}
+
+
+<script>
+   $(document).ready(function() {
+      // When the category dropdown changes, send an AJAX request to retrieve the corresponding subcategories
+      $("#select_category").change(function() {
+        var category_id = $(this).val();
+        if (category_id) {
+          $.ajax({
+            url: "{% url 'get_subcategories' %}",
+            type: "GET",
+            data: {
+              category_id: category_id
+            },
+            dataType: "json",
+            success: function(data) {
+              // Clear the current options in the subcategory dropdown
+              $("#select_subcategory").html("");
+              // Add the retrieved subcategories as options to the subcategory dropdown
+              $("#select_subcategory").append('<option value="" selected disabled> --Select--</option>');
+              $.each(data, function(key, value) {
+                $("#select_subcategory").append('<option class="text-black" value="' + value.id + '">' + value.name + '</option>');
+              });
+              // Enable the subcategory dropdown
+              $("#select_subcategory").prop("disabled", false);
+            }
+          });
+        } else {
+          // If no category is selected, disable the subcategory dropdown and clear its options
+          $("#select_subcategory").prop("disabled", true);
+          $("#select_subcategory").html('<option value="" selected disabled> --Select--</option>');
+        }
+      });
+      
+      
+      // When the subcategory dropdown changes, send an AJAX request to retrieve the corresponding products
+      $("#select_subcategory").change(function() {
+         var subcategory_id = $(this).val();
+       
+         if (subcategory_id) {
+           $.ajax({
+             url: "{% url 'get_products_price' %}",
+             type: "GET",
+             data: {
+               subcategory_id: subcategory_id
+             },
+             dataType: "json",
+             success: function(data) {
+               // Clear the current options in the product selection dropdown
+               $("#product-select").html("");
+               // Add the retrieved products as options to the product selection dropdown
+               $.each(data, function(key, value) {
+                 $("#product-select").append(
+                   '<option value="' + value.id + '" data-rate="' + value.price + '">' + value.name + ' - ' + value.price + '</option>'
+                 );
+               });
+             }
+           });
+         } else {
+           // If no subcategory is selected, disable the product selection dropdown and clear its options
+           $("#product-select").prop("disabled", true);
+           $("#product-select").html('<option value="" selected disabled> --Select--</option>');
+         }
+       });
+       
+    });
+    
+</script>
+
+
+{% endblock main-content %}

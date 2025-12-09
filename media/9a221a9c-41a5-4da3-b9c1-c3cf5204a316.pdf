@@ -1,0 +1,98 @@
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document http://www.reportlab.com
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/Contents 12 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 11 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+5 0 obj
+<<
+/Outlines 7 0 R /PageMode /UseNone /Pages 11 0 R /Type /Catalog
+>>
+endobj
+6 0 obj
+<<
+/Author () /CreationDate (D:20230531112440-05'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20230531112440-05'00') /Producer (xhtml2pdf <https://github.com/xhtml2pdf/xhtml2pdf/>) 
+  /Subject () /Title (Document) /Trapped /False
+>>
+endobj
+7 0 obj
+<<
+/Count 3 /First 8 0 R /Last 10 0 R /Type /Outlines
+>>
+endobj
+8 0 obj
+<<
+/Dest [ 4 0 R /Fit ] /Next 9 0 R /Parent 7 0 R /Title (Invoice)
+>>
+endobj
+9 0 obj
+<<
+/Dest [ 4 0 R /Fit ] /Next 10 0 R /Parent 7 0 R /Prev 8 0 R /Title (Billing Details)
+>>
+endobj
+10 0 obj
+<<
+/Dest [ 4 0 R /Fit ] /Parent 7 0 R /Prev 9 0 R /Title (Invoice Details)
+>>
+endobj
+11 0 obj
+<<
+/Count 1 /Kids [ 4 0 R ] /Type /Pages
+>>
+endobj
+12 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 259
+>>
+stream
+Gau1gc"[;7&-q_%5/mP(KcMs*aX4QU$A+Uu]Kk.R=]lKIeCQXkCeK-=#F$thKZRce7i3QX%sr?tjpA@/K*CKWCrml<YY<$HW:T#R=ot\*C]tn$`C`,)rG^"0`sbD?5ltpmDTqRUfFWrZ763](+cYc.3^&$7\\R5$Z*T_fPo@=$2.hZf%M.mcl`"a0';Re>']nKn=^)Ejq?qB+.7ViPR"(s&[p@T,G?AZg*o$,ZVYuWi%2m9CJ*)`_pam#q*Er5Za8~>endstream
+endobj
+xref
+0 13
+0000000000 65535 f 
+0000000073 00000 n 
+0000000114 00000 n 
+0000000221 00000 n 
+0000000333 00000 n 
+0000000538 00000 n 
+0000000623 00000 n 
+0000000883 00000 n 
+0000000955 00000 n 
+0000001040 00000 n 
+0000001146 00000 n 
+0000001240 00000 n 
+0000001300 00000 n 
+trailer
+<<
+/ID 
+[<efb36ef90906e0e7f7cb407ea788c5e4><efb36ef90906e0e7f7cb407ea788c5e4>]
+% ReportLab generated PDF document -- digest (http://www.reportlab.com)
+
+/Info 6 0 R
+/Root 5 0 R
+/Size 13
+>>
+startxref
+1650
+%%EOF

@@ -1,0 +1,286 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% load static %}
+{% block main-content %}
+<style>
+   .nowrap {
+   white-space: nowrap;
+   }
+</style>
+<div class="page-content">
+   <!--breadcrumb-->
+   <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+      <div class="breadcrumb-title pe-3">History</div>
+      <div class="ps-3">
+         <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+               <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+               </li>
+               <li class="breadcrumb-item active" aria-current="page">History List</li>
+            </ol>
+         </nav>
+      </div>
+   </div>
+   <!--end breadcrumb-->
+   <h6 class="mb-0 text-uppercase">Task History</h6>
+   <hr>
+   {% include 'homofix_app/Base/messages.html' %}
+   <div class="card">
+      <div class="card-body">
+         <div class="table-responsive">
+            <table id="example2" class=" table  mb-0">
+               <thead class="table-light">
+                  <tr>
+                     <th>Order#</th>
+                     <th>Category</th>
+                     <th>Subcategory</th>
+                     <th>Product</th>
+                     <th>Customer</th>
+                     <th>Status</th>
+                     <th>Subtotal</th>
+                     <th>Addons Amout</th>
+                     <th>Tax</th>
+                     <th>Total</th>
+                     <th>Date</th>
+                     <th class="nowrap">Customer Details</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {% for task in task %}
+                  <tr>
+                     <td>{{ task.booking.order_id }}</td>
+                     <td>
+                        {% if task.booking.booking_product.exists %}
+                        {{ task.booking.booking_product.first.product.subcategory.Category_id.category_name }}
+                        {% else %}
+                        N/A
+                        {% endif %} 
+                     </td>
+                     <td>
+                        {% if task.booking.booking_product.exists %}
+                        {{ task.booking.booking_product.first.product.subcategory.name }}
+                        {% else %}
+                        N/A
+                        {% endif %} 
+                     </td>
+                     <td>
+                        {% for booking_product in task.booking.booking_product.all %}
+                        <h6 class="mb-1 nowrap font-14">{{ booking_product.product.name }} ({{ booking_product.quantity }})</h6>
+                        {% endfor %}
+                     </td>
+                     <td>{{ task.booking.customer.admin.first_name }}</td>
+                     <td>
+                        <div class="badge rounded-pill bg-light p-2 text-uppercase px-3">
+                           <i class='bx bxs-circle me-1'></i>{{ task.booking.status }}
+                        </div>
+                     </td>
+                     {% comment %} <td>
+                        {% if task.booking.bookingproduct_set.exists %}
+                        Rs.{{ task.booking.bookingproduct_set.first.total_price }}
+                        {% else %}
+                        N/A
+                        {% endif %} 
+                     </td> {% endcomment %}
+                     <td>{{task.booking.subtotal}}</td>
+                     <td>{{task.booking.total_addons}}</td>
+                     <td>18%</td>
+                     <td>{{task.booking.total_amount}}</td>
+                     <td class="nowrap">{{ task.booking.booking_date }}</td>
+                     <td class="nowrap"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal{{task.id}}">View Details</button></td>
+                     <div class="modal fade" id="exampleDarkModal{{task.id}}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-sm modal-dialog-centered">
+                           <div class="modal-content bg-dark">
+                              <div class="modal-header">
+                                 <h5 class="modal-title text-white">Customer Details</h5>
+                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body text-white">
+                                 <div class="col">
+                                    <div class="card radius-15 bg-primary">
+                                       <div class="card-body text-center">
+                                          <div class="p-4 radius-15">
+                                             <img src="{% static 'assets/images/avatars/customer.png' %}" width="110" height="110" class="rounded-circle shadow p-1 bg-white" alt="">
+                                             {% comment %} 
+                                             <h6 class="mt-2">Customer Details</h6>
+                                             {% endcomment %}
+                                             <hr>
+                                             <p class="mb-0 text-white">Name: {{task.booking.customer.admin.first_name}}</p>
+                                             <p class="mb-0 text-white">City: {{task.booking.customer.city}}</p>
+                                             <p class="mb-0 text-white">State: {{task.booking.customer.state}}</p>
+                                             <p class="mb-0 text-white">Mobile: {{task.booking.customer.customer.mobile}}</p>
+                                             <p class="mb-0 text-white">ZipCode: {{task.booking.customer.zipcode}}</p>
+                                             <p class="mb-0 text-white">Address: {{task.booking.customer.address}}, {{task.booking.state}}</p>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </tr>
+                  {% endfor %}
+               </tbody>
+            </table>
+            </form>
+         </div>
+      </div>
+   </div>
+   <h6 class="mb-0 text-uppercase">Rebooking History</h6>
+   <hr>
+   <div class="card">
+      <div class="card-body">
+         <div class="table-responsive">
+            <table id="example" class=" table  mb-0">
+               <thead class="table-light">
+                  <tr>
+                     <th>Order#</th>
+                     <th>Category</th>
+                     <th>Subcategory</th>
+                     <th>Product</th>
+                     <th>Customer</th>
+                     <th>Status</th>
+                     <th class="nowrap">Product Price</th>
+                     <th>Date</th>
+                     <th class="nowrap">Customer Details</th>
+                     {% comment %} 
+                     <th>Action</th>
+                     {% endcomment %}
+                  </tr>
+               </thead>
+               <tbody>
+                  {% for i in rebooking %}
+                  <tr>
+                     <!-- Display task details -->
+                     <td>#{{ i.booking_product.booking.order_id }}</td>
+                     <td>
+                        {{i.booking_product.product.subcategory.Category_id.category_name}}
+                     </td>
+                     <td>
+                        {{i.booking_product.product.subcategory.name}}
+                     </td>
+                     <td>
+                        {{i.booking_product.product.name}}
+                     </td>
+                     <td>{{ i.booking_product.booking.customer.admin.first_name }}</td>
+                     <td>
+                        <div class="badge rounded-pill bg-light p-2 text-uppercase px-3">
+                           <i class='bx bxs-circle me-1'></i>{{ i.status }}
+                        </div>
+                     </td>
+                     <td>Rs
+                        {{i.booking_product.product.price}}
+                     </td>
+                     <td class="nowrap">{{ i.date }}</td>
+                     <td class="nowrap"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal{{i.booking_product.booking.customer.id}}">View Details</button></td>
+                     <div class="modal fade" id="exampleDarkModal{{i.booking_product.booking.customer.id}}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-sm modal-dialog-centered">
+                           <div class="modal-content bg-dark">
+                              <div class="modal-header">
+                                 <h5 class="modal-title text-white">Customer Details</h5>
+                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body text-white">
+                                 <div class="col">
+                                    <div class="card radius-15 bg-primary">
+                                       <div class="card-body text-center">
+                                          <div class="p-4 radius-15">
+                                             <img src="{% static 'assets/images/avatars/customer.png' %}" width="110" height="110" class="rounded-circle shadow p-1 bg-white" alt="">
+                                             {% comment %} 
+                                             <h6 class="mt-2">Customer Details</h6>
+                                             {% endcomment %}
+                                             <hr>
+                                             <p class="mb-0 text-white">Name: {{i.booking_product.booking.customer.admin.first_name}}</p>
+                                             <p class="mb-0 text-white">City: {{i.booking_product.booking.customer.city}}</p>
+                                             <p class="mb-0 text-white">State: {{i.booking_product.booking.customer.state}}</p>
+                                             <p class="mb-0 text-white">Mobile: {{i.booking_product.booking.customer.customer.mobile}}</p>
+                                             <p class="mb-0 text-white">ZipCode: {{i.booking_product.booking.customer.zipcode}}</p>
+                                             <p class="mb-0 text-white">Address: {{i.booking_product.booking.customer.address}}, {{i.booking.customer.state}}</p>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </tr>
+                  {% endfor %}
+               </tbody>
+            </table>
+            </form>
+         </div>
+      </div>
+   </div>
+
+   <h6 class="mb-0 text-uppercase">Location History</h6>
+   <hr>
+   <div class="card">
+      <div class="card-body">
+         <div class="table-responsive">
+            <table id="example" class=" table  mb-0">
+               <thead class="table-light">
+                  <tr>
+                     <th>SI No</th>
+                     <th>Order#</th>
+                     <th>Location</th>
+                     
+                     <th class="nowrap">Customer Details</th>
+                     <th>Date</th>
+                     
+                  </tr>
+               </thead>
+               <tbody>
+                  {% for i in tecnician_location %}
+                  <tr>
+                     <!-- Display task details -->
+                     <td>{{forloop.counter}}</td>
+                     <td>#{{ i.booking_id.order_id }}</td>
+                     
+                     
+                     
+                     <td>
+                        {{i.location}}
+                     </td>
+                     
+                     <td class="nowrap"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal{{i.booking_product.booking.customer.id}}">View Details</button></td>
+                     <td class="nowrap">{{ i.date }}</td>
+                     <div class="modal fade" id="exampleDarkModal{{i.booking_product.booking.customer.id}}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-sm modal-dialog-centered">
+                           <div class="modal-content bg-dark">
+                              <div class="modal-header">
+                                 <h5 class="modal-title text-white">Customer Details</h5>
+                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body text-white">
+                                 <div class="col">
+                                    <div class="card radius-15 bg-primary">
+                                       <div class="card-body text-center">
+                                          <div class="p-4 radius-15">
+                                             <img src="{% static 'assets/images/avatars/customer.png' %}" width="110" height="110" class="rounded-circle shadow p-1 bg-white" alt="">
+                                            
+                                             <hr>
+                                             <p class="mb-0 text-white">Name: {{i.booking_id.customer.admin.first_name}}</p>
+                                             <p class="mb-0 text-white">City: {{i.booking_id.customer.city}}</p>
+                                             <p class="mb-0 text-white">State: {{i.booking_id.customer.state}}</p>
+                                             <p class="mb-0 text-white">Mobile: {{i.booking_id.customer.mobile}}</p>
+                                             <p class="mb-0 text-white">ZipCode: {{i.booking_id.customer.zipcode}}</p>
+                                             <p class="mb-0 text-white">Address: {{i.booking_id.customer.address}}, {{i.booking.customer.state}}</p>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </tr>
+                  {% endfor %}
+               </tbody>
+            </table>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+</div>
+{% endblock main-content %}

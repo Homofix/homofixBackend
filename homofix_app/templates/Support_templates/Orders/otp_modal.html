@@ -1,0 +1,101 @@
+<div class="modal modal-md fade" id="tech_category_add_modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header mb-2">
+                {% comment %} <h5 class="modal-title">Category</h5> {% endcomment %}
+                <div class="card-title d-flex align-items-center">
+                    {% comment %} <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                    </div> {% endcomment %}
+                    <h5 class="mb-0 text-white">OTP Verification</h5>
+                    
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               
+            </div>
+            <center>
+                <P class="text-center" id="msg"></P>
+            </center>
+            
+
+            <form action="{% url 'support_verify_otp' %}" method="POST" id="otp-form">
+                {% csrf_token %}
+                <div class="row mb-1">
+                    <div class="col-xl-9 mx-auto">
+                        <div class="row mb-3 mx-2">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">
+                                Please enter the OTP that has been sent to your mobile number</label>
+                            <div class="col-sm-12 ">
+                                <input type="text" class="form-control"
+                                    placeholder="Enter Your OTP" id="otp"
+                                    name="otp" required>
+                            </div>
+                        </div>
+
+
+                        {% comment %} <div class="card border-top border-0 border-4 modal-color">
+                            <div class="card-body">
+                                <div class="border p-4 rounded">
+                                    <div class="card-title d-flex align-items-center">
+                                        <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                                        </div>
+                                        <h5 class="mb-0 text-white">Add Category</h5>
+                                    </div>
+                                    <hr>
+                                    <div class="row mb-3">
+                                        <label for="inputEnterYourName" class="col-sm-12 col-form-label">Enter Your
+                                            Category Name</label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control"
+                                                placeholder="Enter Your Category Name" id="category_name"
+                                                name="category_name" required>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div> {% endcomment %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save </button>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function() {
+        $('#otp-form').submit(function(event) {
+            event.preventDefault();
+            var form = $(this);
+            var formData = form.serialize();
+            $.ajax({
+                url: "{% url 'support_verify_otp' %}",
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if(response.status == "Save"){
+                        window.location.href = "{% url 'support_booking' %}";
+
+                    }
+                    if(response.status == "error"){
+                        $('#msg').text("Error  OTP is not valid")
+                        console.log("errorr")
+
+                    }
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseText);
+                }
+            });
+        });
+    });
+</script>

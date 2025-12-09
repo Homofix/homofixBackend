@@ -1,0 +1,108 @@
+ <div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="card-title d-flex align-items-center">
+                    <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                    </div>
+                    <h5 class="mb-0 text-white">Add Technician</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+           
+            
+            <form action="{% url 'technician' %}" method = "POST" id="technicianform">
+                {% csrf_token %}
+            <div class="row">
+                <div class="col-xl-9  mx-auto">
+                    
+                    <div class="row mb-3">
+                                    
+                        <label for="Category" class="col-sm-12 col-form-label">Category</label>
+                        <div class="d-flex">
+                        <div class=" col-sm-12 col-lg-9">
+                            <select  name="category_id" id="category_id" class="form-control bg-secondary">
+                                <option value="">---Select---</option>
+                                {% for i in category %}
+                                <option value="{{i.id}}">{{i.category_name}}</option>
+                                
+                                {% endfor %}
+                            </select>
+                            
+                            
+                        </div>
+                        
+                         <div class="ms-auto" data-bs-toggle="modal" data-bs-target="#tech_category_add_modal"><a href="javascript:;" class="btn btn-light  mt-2 mt-lg-0"><i class="bx bxs-plus-square" ></i>New</a></div>
+                         {% comment %} <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#innerModal">Open Inner Modal</button> {% endcomment %}
+                       
+                    </div>
+                        
+                    </div>
+                    <div class="row mb-3">
+                        <label for="inputEnterYourName" class="col-sm-12 col-form-label">Username</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control"  placeholder="Enter Your Username" id ="username" name="username" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="inputEnterYourName" class="col-sm-12 col-form-label">Email</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control"  placeholder="Email" id ="email" name="email" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="inputEnterYourName" class="col-sm-12 col-form-label">Password</label>
+                        <div class="col-sm-12">
+                            <input type="password" class="form-control"  placeholder="Password" id ="password" name="password" required>
+                        </div>
+                    </div>
+
+                   
+                   
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary ">Register</button>
+               
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+ 
+
+{% comment %} 
+ <div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Outer Modal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Content for outer modal</p>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#innerModal">Open Inner Modal</button>
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}
+
+
+{% include 'homofix_app/AdminDashboard/Technician/add_category_modal.html' %}
+
+<div class="modal fade" id="innerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Inner Modal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Content for inner modal</p>
+            </div>
+        </div>
+    </div>
+</div>
+

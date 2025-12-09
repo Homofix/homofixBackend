@@ -1,0 +1,196 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block title %}Homofix|SubCategory{% endblock title %}
+{% block main-content %}
+<style>
+    .modal-content {
+            {
+            % comment %
+        }
+
+        background-color:#6495ED;
+
+            {
+            % endcomment %
+        }
+
+        background-color: #1b4d3e;
+
+            {
+            % comment %
+        }
+
+        background-color: #005b96;
+
+            {
+            % endcomment %
+        }
+    }
+
+    .modal-color {
+        background-color: rgb(255 255 255 / 12%);
+    }
+</style>
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Sub-Category</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Sub-Category List</li>
+                </ol>
+            </nav>
+        </div>
+        
+    </div>
+    <!--end breadcrumb-->
+
+    <h6 class="mb-0 text-uppercase">List of SubCategory</h6>
+    <hr>
+    {% include 'homofix_app/Base/messages.html' %}
+
+    <div class="ms-auto mt-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">
+        <a href="javascript:;" class="btn btn-light  mt-2 mt-lg-0"><i class="bx bxs-plus-square"></i>Add New SubCategory</a>
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table id="example2" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#SI NO</th>
+                            <th>Category Name</th>
+                            <th>Sub-Category Name</th>
+
+                            <th>Date Created</th>
+                            <th>Updated Date</th>
+                            <th>Action</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in sub_category %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{i.Category_id.category_name}}</td>
+                            {% comment %} <td>{{i.name}}</td> {% endcomment %}
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if i.subcategory_image %}
+                                        <div class="recent-product-img">
+                                            <img src="/media/{{ i.subcategory_image }}" alt="">
+                                        </div>
+                                    {% else %}
+                                        <div class="recent-product-img">
+                                            <!-- Placeholder image or alternative content when the icon is empty -->
+                                            <img src="" alt="icon">
+                                        </div>
+                                    {% endif %}
+                                    <div class="ms-2">
+                                        <h6 class="mb-1 font-14">{{ i.name }}</h6>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{i.created_at}}</td>
+                            <td>{{i.last_updated}}</td>
+                            <td>
+                                <div class="d-flex order-actions">
+                                    <a href="javascript:;" class="" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal{{i.id}}"><i class='bx bxs-edit'></i></a>
+                                    <a data-bs-toggle="modal" data-bs-target="#exampleDangerModal{{i.id}}" href=""
+                                        class="ms-3"><i class='bx bxs-trash'></i></a>
+                                </div>
+                            </td>
+
+
+                        </tr>
+
+
+                        <div class="col">
+                           
+                            {% include 'homofix_app/AdminDashboard/Subcategory/delete_sub_category_modal.html' %}
+                            {% include 'homofix_app/AdminDashboard/Subcategory/edit_category_modal.html' %}
+                        </div>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col">
+    
+    {% include 'homofix_app/AdminDashboard/Subcategory/add_sub_category_modal.html' %}
+</div>
+
+
+{% comment %}
+<script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM="
+    crossorigin="anonymous"></script>
+
+<script>
+    $(document).on('submit', '#categoryform', function (e) {
+        e.preventDefault();
+        let category_name = $('#category_name').val()
+        console.log(category_name)
+
+
+
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'add_category' %}",
+
+            data: {
+                category_name: category_name,
+                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+            },
+            success: function (data) {
+                cat = data.cat_Data;
+                if (data.status == "Save") {
+                    // alert("Form Submitted Successfully")
+                    $('#categoryform').trigger("reset");
+                    for (i = 0; i < x.length; i++) {
+                        output += "<tr><td>" + cat[i].id + "</td><td>";
+                    }
+                    $("#tbody")
+
+                    // console.log(data.cat_Data);
+
+                    $('#msg').text(category_name + " Category Add Successfully")
+                }
+                if (data.status == "error") {
+                    // alert("Form Submitted Successfully")
+
+                    $('#msg').text("Category is already Taken")
+                }
+
+
+
+
+
+
+                //if(error.text()=="USER Created"){
+                //  window.location= {% url 'login' %}
+                //}
+
+            }
+        })
+    })
+
+</script> {% endcomment %}
+
+
+
+
+
+{% endblock main-content %}

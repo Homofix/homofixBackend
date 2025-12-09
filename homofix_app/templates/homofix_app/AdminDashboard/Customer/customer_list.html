@@ -1,0 +1,217 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block title %}Homofix|Customer List{% endblock title %}
+{% block main-content %}
+
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Customer</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Customer List</li>
+                </ol>
+            </nav>
+        </div>
+        
+    </div>
+    <!--end breadcrumb-->
+  
+    <h6 class="mb-0 text-uppercase">List of Customer</h6>
+    <hr>
+    <form method="get" class="d-flex mt-2 mt-lg-0" style="gap: 10px;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search by Order ID, Name or Mobile" class="form-control" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+	{% include 'homofix_app/Base/messages.html' %}
+	{% comment %} <div class="ms-auto mt-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal"><a href="javascript:;" class="btn btn-light  mt-2 mt-lg-0"><i class="bx bxs-plus-square" ></i>New Technician</a></div> {% endcomment %}
+	{% comment %} <div class="ms-auto mt-2 mb-2" ><a href="{% url 'add_technician' %}" class="btn btn-light  mt-2 mt-lg-0"><i class="bx bxs-plus-square" ></i>New Expert</a></div> {% endcomment %}
+    <div class="card">
+        
+        <div class="card-body">
+            
+            <div class="table-responsive">
+                
+                <table id="" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#SR No.</th>
+                            
+                            <th>Name</th>                                                       
+                            <th>Username</th>                                                       
+                            <th>Mobile</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Area</th>
+                            <th>Zip Code</th>
+                            <th>Address</th>
+                            
+                            
+                            {% comment %} <th>Status</th> {% endcomment %}
+                            <th>Action</th> 
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in customer %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{i.admin.first_name}}</td>                                                      
+                            <td>{{i.admin.username}}</td>                                                      
+                            <td>{{i.mobile}}</td>
+                            <td>{{i.city}}</td>
+                            <td>{{i.state}}</td>
+                            <td>{{i.area}}</td>
+                            <td>{{i.zipcode}}</td>
+                            <td>{{i.address}}</td>
+                            
+                            
+                            
+                           
+                            
+                            
+                             <td>
+                                <div class="d-flex order-actions">
+                                    
+                                    <a href="{% url 'admin_customer_edit' i.id %}" class="" ><i class='bx bxs-edit'></i></a>
+                                    {% comment %} <a data-bs-toggle="modal" data-bs-target="#exampleDangerModal{{i.id}}" href=""
+                                        class="ms-3"><i class='bx bxs-trash'></i></a> {% endcomment %}
+                                </div>
+                            </td> 
+                           
+                            
+                        </tr>
+                        <div class="col">
+                            {% include 'homofix_app/AdminDashboard/Technician/edit_technician_modal.html' %}
+                            {% include 'homofix_app/AdminDashboard/Technician/delete_technician_modal.html' %}
+                        </div>
+                        {% endfor %}
+                       
+                    </tbody>
+
+                    
+                    
+                </table>
+                
+            </div>
+
+{% comment %}              
+            <div class="pagination">
+                <ul class="pagination justify-content-center">
+                    {% if customer.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ customer.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+            
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ customer.number }} of {{ customer.paginator.num_pages }}</span>
+                    </li>
+            
+                    {% if customer.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ customer.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ customer.paginator.num_pages }}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div> {% endcomment %}
+            <div class="pagination">
+    <ul class="pagination justify-content-center">
+        {% if customer.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}">First</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ customer.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Previous</a>
+            </li>
+        {% endif %}
+
+        <li class="page-item disabled">
+            <span class="page-link">Page {{ customer.number }} of {{ customer.paginator.num_pages }}</span>
+        </li>
+
+        {% if customer.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ customer.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ customer.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}">Last</a>
+            </li>
+        {% endif %}
+    </ul>
+</div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col">
+    <!-- Button trigger modal -->
+    {% comment %} <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Vertically Centered</button> {% endcomment %}
+    <!-- Modal -->
+   {% include 'homofix_app/AdminDashboard/Technician/add_technician_modal.html' %}
+</div>
+
+
+{% comment %} <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+
+
+<script>
+	$(document).on('submit', '#technicianform',function(e){
+		e.preventDefault();
+		var category_id = $('#category_id').val()
+		var username = $('#username').val()
+		var email = $('#email').val()
+		var password = $('#password').val()
+		
+		
+
+		$.ajax({
+			type: 'POST',
+			url:"{% url 'technician' %}",
+			data:{
+				category_id:category_id,
+				username:username,
+				email:email,
+				password:password,
+				csrfmiddlewaretoken:$("input[name=csrfmiddlewaretoken]").val()
+			},
+			success:function(data){
+				if(data.status == "Save"){
+					// alert("Form Submitted Successfully")
+					$('#technicianform').trigger("reset");
+					$('#msg').text("Technician Add Successfully")
+				 }
+				if(data.status == "error"){
+					// alert("Form Submitted Successfully")
+					
+					$('#msg').text("Username is already Taken")
+				 }
+				 if(data.status == "0"){
+					$('#msg').text("Unable to save")
+					
+				}
+				
+
+				
+				
+				
+				
+
+			}
+		})
+	})
+
+</script> {% endcomment %}
+  
+{% endblock main-content %}

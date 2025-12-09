@@ -1,0 +1,157 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block main-content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<div class="page-content">
+   <!--breadcrumb-->
+   <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+      <div class="breadcrumb-title pe-3">Add</div>
+      <div class="ps-3">
+         <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+               <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+               </li>
+               <li class="breadcrumb-item active" aria-current="page">Page Legal</li>
+            </ol>
+         </nav>
+      </div>
+   </div>
+   <!--end breadcrumb-->
+   <div class="card">
+      <div class="card-body p-4">
+         <h5 class="card-title">Add New Page Legal</h5>
+         <hr>
+         <div class="form-body mt-4">
+            <form action="" method="POST" enctype="multipart/form-data">
+               {% csrf_token %}
+              
+               <div class="row">
+                  <div class="col-lg-12">
+                     <div class="border border-3 p-4 rounded">
+                     
+                       
+                           
+                
+                           <div class="mb-3">
+                              <label for="inputDateTime" class="form-label">Name</label>
+                              <input class="form-control" type="text" name="title" required>
+                           </div>
+                          
+                           <div class="mb-3">
+                              <label for="inputemail" class="form-label">Content</label>
+                              {% comment %} <input class="form-control"id="inputemail" type="email" name="email" required> {% endcomment %}
+                              <textarea name="content" required></textarea>
+                           </div>
+
+                           <div>
+                              <label for="inputemail" class="form-label">Sub-category</label>
+                              <select name="subcategory_id" id="" class="form-control bg-dark">
+                                 <option value="">select</option>
+                                 {% for i in subcategory %}
+                                 <option value="{{i.id}}">{{i.name}}</option>
+                                 {% endfor %}
+                              </select>
+
+                           </div>
+
+                           
+                           <div class="row mb-3">
+                              <label for="inputEnterYourName" class="col-sm-12 col-form-label">Permissions</label>
+                              <div class="col-sm-4">
+                                <div class="form-check form-inline">
+                                  
+                                  <input class="form-check-input" type="checkbox" name="home" >
+                                  <label class="form-check-label" for="new_booking">
+                                     Home
+                                  </label>
+                                </div>
+                               
+                              </div>
+                              <div class="col-sm-4">
+                                <div class="form-check form-inline">
+                                  
+                                  <input class="form-check-input" type="checkbox" name="can_contact" id="can_assign_task" >
+                                  <label class="form-check-label" for="can_assign_task">
+                                    Contact Us
+                                  </label>
+                                </div>
+                               
+                                <!-- Add more checkboxes for other permissions if needed -->
+                              </div>
+
+                          </div>
+                    
+                            <input class="btn btn-primary" type="submit" value="submit">
+                        </form>    
+                     </div>
+                  </div>
+               </div>
+               <!--end row-->
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+
+{% comment %} <script>
+   // select all textarea elements on the page
+   var textareas = document.getElementsByTagName('textarea');
+   
+   // loop through all textarea elements and replace them with CKEditor instances
+   for (var i = 0; i < textareas.length; i++) {
+       CKEDITOR.replace(textareas[i]);
+   }
+</script> {% endcomment %}
+
+<script>
+   // select all textarea elements on the page
+   var textareas = document.getElementsByTagName('textarea');
+   
+   // loop through all textarea elements and replace them with CKEditor instances
+   for (var i = 0; i < textareas.length; i++) {
+       CKEDITOR.replace(textareas[i], {
+           filebrowserUploadUrl: '{% url "ckeditor_upload" %}' // Replace with your server-side upload URL
+       });
+   }
+</script>
+<script>
+   $(document).ready(function() {
+       // When the category dropdown changes, send an AJAX request to retrieve the corresponding subcategories
+       $("#select1").change(function() {
+           var category_id = $(this).val();
+           if (category_id) {
+               $.ajax({
+                   url: "{% url 'get_subcategories' %}",
+                   type: "GET",
+                   data: {
+                       category_id: category_id
+                   },
+                   dataType: "json",
+                   success: function(data) {
+                       // Clear the current options in the subcategory dropdown
+                       $("#product-select").html("");
+                       // Add the retrieved subcategories as options to the subcategory dropdown
+                       $("#product-select").append(
+                           '<option  value="" selected disabled> --Select--</option>'
+                       );
+                       $.each(data, function(key, value) {
+                           $("#product-select").append(
+                               '<option class="text-black" value="' + value.id + '">' + value.name + '</option>'
+                           );
+                       });
+                       // Enable the subcategory dropdown
+                       $("#product-select").prop("disabled", false);
+                   }
+               });
+           } else {
+               // If no category is selected, disable the subcategory dropdown and clear its options
+               $("#product-select").prop("disabled", true);
+               $("#product-select").html('<option value="" selected disabled> --Select--</option>');
+           }
+       });
+   });
+</script>
+
+
+{% endblock main-content %}

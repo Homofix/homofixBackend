@@ -1,0 +1,100 @@
+<div class="modal fade" id="exampleVerticallycenteredModal{{i.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+       <div class="modal-content">
+          <div class="modal-header">
+             <h5 class="modal-title">Edit Career</h5>
+             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <P class="text-center mt-2" id="msg"></P>
+          <form action="{% url 'carrer_update_Save' %}" method = "POST" enctype="multipart/form-data" id="productform">
+             {% csrf_token %}
+             <div class="row">
+                <div class="col-xl-9 mx-auto">
+                   <input type="text" value="{{i.id}}" name="carrer_id" hidden>
+                   <div class="row mb-3">
+                      <label for="inputEnterYourName" class="col-sm-12 col-form-label">Title</label>
+                      <div class="col-sm-12">
+                         <input type="text" class="form-control"  placeholder="Enter Your Career Title" id ="career_title" value="{{i.title}}" name="career_title">
+                      </div>
+                   </div>
+                   <div class="row mb-3">
+                      <div class="mb-3">
+                         <label for="inputProductDescription" class="form-label">Description</label>
+                         <textarea class="form-control" id="inputProductDescription" rows="3" name="carrer_desc" required>{{i.description}}</textarea>
+                      </div>
+                   </div>
+                   <div class="row mb-3">
+                      <label for="inputEnterYourName" class="col-sm-12 col-form-label">Status</label>
+                      <div class="col-sm-12">
+                         {% comment %} <input type="text" class="form-control"  placeholder="Enter Your Career Title" id ="career_status" value="{{i.status}}" name="career_title" required> {% endcomment %}
+                         {% comment %} <select class="form-select" id="inputProductType" name="career_status">
+                            <option value={{i.status}} selected>{% if i.status == True %}Open{% else %}Close{% endif %}</option>
+                            {% if i.status == True %}
+                            <option value="True">Close</option>
+                            {% else %}
+                            <option value="False">Open</option>
+                            {% endif %}
+                         </select> {% endcomment %}
+                         <select class="form-select" id="inputProductType" name="career_status">
+                            <option value="{{ i.status }}" selected>{% if i.status %}Open{% else %}Close{% endif %}</option>
+                            {% if i.status %}
+                            <option value="False">Close</option>
+                            {% else %}
+                            <option value="True">Open</option>
+                            {% endif %}
+                         </select>
+                         
+                         {% comment %} <input type="text" class="form-control" placeholder="Enter Your Career Title" id="career_status" value="{% if i.status == True %}Open{% else %}Close{% endif %}" name="career_status"> {% endcomment %}
+                      </div>
+                   </div>
+                   {% comment %} 
+                   <h6 class="mb-0 text-uppercase">Category Form</h6>
+                   {% endcomment %}
+                </div>
+             </div>
+             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Update</button>
+                {% comment %} <button type="submit" class="btn btn-primary">Save </button> {% endcomment %}
+             </div>
+          </form>
+       </div>
+    </div>
+ </div>
+ <script>
+    $(document).ready(function() {
+        // When the category dropdown changes, send an AJAX request to retrieve the corresponding subcategories
+        $("#select1").change(function() {
+            var category_id = $(this).val();
+            if (category_id) {
+                $.ajax({
+                    url: "{% url 'get_subcategories' %}",
+                    type: "GET",
+                    data: {
+                        category_id: category_id
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        // Clear the current options in the subcategory dropdown
+                        $("#select2").html("");
+                        // Add the retrieved subcategories as options to the subcategory dropdown
+                        $("#select2").append(
+                            '<option  value="" selected disabled> --Select--</option>'
+                        );
+                        $.each(data, function(key, value) {
+                            $("#select2").append(
+                                '<option class="text-black" value="' + value.id + '">' + value.name + '</option>'
+                            );
+                        });
+                        // Enable the subcategory dropdown
+                        $("#select2").prop("disabled", false);
+                    }
+                });
+            } else {
+                // If no category is selected, disable the subcategory dropdown and clear its options
+                $("#select2").prop("disabled", true);
+                $("#select2").html('<option value="" selected disabled> --Select--</option>');
+            }
+        });
+    });
+ </script>

@@ -1,0 +1,29 @@
+{% load custom_filters %}
+<div class="modal fade" id="reassign-{{i.booking.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <form action="{% url "support_reassign" %}" method="POST">
+            {% csrf_token %}
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white">Rdddeassign</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-white">
+                    <input type="text" value="{{i.id}}" name="task_id" hidden>
+                    <p>List of Technician</p>
+                    <select name="reassign_technician" class="form-control bg-dark">
+                        {% for technician in task_technician_map|get_item:i.id %}
+                            <option value="{{ technician.id }}">{{ technician.admin.username }}</option>
+                        {% empty %}
+                            <option disabled>No technician available for this booking</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

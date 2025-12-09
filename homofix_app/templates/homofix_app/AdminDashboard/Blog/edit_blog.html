@@ -1,0 +1,113 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block main-content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<div class="page-content">
+   <!--breadcrumb-->
+   <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+      <div class="breadcrumb-title pe-3">Blog</div>
+      <div class="ps-3">
+         <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+               <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+               </li>
+               <li class="breadcrumb-item active" aria-current="page">Edit  Blog</li>
+            </ol>
+         </nav>
+      </div>
+   </div>
+   <!--end breadcrumb-->
+   <div class="card">
+      <div class="card-body p-4">
+         <h5 class="card-title">Edit Blog</h5>
+         <hr>
+         <div class="form-body mt-4">
+            <form action="{% url 'blog_update' %}" method="POST" enctype="multipart/form-data">
+               {% csrf_token %}
+              
+               <div class="row">
+                  <div class="col-lg-12">
+                     <div class="border border-3 p-4 rounded">
+                     
+                       
+                           
+                
+                           <div class="mb-3">
+                              <label for="inputDateTime" class="form-label">Title</label>
+                              <input class="form-control" type="text" value="{{blog.title}}" name="title" required>
+                              <input class="form-control" type="text" value="{{blog.id}}" name="blog_id" hidden required>
+                           </div>
+                           <div class="mb-3">
+                              <label for="inputDateTime" class="form-label">Feature Image</label>
+                              <input class="form-control" type="file" name="feature_img" placeholder="optional">
+                              <a href="{{ blog.feature_img.url }}">{{ blog.feature_img.url }}</a>
+
+                           </div>
+                           <div class="mb-3">
+                              <label for="inputemail" class="form-label">Content</label>
+                              {% comment %} <input class="form-control"id="inputemail" type="email" name="email" required> {% endcomment %}
+                              <textarea name="content">{{blog.content}}</textarea>
+                           </div>
+                    
+                            <input class="btn btn-primary" type="submit" value="Update">
+                        </form>    
+                     </div>
+                  </div>
+               </div>
+               <!--end row-->
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+
+<script>
+   // select all textarea elements on the page
+   var textareas = document.getElementsByTagName('textarea');
+   
+   // loop through all textarea elements and replace them with CKEditor instances
+   for (var i = 0; i < textareas.length; i++) {
+       CKEDITOR.replace(textareas[i]);
+   }
+</script>
+<script>
+   $(document).ready(function() {
+       // When the category dropdown changes, send an AJAX request to retrieve the corresponding subcategories
+       $("#select1").change(function() {
+           var category_id = $(this).val();
+           if (category_id) {
+               $.ajax({
+                   url: "{% url 'get_subcategories' %}",
+                   type: "GET",
+                   data: {
+                       category_id: category_id
+                   },
+                   dataType: "json",
+                   success: function(data) {
+                       // Clear the current options in the subcategory dropdown
+                       $("#product-select").html("");
+                       // Add the retrieved subcategories as options to the subcategory dropdown
+                       $("#product-select").append(
+                           '<option  value="" selected disabled> --Select--</option>'
+                       );
+                       $.each(data, function(key, value) {
+                           $("#product-select").append(
+                               '<option class="text-black" value="' + value.id + '">' + value.name + '</option>'
+                           );
+                       });
+                       // Enable the subcategory dropdown
+                       $("#product-select").prop("disabled", false);
+                   }
+               });
+           } else {
+               // If no category is selected, disable the subcategory dropdown and clear its options
+               $("#product-select").prop("disabled", true);
+               $("#product-select").html('<option value="" selected disabled> --Select--</option>');
+           }
+       });
+   });
+</script>
+
+
+{% endblock main-content %}

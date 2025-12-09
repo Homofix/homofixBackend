@@ -1,0 +1,148 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block title %}Homofix|Slot{% endblock title %}
+{% block main-content %}
+<style>
+    .modal-content {
+            {
+            % comment %
+        }
+
+        background-color:#6495ED;
+
+            {
+            % endcomment %
+        }
+
+        background-color: #1b4d3e;
+
+            {
+            % comment %
+        }
+
+        background-color: #005b96;
+
+            {
+            % endcomment %
+        }
+    }
+
+    .modal-color {
+        background-color: rgb(255 255 255 / 12%);
+    }
+</style>
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Slot</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Slot List</li>
+                </ol>
+            </nav>
+        </div>
+        
+    </div>
+    <!--end breadcrumb-->
+
+    <h6 class="mb-0 text-uppercase">List of Slot</h6>
+    <hr>
+    {% include 'homofix_app/Base/messages.html' %}
+
+    {% comment %} <div class="ms-auto mt-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">
+        <a href="javascript:;" class="btn btn-light  mt-2 mt-lg-0"><i class="bx bxs-plus-square"></i>Universal Slot</a>
+    </div> {% endcomment %}
+    <div class="ms-auto mt-2 mb-2">
+        <a href="{% url "add_slot" %}" 
+        class="btn btn-light mt-2 mt-lg-0" 
+       >
+        <i class="bx bxs-plus-square"></i> Slot
+        </a>
+        {% comment %} <a href="javascript:;" 
+        class="btn btn-light mt-2 mt-lg-0 {% if disable_add_button %}disabled{% endif %}" 
+        {% if not disable_add_button %}data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal"{% endif %}>
+        <i class="bx bxs-plus-square"></i> Slot
+        </a> {% endcomment %}
+    </div>
+
+
+
+    <div class="card">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table id="example2" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SI NO</th>
+                            <th>Date</th>
+                            <th>Slot</th>
+                            <th>Pincode</th>
+                            <th>Subcategory</th>
+                            <th>Limit</th>
+                            <th>Action</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in slot %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{i.date}}</td>
+                            <td>{{i.slot}}</td>
+                            <td>
+                                 {% for p in i.pincode.all %}
+                                    {{ p.code }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    No Pincode
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for sub in i.subcategories.all %}
+                                    {{ sub.name }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    No Subcategory
+                                {% endfor %}
+                            </td>
+                            <td>{{i.limit}}</td>
+                            
+                            
+                            <td>
+                                <div class="d-flex order-actions">
+                                    <a href="{% url "edit_slot" i.id %}" class="" ><i class='bx bxs-edit'></i></a>
+                                    <a data-bs-toggle="modal" data-bs-target="#exampleDangerModal{{i.id}}" href=""
+                                        class="ms-3"><i class='bx bxs-trash'></i></a>
+                                </div>
+                            </td>
+
+
+                        </tr>
+
+
+                        <div class="col">
+                           
+                            {% include 'homofix_app/AdminDashboard/Slot/delete_slot_modal.html' %}
+                            
+                        </div>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col">
+    
+    {% include 'homofix_app/AdminDashboard/Slot/add_slot_modal.html' %}
+</div>
+
+
+{% endblock main-content %}

@@ -1,0 +1,163 @@
+{% extends 'Support_templates/Base/base.html' %}
+{% load static %}
+{% block main-content %}
+
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Support Profile</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Support Profile</li>
+                </ol>
+            </nav>
+        </div>
+      
+    </div>
+    <center>{% include 'homofix_app/Base/messages.html' %}</center>
+    <!--end breadcrumb-->
+    <div class="container">
+        <div class="main-body">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex flex-column align-items-center text-center">
+                                {% if user.support.profile_pic.url != ""  %}
+                                <img src="{{user.support.profile_pic.url}}" alt="Admin" class="rounded-circle p-1 bg-primary" width="110">
+                                {% else %}
+                                <img src="{% static 'assets/images/nww.jpg' %}" alt="Admin" class="rounded-circle p-1 bg-primary" width="110">
+                                {% endif %}
+                                
+                                {% comment %} <img src="{% static 'assets/images/nww.jpg' %}" alt="Admin" class="rounded-circle p-1 bg-primary" width="110"> {% endcomment %}
+                                <div class="mt-3">
+                                    <h4>{{support.admin.username}}</h4>
+                                    {% comment %} <p class="mb-1">{{technician.category.category_name}}</p>
+                                    <p class="font-size-sm">{{technician.present_address}}</p> {% endcomment %}
+                                    
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                                    
+                                 <h6 class="mb-0"> <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 50 50" width="24px" height="24px" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M 14 4 C 8.4886661 4 4 8.4886661 4 14 L 4 36 C 4 41.511334 8.4886661 46 14 46 L 36 46 C 41.511334 46 46 41.511334 46 36 L 46 14 C 46 8.4886661 41.511334 4 36 4 L 14 4 z M 14 6 L 36 6 C 40.430666 6 44 9.5693339 44 14 L 44 36 C 44 40.430666 40.430666 44 36 44 L 14 44 C 9.5693339 44 6 40.430666 6 36 L 6 14 C 6 9.5693339 9.5693339 6 14 6 z M 13 15 C 11.35503 15 10 16.35503 10 18 L 10 32 C 10 33.64497 11.35503 35 13 35 L 37 35 C 38.64497 35 40 33.64497 40 32 L 40 18 C 40 16.35503 38.64497 15 37 15 L 13 15 z M 13.414062 17 L 36.583984 17 L 27.677734 25.892578 C 26.18494 27.382984 23.796834 27.382819 22.304688 25.890625 L 13.414062 17 z M 38 18.412109 L 38 31.587891 L 31.402344 25 L 38 18.412109 z M 12 18.414062 L 18.585938 25 L 12 31.585938 L 12 18.414062 z M 29.988281 26.412109 L 36.585938 33 L 13.414062 33 L 20 26.414062 L 20.890625 27.304688 C 23.146478 29.56054 26.832638 29.562194 29.089844 27.308594 L 29.988281 26.412109 z"/></svg> Email</h6>
+                                 {% comment %} <h6 class="mb-0"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-globe me-2 icon-inline"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>Website</h6> {% endcomment %}
+                                    <span class="text-white">{{user.email}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                                    <h6 class="mb-0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="24px" height="24px" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m 14,2 c -1.108,0 -2,0.892 -2,2 v 40 c 0,1.108 0.892,2 2,2 h 20 c 1.108,0 2,-0.892 2,-2 V 4 C 36,2.892 35.108,2 34,2 Z m 0,1 h 3.5 a 0.5,0.5 0 0 1 0.04883,0.00195 0.5,0.5 0 0 1 0.05078,0.00781 0.5,0.5 0 0 1 0.04687,0.011719 0.5,0.5 0 0 1 0.04687,0.017578 0.5,0.5 0 0 1 0.04687,0.021484 0.5,0.5 0 0 1 0.04102,0.027344 0.5,0.5 0 0 1 0.04102,0.029297 0.5,0.5 0 0 1 0.03516,0.035156 0.5,0.5 0 0 1 0.0332,0.037109 0.5,0.5 0 0 1 0.0293,0.041016 0.5,0.5 0 0 1 0.02539,0.042969 0.5,0.5 0 0 1 0.01953,0.044922 0.5,0.5 0 0 1 0.01563,0.048828 0.5,0.5 0 0 1 0.01172,0.048828 0.5,0.5 0 0 1 0.0059,0.048828 A 0.5,0.5 0 0 1 18,3.5 V 4 c 0,0.554 0.446,1 1,1 h 10 c 0.554,0 1,-0.4460002 1,-1 V 3.5371094 a 0.5,0.5 0 0 0 0,-0.00195 V 3.5 a 0.5,0.5 0 0 1 0.002,-0.048828 0.5,0.5 0 0 1 0.0078,-0.050781 0.5,0.5 0 0 1 0.01172,-0.048828 0.5,0.5 0 0 1 0.01758,-0.046875 0.5,0.5 0 0 1 0.02148,-0.044922 0.5,0.5 0 0 1 0.02734,-0.041016 0.5,0.5 0 0 1 0.0293,-0.041016 0.5,0.5 0 0 1 0.0332,-0.037109 0.5,0.5 0 0 1 0.03906,-0.03125 0.5,0.5 0 0 1 0.03906,-0.029297 0.5,0.5 0 0 1 0.04492,-0.025391 0.5,0.5 0 0 1 0.04492,-0.021484 0.5,0.5 0 0 1 0.04687,-0.015625 0.5,0.5 0 0 1 0.04883,-0.00977 0.5,0.5 0 0 1 0.05078,-0.00586 A 0.5,0.5 0 0 1 30.5,3 H 34 c 0.554,0 1,0.4459999 1,1 v 40 c 0,0.554 -0.446,1 -1,1 H 14 c -0.554,0 -1,-0.446 -1,-1 V 4 c 0,-0.5540001 0.446,-1 1,-1 z" paint-order="markers stroke fill"/><path d="m 19.5,43 h 9 c 0.277,0 0.5,0.223 0.5,0.5 0,0.277 -0.223,0.5 -0.5,0.5 h -9 C 19.223,44 19,43.777 19,43.5 19,43.223 19.223,43 19.5,43 Z" paint-order="markers stroke fill"/></svg>Mobile</h6>
+                                    {% comment %} <h6 class="mb-0"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-github me-2 icon-inline"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>Github</h6> {% endcomment %}
+                                    <span class="text-white">{{user.support.mobile}}</span>
+                                </li>
+                                
+                               
+                              
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-8">
+                    <form action="{% url 'support_profile_update'  %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Upload Picture</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="file" class="form-control" value="{{user.support.profile_pic}}" name="profile_pic" accept="image/*" id="id_profile_pic">
+                                    {% if user.support.profile_pic.url != ""  %}
+                                    <a href="{{user.support.profile_pic.url}}">{{user.support.profile_pic}}</a>
+                                    {% endif %}
+                                    {% comment %} <a href="{{technician.profile_pic.url}}">/media/{{technician.profile_pic}}</a> {% endcomment %}
+                                </div>
+                            </div>
+                            <input type="text" value="{{user.support.id}}" name="support_id" hidden >
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Username</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{user.username}}" name="username">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Email</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{user.email}}" name="email">
+                                </div>
+                            </div>
+
+                           
+                           
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Mobile</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{user.support.mobile}}" name="mob_no">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Present Address</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{user.support.address}}" name="address">
+                                </div>
+                            </div>
+
+                            
+                            
+
+                           
+
+
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Status</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <select class="form-select btn-light dropdown-toggle" name="status">
+                                        <option class="bg-dark" value="{{user.support.status}}" hidden>{{user.support.status}}</option>
+                                        <option class="bg-dark" value="Active">Active</option>
+                                        <option class="bg-dark" value="Deactivate">Deactivate</option>
+                                        <option class="bg-dark" value="Hold">Hold</option>
+                                        
+                                        <!-- Add more options if needed -->
+                                      </select>
+                                    {% comment %} <input type="text" class="form-control" value="{{technician.status}}" name="status"> {% endcomment %}
+                                    
+                                </div>
+                            </div>
+
+                          
+
+
+
+                            <div class="row">
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-9">
+                                    <input type="submit" class="btn btn-light px-4" value="Save Changes">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                   
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main-content %}

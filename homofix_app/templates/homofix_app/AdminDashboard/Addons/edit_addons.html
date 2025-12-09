@@ -1,0 +1,169 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block main-content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<div class="page-content">
+   <!--breadcrumb-->
+   <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+      <div class="breadcrumb-title pe-3">Edit Addon Product</div>
+      <div class="ps-3">
+         <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+               <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+               </li>
+               <li class="breadcrumb-item active" aria-current="page">Edit Addon Product</li>
+            </ol>
+         </nav>
+      </div>
+   </div>
+   <!--end breadcrumb-->
+   <div class="card">
+      <div class="card-body p-4">
+         <h5 class="card-title">Edit Addon Product</h5>
+         <hr>
+         <div class="form-body mt-4">
+            <form action="{% url 'update_addons' %}" method="POST">
+               {% csrf_token %}
+               <div class="row">
+                  <div class="col-lg-12">
+                     <div class="border border-3 p-4 rounded">
+                         <div class="mb-3">
+                            <input type="text" value="{{spare_parts.id}}" name="spare_parts_id" hidden> 
+                           <label for="inputProductTitle" class="form-label">Category</label>
+                           <select class="form-select" name="category_name" id="edit_faq_select_category"  required>
+                            <option value="" disabled selected>---SELECT---</option>
+                            {% for cat in category %}
+                            <option value="{{cat.id}}" {% if cat.id == spare_parts.product.subcategory.Category_id.id %}selected{% endif %}>{{cat.category_name}}</option>
+                            {% endfor %}
+                         </select>
+                        </div> 
+
+                         <div class="mb-3">
+                           <label for="inputProductTitle" class="form-label">Subcategory</label>
+                           <select class="single-select" name="sub_category_id" id="edit_faq_select_subcategory"  >
+                              {% comment %} <option class="text-black" value="" selected disabled> --Select--</option> {% endcomment %}
+                              {% for sub in subcategory %}
+                                 {% if spare_parts.product.subcategory.Category_id.id == sub.Category_id.id %}
+                                 <option class="bg-dark" value="{{ sub.id }}" {% if sub.id == spare_parts.product.subcategory.id %}selected{% endif %}>
+                                    {{ sub.name }}
+                                </option>
+                                {% endif %}
+                                {% endfor %}
+                          </select>
+                        </div> 
+                         <div class="mb-3">
+                           <label for="inputProductTitle" class="form-label">Product</label>
+                           <select class="form-select" name="product_id" id="edit_faq_product-select" required>
+                            {% for prod in product %}
+                             {% if spare_parts.product.subcategory.Category_id_id == prod.subcategory.Category_id.id %}
+                             <option class="bg-dark" value="{{ prod.id }}" {% if prod.id == spare_parts.product.subcategory.Category_id_id %}selected{% endif %}>
+                                {{ prod.name }}
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                          
+                            {% comment %} <option  value="" selected disabled> --Select--</option> {% endcomment %}
+                         </select>
+                        </div> 
+                        
+                       
+                        
+
+                        
+
+                        
+                       
+                        <div class="mb-3">
+                           <label for="inputDateTime" class="form-label">Spare Part</label>
+                           <input class="form-control" type="text" value="{{spare_parts.spare_part}}" name="spare_part" >
+                        </div>
+                        <div class="mb-3">
+                           <label for="inputDateTime" class="form-label">Price</label>
+                           <input class="form-control" type="text" value="{{spare_parts.price}}" name="price" >
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputProductDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="inputProductDescription" rows="3" name="desc">{{spare_parts.description}}</textarea>
+                        </div>
+                        
+                        
+                        <input class="btn btn-primary" type="submit" value="Update">
+                     </div>
+                  </div>
+               </div>
+               <!--end row-->
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function() {
+       // When the category dropdown changes, send an AJAX request to retrieve the corresponding subcategories
+       $("#edit_faq_select_category").change(function() {
+         var category_id = $(this).val();
+         if (category_id) {
+           $.ajax({
+             url: "{% url 'get_subcategories' %}",
+             type: "GET",
+             data: {
+               category_id: category_id
+             },
+             dataType: "json",
+             success: function(data) {
+               // Clear the current options in the subcategory dropdown
+               $("#edit_faq_select_subcategory").html("");
+               // Add the retrieved subcategories as options to the subcategory dropdown
+               $("#edit_faq_select_subcategory").append('<option value="" selected disabled> --Select--</option>');
+               $.each(data, function(key, value) {
+                 $("#edit_faq_select_subcategory").append('<option class="" value="' + value.id + '">' + value.name + '</option>');
+               });
+               // Enable the subcategory dropdown
+               $("#edit_faq_select_subcategory").prop("disabled", false);
+             }
+           });
+         } else {
+           // If no category is selected, disable the subcategory dropdown and clear its options
+           $("#edit_faq_select_subcategory").prop("disabled", true);
+           $("#edit_faq_select_subcategory").html('<option value="" selected disabled> --Select--</option>');
+         }
+       });
+       
+       // When the subcategory dropdown changes, send an AJAX request to retrieve the corresponding products
+       $("#edit_faq_select_subcategory").change(function() {
+          var subcategory_id = $(this).val();
+        
+          if (subcategory_id) {
+            $.ajax({
+              url: "{% url 'get_products' %}",
+              type: "GET",
+              data: {
+                subcategory_id: subcategory_id
+              },
+              dataType: "json",
+              success: function(data) {
+                // Clear the current options in the product selection dropdown
+                $("#edit_faq_product-select").html("");
+                // Add the retrieved products as options to the product selection dropdown
+                $.each(data, function(key, value) {
+                  $("#edit_faq_product-select").append(
+                    '<option value="' + value.id + '" data-rate="' + value.price + '">' + value.name +  '</option>'
+                  );
+                });
+              }
+            });
+          } else {
+            // If no subcategory is selected, disable the product selection dropdown and clear its options
+            $("#edit_faq_product-select").prop("disabled", true);
+            $("#edit_faq_product-select").html('<option value="" selected disabled> --Select--</option>');
+          }
+        });
+        
+     });
+     
+ </script>
+
+{% endblock main-content %}

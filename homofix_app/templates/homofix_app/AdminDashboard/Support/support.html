@@ -1,0 +1,220 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block title %}Homofix|Support{% endblock title %}
+{% block main-content %}
+<style>
+  .nowrap {
+      white-space: nowrap;
+    }
+</style>
+
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Support</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Support List</li>
+                </ol>
+            </nav>
+        </div>
+        
+    </div>
+    <!--end breadcrumb-->
+  
+    <h6 class="mb-0 text-uppercase">List of Support</h6>
+    <hr>
+	{% include 'homofix_app/Base/messages.html' %}
+	<div class="ms-auto mt-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal"><a href="javascript:;" class="btn btn-light  mt-2 mt-lg-0"><i class="bx bxs-plus-square" ></i>New Support</a></div>
+    <div class="card">
+        
+        <div class="card-body">
+            
+            <div class="table-responsive">
+                
+                <table id="example2" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SI NO</th>
+                            <th>ID</th>
+                             
+                            <th>First Name</th>                       
+                            <th>Last Name</th>
+                            <th>Username</th>                         
+                            <th>Email</th>                        
+                            <th>Status</th>
+                            {% comment %} <th>Last Login</th> {% endcomment %}
+                            <th>New Booking</th>
+                            <th>Cancel Booking</th>
+                            <th>Rebooking</th>
+                            <th>Assign</th>
+                            <th>New Expert</th>
+                            <th>Customer Enquiry</th>
+                            <th>Job Enquiry</th>
+                            {% comment %} <th>Last Login</th> {% endcomment %}
+                            <th>Action</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in suppt %}
+                        <tr>
+                            <td>#{{forloop.counter}}</td>
+                            <td>{{i.support_id}}</td>
+                            <td>{{i.admin.first_name}}</td>
+                            <td>{{i.admin.last_name}}</td>
+                            <td>{{i.admin.username}}</td>
+                           
+                            
+                            <td>{{i.admin.email}}</td>
+                            
+                           
+                            <td><span class="badge bg-success">{{i.status}}</span></td>
+                            {% comment %} <td class="nowrap">{{i.admin.last_login}}</td> {% endcomment %}
+                            
+                            <td>
+                                {% if i.can_new_booking %}
+                                <span class="badge rounded-pill bg-info text-dark">Yes</span>
+                              {% else %}
+                                <span class="badge rounded-pill bg-danger">No</span>
+                              {% endif %}
+                            </td>
+                            <td>
+                                {% if i.can_cancel_booking %}
+                                <span class="badge rounded-pill bg-info text-dark">Yes</span>
+                              {% else %}
+                                <span class="badge rounded-pill bg-danger">No</span>
+                              {% endif %}
+                            </td>
+                            <td>
+                                {% if i.can_rebooking %}
+                                <span class="badge rounded-pill bg-info text-dark">Yes</span>
+                              {% else %}
+                                <span class="badge rounded-pill bg-danger">No</span>
+                              {% endif %}
+                            </td>
+
+                            <td>
+                                {% if i.can_assign_task %}
+                                <span class="badge rounded-pill bg-info text-dark">Yes</span>
+                              {% else %}
+                                <span class="badge rounded-pill bg-danger">No</span>
+                              {% endif %}
+                            </td>
+                            <td>
+                                {% if i.can_expert_create %}
+                                <span class="badge rounded-pill bg-info text-dark">Yes</span>
+                              {% else %}
+                                <span class="badge rounded-pill bg-danger">No</span>
+                              {% endif %}
+                            </td>
+                            <td>
+                                {% if i.can_contact_us_enquiry %}
+                                <span class="badge rounded-pill bg-info text-dark">Yes</span>
+                              {% else %}
+                                <span class="badge rounded-pill bg-danger">No</span>
+                              {% endif %}
+                            </td>
+                            <td>
+                                {% if i.can_job_enquiry %}
+                                <span class="badge rounded-pill bg-info text-dark">Yes</span>
+                              {% else %}
+                                <span class="badge rounded-pill bg-danger">No</span>
+                              {% endif %}
+                            </td>
+                            {% comment %} <td>{{i.admin.last_login}}</td> {% endcomment %}
+                            
+                            
+                            <td>
+                                <div class="d-flex order-actions">
+                                    
+                                    <a href="{% url 'admin_support_profile' i.id %}" class="" ><i class='bx bxs-edit'></i></a>
+                                    <a data-bs-toggle="modal" data-bs-target="#exampleDangerModal{{i.id}}" href=""
+                                        class="ms-3"><i class='bx bxs-trash'></i></a>
+                                        <a href="{% url 'attendence' i.id %}" class="ms-3" ><i class='bx bxs-user-circle'></i></a>
+                                </div>
+                            </td>
+                           
+                            
+                        </tr>
+                        <div class="col">
+                            
+                            {% include 'homofix_app/AdminDashboard/Support/delete_support_modal.html' %}
+                        </div>
+                        {% endfor %}
+                       
+                    </tbody>
+
+                    
+                    
+                </table>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col">
+    <!-- Button trigger modal -->
+    {% comment %} <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Vertically Centered</button> {% endcomment %}
+    <!-- Modal -->
+   {% include 'homofix_app/AdminDashboard/Support/add_support_modal.html' %}
+</div>
+
+
+{% comment %} <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+
+
+<script>
+	$(document).on('submit', '#technicianform',function(e){
+		e.preventDefault();
+		var category_id = $('#category_id').val()
+		var username = $('#username').val()
+		var email = $('#email').val()
+		var password = $('#password').val()
+		
+		
+
+		$.ajax({
+			type: 'POST',
+			url:"{% url 'technician' %}",
+			data:{
+				category_id:category_id,
+				username:username,
+				email:email,
+				password:password,
+				csrfmiddlewaretoken:$("input[name=csrfmiddlewaretoken]").val()
+			},
+			success:function(data){
+				if(data.status == "Save"){
+					// alert("Form Submitted Successfully")
+					$('#technicianform').trigger("reset");
+					$('#msg').text("Technician Add Successfully")
+				 }
+				if(data.status == "error"){
+					// alert("Form Submitted Successfully")
+					
+					$('#msg').text("Username is already Taken")
+				 }
+				 if(data.status == "0"){
+					$('#msg').text("Unable to save")
+					
+				}
+				
+
+				
+				
+				
+				
+
+			}
+		})
+	})
+
+</script> {% endcomment %}
+  
+{% endblock main-content %}

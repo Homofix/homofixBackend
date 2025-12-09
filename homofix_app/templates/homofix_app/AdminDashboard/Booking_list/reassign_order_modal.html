@@ -1,0 +1,66 @@
+
+{% load custom_filters %}
+<div class="modal fade" id="reassign-{{i.booking.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <form action="{% url "reassign" %}" method="POST">
+            {% csrf_token %}
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white">Reassign</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-white">
+                    <input type="text" value="{{i.id}}" name="task_id" hidden>
+                    <p>List of Technician</p>
+                    
+                    
+
+                    {% comment %} <select name="reassign_technician" id="" class="form-control bg-dark">
+                        {% for technician in tech %}
+                        {% with pincode_match=technician.working_pincode_areas.filter code=i.booking.zipcode %}
+                        {% if pincode_match %}{% if i.booking.booking_product.first.product.subcategory in technician.subcategories.all %}
+                                <option value="{{technician.id}}"> {{technician.admin.username}}</option>
+                            {% endif %}{% endif %}
+                        {% endwith %}
+                        {% endfor %}
+                    </select> {% endcomment %}
+
+                  
+                    {% comment %} <select name="reassign_technician" id="" class="form-control bg-dark">
+                        <!-- केवल पिनकोड मैचिंग के आधार पर टेक्निशियन फिल्टर करें -->
+                        {% for technician in tech %}
+                            {% for area in technician.working_pincode_areas.all %}
+                                {% if area.code == i.booking.zipcode %}
+                                    <option value="{{technician.id}}">{{technician.admin.username}}</option>
+                                    <!-- एक बार पिनकोड मैच होने पर लूप से बाहर निकलें -->
+                                    {% endif %}
+                                {% endfor %}
+                        {% endfor %}
+                    </select>
+                     {% endcomment %}
+                    
+<!-- Inside for loop over tasks: for i in task -->
+<select name="reassign_technician" class="form-control bg-dark">
+    {% for technician in task_technician_map|get_item:i.id %}
+        <option value="{{ technician.id }}">{{ technician.admin.username }}</option>
+    {% empty %}
+        <option disabled>No technician available for this booking</option>
+    {% endfor %}
+</select>
+
+                    
+                    
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light"
+                        data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    {% comment %} <a class="btn btn-primary" href="{% url 'delete_of_task' i.id %}">Submit</a> {% endcomment %}
+                    
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,196 @@
+{% extends 'Support_templates/Base/base.html' %}
+{% load static %}
+{% block main-content %}
+<style>
+    .nowrap {
+        white-space: nowrap;
+      }
+</style>
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Re-Booking</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">List</li>
+                </ol>
+            </nav>
+        </div>
+
+    </div>
+    <!--end breadcrumb-->
+
+    <h6 class="mb-0 text-uppercase">List of Rebooking</h6>
+    <hr>
+
+    <form method="get" class="d-flex mt-2 mt-lg-0" style="gap: 10px;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search by Order ID, Name or Mobile" class="form-control" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    {% include 'homofix_app/Base/messages.html' %}
+    
+    <div class="card">
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="" class=" table  mb-0">
+                    <thead class="table-light">
+                        
+                        <tr >
+                            <th>SI No</th>
+                            <th>Booking ID</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Product</th>
+                            <th>Customer</th>
+                            <th>Mobile</th>
+                            <th>City</th>
+                            <th>State</th> 
+                            <th>Area</th> 
+                            <th>Zipcode</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            
+                            <th>Date</th>
+                            <th class="nowrap">Order By</th>
+                            <th class="nowrap">Expert By</th>
+                            <th>Slot</th>
+                            {% comment %} <th>Actions</th> {% endcomment %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in rebooking %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>
+                                {{i.booking_product.booking.order_id}}
+                            </td>
+                            {% comment %} <td>{{task.booking.product.category.category_name}}</td> {% endcomment %}
+                            <td>
+                                {{i.booking_product.product.subcategory.Category_id.category_name}}
+                            </td>
+                            <td>
+                                {{i.booking_product.product.subcategory.name}}
+                            </td>
+                            <td>
+                                {{i.booking_product.product.name }}
+                            </td>
+                            <td>{{i.booking_product.booking.customer.admin.first_name}}</td>
+                            <td>{{i.booking_product.booking.customer.mobile}}</td>
+                            <td>{{i.booking_product.booking.customer.city}}</td>
+                            <td>{{i.booking_product.booking.customer.state}}</td>
+                            <td>{{i.booking_product.booking.customer.area}}</td>
+                            <td>{{i.booking_product.booking.customer.zipcode}}</td>
+                            <td>{{i.booking_product.booking.final_amount}}</td>
+                            <td>
+                                <div class="badge rounded-pill bg-light p-2 text-uppercase px-3"><i
+                                        class='bx bxs-circle me-1'></i>{{i.status}}</div>
+                            </td>
+                            
+                            
+                            <td class="nowrap">{{i.date}}</td>
+                            
+                            </td>
+                            <td class="nowrap">
+                                {% if i.booking_product.booking.supported_by %}
+                                {{i.booking_product.booking.supported_by.admin.username}}
+                            {% elif i.booking_product.booking.admin_by%}
+                            {{i.booking_product.booking.admin_by.admin.username}}
+                            {% else %}
+                                Website
+                            {% endif %}
+
+
+
+
+                            </td>
+                            {% comment %} <td class="nowrap">{{i.booking_product.booking.supported_by.admin.username}}</td> {% endcomment %}
+                            <td>{{i.technician.admin.username}}</td>
+                            <td style="white-space: nowrap;">
+                                {% if i.booking_product.booking.slot == 1 %}08:00 AM - 09:00 AM
+                                {% elif i.booking_product.booking.slot == 2 %}09:00 AM - 10:00 AM
+                                {% elif i.booking_product.booking.slot == 3 %}10:00 AM - 11:00 AM
+                                {% elif i.booking_product.booking.slot == 4 %}11:00 AM - 12:00 PM
+                                {% elif i.booking_product.booking.slot == 5 %}12:00 PM - 01:00 PM
+                                {% elif i.booking_product.booking.slot == 6 %}01:00 PM - 02:00 PM
+                                {% elif i.booking_product.booking.slot == 7 %}02:00 PM - 03:00 PM
+                                {% elif i.booking_product.booking.slot == 8 %}03:00 PM - 04:00 PM
+                                {% elif i.booking_product.booking.slot == 9 %}04:00 PM - 05:00 PM
+                                {% elif i.booking_product.booking.slot == 10 %}05:00 PM - 06:00 PM
+                                {% elif i.booking_product.booking.slot == 11 %}06:00 PM - 07:00 PM
+                                {% elif i.booking_product.booking.slot == 12 %}07:00 PM - 08:00 PM
+                                {% else %}No Slot
+                                {% endif %}
+                            </td>
+                           
+                            {% comment %} <td>
+                                <div class="d-flex">
+                                    <a class="mx-2" href="{% url 'support_rebooking_update' task.id %}"><button class="btn btn-sm btn-info" >Rebooking</button></a>
+                                    <a class="mx-2" href="{% url 'support_rebooking_product' task.id %}"><button class="btn btn-sm btn-info" >testing</button></a>
+                                    <a href="{% url 'support_rebooking' task.id %}"><button class="btn btn-sm btn-info" >testing2</button></a>
+                                   
+                                </div>
+                            </td> {% endcomment %}
+                            {% comment %} <td class="nowrap"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal4">View Details</button></td> {% endcomment %}
+                            {% comment %} <td class="nowrap"><a href=""><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal4">View Details</button></a></td> {% endcomment %}
+                        </tr>
+
+                        <div class="col">
+                           
+                           
+                        </div>
+                        {% endfor %}
+
+
+
+                    </tbody>
+                    
+                </table>
+            </div>
+
+            <div class="pagination">
+    <ul class="pagination justify-content-center">
+        {% if rebooking.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}">First</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ rebooking.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Previous</a>
+            </li>
+        {% endif %}
+
+        <li class="page-item disabled">
+            <span class="page-link">Page {{ rebooking.number }} of {{ rebooking.paginator.num_pages }}</span>
+        </li>
+
+        {% if rebooking.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ rebooking.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ rebooking.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}">Last</a>
+            </li>
+        {% endif %}
+    </ul>
+</div>
+
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col">
+
+    <!-- Modal -->
+    {% include 'Support_templates/Orders/mobile_no_modal.html' %}
+</div>
+
+
+
+{% endblock main-content %}

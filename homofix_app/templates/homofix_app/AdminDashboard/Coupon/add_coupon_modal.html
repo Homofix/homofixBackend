@@ -1,0 +1,129 @@
+
+<div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add coupon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <P class="text-center mt-2" id="msg"></P>
+            
+            <form action="{% url 'coupon_save' %}" method = "POST" enctype="multipart/form-data" id="productform">
+                {% csrf_token %}
+            <div class="row">
+                <div class="col-xl-9 mx-auto">
+
+                   
+                   
+
+                   
+{% comment %}                    
+                    <div class="row mb-3">
+                        <label for="inputEnterYourName" class="col-sm-12 col-form-label">Discount Amt</label>
+                        <div class="col-sm-12">
+                            <input type="number" class="form-control"  placeholder="Discount Amount" id ="discount_amt" name="discount_amt" required> 
+                        </div>
+                    </div> {% endcomment %}
+
+                    
+                    <div class="form-group row">
+                        <label for="discount_amt" class="col-sm-12 col-form-label"> Code</label>
+                        <div class="col-sm-12">
+                          <div class="input-group">
+                            <input type="text" class="form-control" id="code" name="code" placeholder="Enter Your Code" required>
+                            
+                          </div>
+                        </div>
+                      </div>
+
+
+                    <div class="form-group row mb-3">
+                        <label for="discount_amt" class="col-sm-12 col-form-label">Discount Amount</label>
+                        <div class="col-sm-12">
+                          <div class="input-group">
+                            <input type="number" class="form-control" id="discount_amt" name="discount_amt" placeholder="Discount Amount" required>
+                            {% comment %} <div class="input-group-append">
+                              <span class="input-group-text">%</span>
+                            </div> {% endcomment %}
+                          </div>
+                        </div>
+                      </div>
+
+                    <div class="form-group row mb-3">
+                        <label for="discount_amt" class="col-sm-12 col-form-label">Validity Period</label>
+                        <div class="col-sm-12">
+                          <div class="input-group">
+                            <input type="datetime-local" class="form-control" id="validity_period" name="validity_period" placeholder="Validity Period" required>
+                            {% comment %} <div class="input-group-append">
+                              <span class="input-group-text">%</span>
+                            </div> {% endcomment %}
+                          </div>
+                        </div>
+                      </div>
+                      
+                   
+                   
+                    {% comment %} <h6 class="mb-0 text-uppercase">Category Form</h6> {% endcomment %}
+                    
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+                
+                {% comment %} <button type="submit" class="btn btn-primary">Save </button> {% endcomment %}
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // select all textarea elements on the page
+    var textareas = document.getElementsByTagName('textarea');
+    
+    // loop through all textarea elements and replace them with CKEditor instances
+    for (var i = 0; i < textareas.length; i++) {
+        CKEDITOR.replace(textareas[i]);
+    }
+</script>
+
+<script>
+    $(document).ready(function() {
+        // When the category dropdown changes, send an AJAX request to retrieve the corresponding subcategories
+        $("#select1").change(function() {
+            var category_id = $(this).val();
+            if (category_id) {
+                $.ajax({
+                    url: "{% url 'get_subcategories' %}",
+                    type: "GET",
+                    data: {
+                        category_id: category_id
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        // Clear the current options in the subcategory dropdown
+                        $("#select2").html("");
+                        // Add the retrieved subcategories as options to the subcategory dropdown
+                        $("#select2").append(
+                            '<option  value="" selected disabled> --Select--</option>'
+                        );
+                        $.each(data, function(key, value) {
+                            $("#select2").append(
+                                '<option class="text-black" value="' + value.id + '">' + value.name + '</option>'
+                            );
+                        });
+                        // Enable the subcategory dropdown
+                        $("#select2").prop("disabled", false);
+                    }
+                });
+            } else {
+                // If no category is selected, disable the subcategory dropdown and clear its options
+                $("#select2").prop("disabled", true);
+                $("#select2").html('<option value="" selected disabled> --Select--</option>');
+            }
+        });
+    });
+</script>

@@ -1,0 +1,68 @@
+
+<div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Career</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <P class="text-center mt-2" id="msg"></P>
+            
+            <form action="" method = "POST" enctype="multipart/form-data" id="productform">
+                {% csrf_token %}
+            <div class="row">
+                <div class="col-xl-9 mx-auto">
+
+                   
+                    
+                   
+                   
+                   
+
+                    <div class="row mb-3">
+                        <label for="inputEnterYourName" class="col-sm-12 col-form-label">Title</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control"  placeholder="Enter Your Career Title" id ="career_title" name="career_title" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        
+                        <div class="mb-3">
+                            <label for="inputProductDescription" class="form-label">Description</label>
+                            <textarea name="carrer_desc"></textarea>
+                            {% comment %} <textarea class="form-control" id="inputProductDescription" rows="3" name="carrer_desc" required></textarea> {% endcomment %}
+                          </div>
+                    </div>
+                    
+                    
+                   
+
+                   
+                   
+                    {% comment %} <h6 class="mb-0 text-uppercase">Category Form</h6> {% endcomment %}
+                    
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+                
+                {% comment %} <button type="submit" class="btn btn-primary">Save </button> {% endcomment %}
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // select all textarea elements on the page
+    var textareas = document.getElementsByTagName('textarea');
+    
+    // loop through all textarea elements and replace them with CKEditor instances
+    for (var i = 0; i < textareas.length; i++) {
+        CKEDITOR.replace(textareas[i]);
+    }
+</script>
+

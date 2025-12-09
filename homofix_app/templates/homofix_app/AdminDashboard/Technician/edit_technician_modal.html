@@ -1,0 +1,90 @@
+<div class="modal  fade" id="exampleVerticallycenteredModal{{i.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header mb-2">
+                <div class="card-title d-flex align-items-center">
+                    <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                    </div>
+                    <h5 class="mb-0 text-white">Update Technician</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+
+            <form action="{% url 'edit_technician' %}" method="POST" id="categoryform">
+                {% csrf_token %}
+                <div class="row mb-2 mx-1">
+                    <div class="col-xl-9 mx-auto">
+                        <input type="text" value="{{i.id}}" name="technician_id" hidden>
+
+                        <div class="row mb-3">
+                                    
+                            <label for="Category" class="col-sm-12 col-form-label">Category</label>
+                            <div class="col-sm-12">
+                                <select  name="category_id" id="category_id" class="form-control bg-secondary">
+                                    <option value="{{i.category.id}}">{{i.category.category_name}}</option>
+                                    {% for i in category %}
+                                    <option value="{{i.id}}">{{i.category_name}}</option>
+                                    
+                                    {% endfor %}
+                                </select>
+                                
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Username</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control"  placeholder="Enter Your Username" id ="username" value="{{i.admin.username}}" name="username" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Email</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control"  placeholder="Email" id ="email" name="email" value="{{i.admin.email}}" required>
+                            </div>
+                        </div>
+                        {% comment %} <div class="row mb-3">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Password</label>
+                            <div class="col-sm-12">
+                                <input type="password" class="form-control"  placeholder="Password" id ="password" name="password" required>
+                            </div>
+                        </div> {% endcomment %}
+    
+
+
+                        {% comment %} <div class="card border-top border-0 border-4 modal-color">
+                            <div class="card-body">
+                                <div class="border p-4 rounded">
+                                    <div class="card-title d-flex align-items-center">
+                                        <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                                        </div>
+                                        <h5 class="mb-0 text-white">Update Category</h5>
+                                    </div>
+                                    <hr>
+                                    <div class="row mb-3">
+                                        <label for="inputEnterYourName" class="col-sm-12 col-form-label">Enter Your
+                                            Category Name</label>
+                                        <div class="col-sm-12">
+                                            <input type="text" value="{{i.id}}" name="category_id" hidden>
+                                            <input type="text" class="form-control"
+                                                placeholder="Enter Your Category Name" id="category_name"
+                                                name="category_name" value={{i.category_name}} required>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div> {% endcomment %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update </button>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+</div>

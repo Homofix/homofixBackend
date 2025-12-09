@@ -1,0 +1,173 @@
+<div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="card-title d-flex align-items-center">
+                    <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                    </div>
+                    <h5 class="mb-0 text-white">Add Support</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+
+            <form action="{% url 'add_support' %}" method="POST" id="technicianform">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-xl-9  mx-auto">
+
+                        
+                        <div class="row">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">First Name</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" placeholder="Enter Your First Name" id="first_name"
+                                    name="first_name" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Last Name</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" placeholder="optional" id="last_name"
+                                    name="last_name" >
+                            </div>
+                        </div>
+                        <div class="row ">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Email</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" placeholder="Email" id="email" name="email"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Password</label>
+                            <div class="col-sm-12">
+                                <input type="password" class="form-control" placeholder="Password" id="password"
+                                    name="password" required>
+                            </div>
+                        </div>
+{% comment %} 
+                        <div class="row mb-3">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Permissions</label>
+                            <div class="col-sm-12">
+                                
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="can_cancel_booking" id="can_cancel_booking">
+                                    <label class="form-check-label" for="can_cancel_booking">
+                                        Create booking
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="can_cancel_booking" id="can_cancel_booking">
+                                    <label class="form-check-label" for="can_cancel_booking">
+                                        cancel booking
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="can_assign_task" id="can_assign_task">
+                                    <label class="form-check-label" for="can_assign_task">
+                                        assign task
+                                    </label>
+                                </div>
+                                <!-- Add more checkboxes for other permissions if needed -->
+                            </div>
+                            
+                        </div> {% endcomment %}
+
+
+
+                        <div class="row mb-3">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Permissions</label>
+                            <div class="col-sm-6">
+                              <div class="form-check form-inline">
+                                <input class="form-check-input" type="checkbox" name="new_booking" id="new_booking">
+                                <label class="form-check-label" for="new_booking">
+                                  New booking
+                                </label>
+                              </div>
+                              <div class="form-check form-inline">
+                                <input class="form-check-input" type="checkbox" name="can_cancel_booking" id="can_cancel_booking">
+                                <label class="form-check-label" for="can_cancel_booking">
+                                  Cancel booking
+                                </label>
+                              </div>
+                              <div class="form-check form-inline">
+                                <input class="form-check-input" type="checkbox" name="can_rebooking" id="can_rebooking">
+                                <label class="form-check-label" for="can_rebooking">
+                                  Rebooking 
+                                </label>
+                              </div>
+                            </div>
+                            <div class="col-sm-6">
+                              <div class="form-check form-inline">
+                                <input class="form-check-input" type="checkbox" name="can_assign_task" id="can_assign_task">
+                                <label class="form-check-label" for="can_assign_task">
+                                  Assign task
+                                </label>
+                              </div>
+                              <div class="form-check form-inline">
+                                <input class="form-check-input" type="checkbox" name="can_new_expert" id="can_new_expert">
+                                <label class="form-check-label" for="can_new_expert">
+                                  New Expert
+                                </label>
+                              </div>
+                              <div class="form-check form-inline">
+                                <input class="form-check-input" type="checkbox" name="can_customer_enquiry" id="can_customer_enquiry">
+                                <label class="form-check-label" for="can_customer_enquiry">
+                                  Customer Enquiry
+                                </label>
+                              </div>
+                              <!-- Add more checkboxes for other permissions if needed -->
+                            </div>
+                        </div>
+                          
+                      
+
+                    </div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary ">Register</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+{% comment %}
+<div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Outer Modal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Content for outer modal</p>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#innerModal">Open
+                    Inner Modal</button>
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}
+
+
+{% include 'homofix_app/AdminDashboard/Technician/add_category_modal.html' %}
+
+<div class="modal fade" id="innerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Inner Modal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Content for inner modal</p>
+            </div>
+        </div>
+    </div>
+</div>

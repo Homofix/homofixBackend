@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+  <title>OTP Verification</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <style>
+    body {
+        background-color: #BBDEFB;
+      }
+    {% comment %} body {
+    background-image: url('https://images.unsplash.com/photo-1523829057601-5d662fcfa7b0');
+      background-image: url('{% static 'assets/images/backgroundotp.jpg' %}');
+      background-size: cover;
+      background-position: center;
+    } {% endcomment %}
+    .card {
+      background-color: rgba(255,255,255,0.9);
+    }
+    .card-header {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    .card-header h4 {
+      margin-bottom: 0;
+    }
+    .form-control {
+      height: calc(1.5em + .75rem + 2px);
+      font-size: 1.2rem;
+      border-color: #dc3545;
+      box-shadow: none;
+      text-align: center;
+      padding-left: 60px;
+      padding-right: 20px;
+    }
+    .input-group-prepend span {
+      background-color: #dc3545;
+      color: #fff;
+      border-color: #dc3545;
+    }
+    .btn-primary {
+      background-color: #dc3545;
+      border-color: #dc3545;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover, .btn-primary:focus {
+      background-color: #fff;
+      color: #dc3545;
+      border-color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="text-center">OTP Verification</h4>
+        </div>
+        <div class="card-body">
+          <p class="card-text text-center">Please enter the OTP that has been sent to your mobile number.</p>
+          <form method="post" action="{% url 'support_verify_otp' %}">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text">+91</span>
+              </div>
+              <input type="text" class="form-control" placeholder="Enter OTP" name="otp" maxlength="6" required>
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary">Verify</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>

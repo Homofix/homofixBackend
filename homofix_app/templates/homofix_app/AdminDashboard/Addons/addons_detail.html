@@ -1,0 +1,141 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block title %}Addons{% endblock title %}
+{% block main-content %}
+
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Addons Details</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Addons Details</li>
+                </ol>
+            </nav>
+        </div>
+        
+    </div>
+    <!--end breadcrumb-->
+  
+    <h6 class="mb-0 text-uppercase">List of Addons Details</h6>
+    <hr>
+
+   
+    {% comment %} <div class="ms-auto mt-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal"><a href="javascript:;" class="btn btn-light radius-30 mt-2 mt-lg-0"><i class="bx bxs-plus-square" ></i>New Addons</a></div> {% endcomment %}
+    <div class="card">
+        
+        <div class="card-body">
+            
+            <div class="table-responsive">
+                <table id="example2" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#SI NO</th>
+                            <th>#Order</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            {% comment %} <th>Product Title</th> {% endcomment %}
+                            <th>Product Name</th>
+                            <th>Spare Part</th>
+                            <th>Price</th>
+                            <th>Description</th>
+                            {% comment %} <th>Action</th> {% endcomment %}
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in addon %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{i.booking_prod_id.booking.order_id}}</td>
+                            {% comment %} <td>{{i.booking_prod_id.addon_product.product.subcategory.Category_id.category_name}}</td> {% endcomment %}
+                            <td>{{i.booking_prod_id.product.subcategory.Category_id.category_name}}</td>
+                            <td>{{i.booking_prod_id.product.subcategory.name}}</td>
+
+                            {% comment %} <td>{{i.product.product_title}}</td> {% endcomment %}
+                            <td>{{i.booking_prod_id.product.name}}</td>
+                            <td>{{i.spare_parts_id.spare_part}}</td>
+                            <td>{{i.spare_parts_id.price}}</td>
+                            <td>{{i.description}}</td>
+                            {% comment %} <td>{{i.updated_at}}</td> {% endcomment %}
+                            {% comment %} <td>
+                                <div class="d-flex order-actions">
+                                    <a href="javascript:;" class="" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal{{i.id}}"><i class='bx bxs-edit'></i></a>
+                                    <a href="javascript:;" class="ms-3" data-bs-toggle="modal" data-bs-target="#exampleDangerModal{{i.id}}" ><i class='bx bxs-trash'></i></a>
+                                </div>
+                            </td>
+                            {% endcomment %}
+                            
+                        </tr>
+
+                        
+                        {% endfor %}
+                       
+                    </tbody>
+                    
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col">
+    <!-- Button trigger modal -->
+    {% comment %} <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Vertically Centered</button> {% endcomment %}
+    <!-- Modal -->
+    {% include 'homofix_app/AdminDashboard/Addons/add_addons_modal.html' %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+
+{% comment %} <script>
+ $(document).on('submit', '#productform',function(e){
+     e.preventDefault();
+     let product_pic = $('#product_pic').val()
+     console.log(product_pic)
+     let product_name = $('#product_name').val()
+     let price = $('#price').val()
+     let description = $('#description').val()
+     
+     
+     $.ajax({
+        type: 'POST',
+        url:"{% url 'product' %}",
+        data:{
+            product_pic:product_pic,
+            product_name:product_name,
+            price:price,
+            description:description,
+            csrfmiddlewaretoken:$("input[name=csrfmiddlewaretoken]").val()
+        },
+        success:function(data){
+            if(data.status == "Save"){
+                // alert("Form Submitted Successfully")
+                $('#productform').trigger("reset");
+                $('#msg').text("Category Add Successfully")
+             }
+            if(data.status == "error"){
+                // alert("Form Submitted Successfully")
+                
+                $('#msg').text("Category is already Taken")
+             }
+             
+            
+
+            
+
+        }
+    })
+
+     
+ })
+
+ 
+
+</script> {% endcomment %}
+
+{% endblock main-content %}

@@ -1,0 +1,30 @@
+<form action="{% url 'support_Task_assign' %}" method="POST">
+    {% csrf_token %}
+<div class="modal fade" id="exampleSmallModal{{booking.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="" class="mb-2">Select Your Expert</label>
+                <input type="text" value="{{booking.id}}" name="booking_id" hidden>
+                <select class = "form-select" name="technician_id" id="">
+                    <option selected disabled ,"true"> --- Select --- </option>
+                    {% for i in technicians %}
+                    {% if booking.state == i.state %}
+                    <option value="{{i.id}}">{{i.admin.username}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</form>

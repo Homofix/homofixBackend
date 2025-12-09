@@ -1,0 +1,120 @@
+{% load custom_filters %}
+<div class="modal  fade" id="exampleVerticallycenteredModal{{i.booking.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reschedule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <P class="text-center mt-2" id="msg"></P>
+            
+            <form action="{% url 'task_reschedule' %}" method = "POST" enctype="multipart/form-data" id="productform">
+                {% csrf_token %}
+            <div class="row">
+                <div class="col-xl-9 mx-auto">
+
+                    <div class="row mb-3">
+                        <label for="inputDate{{i.booking.id}}" class="form-label">Select Date</label>
+                        <div class="col-sm-12">
+                            <input class="form-control" type="date" value="{{i.booking.booking_date|date:'Y-m-d'}}" id="inputDate{{i.booking.id}}" name="booking_date" onchange="fetchSlots{{i.booking.id}}(this.value, {{i.booking.zipcode}})">
+                            <input class="form-control" type="text" value="{{i.booking.id}}" name="booking_id" hidden>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="slotSelect{{i.booking.id}}" class="form-label">Select Slot</label>
+                        <div class="col-sm-12">
+                            <select class="form-control" id="slotSelect{{i.booking.id}}" name="slot" required>
+                                <option value="">Select a slot</option>
+                                {% if i.booking.slot %}
+                                    <option value="{{i.booking.slot}}" selected>{{i.booking.slot|get_slot_display}}</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <script>
+                        function fetchSlots{{i.booking.id}}(date, pincode) {
+                            if (!date) return;
+                            
+                            // Clear existing options except the first one
+                            var slotSelect = document.getElementById('slotSelect{{i.booking.id}}');
+                            slotSelect.innerHTML = '<option value="">Select a slot</option>';
+                            
+                            // Show loading indicator
+                            slotSelect.innerHTML += '<option value="" disabled>Loading slots...</option>';
+                            
+                            // Prepare subcategory ids from booking products
+                            var subcategoryIds = [
+                                {% for bp in i.booking.booking_product.all %}
+                                    {{ bp.product.subcategory.id }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            ];
+
+                            // Make AJAX request to fetch slots with subcategory logic
+                            var params = new URLSearchParams();
+                            params.append('date', date);
+                            params.append('pincode', pincode);
+                            subcategoryIds.forEach(function(id){ params.append('subcategory_ids[]', id); });
+                            fetch(`/Accounts/Admin/get_available_slots?` + params.toString())
+                                .then(response => response.json())
+                                .then(data => {
+                                    // Remove loading indicator
+                                    slotSelect.innerHTML = '<option value="">Select a slot</option>';
+                                    
+                                    // Add slots to dropdown
+                                    if (data.slots && data.slots.length > 0) {
+                                        data.slots.forEach(slot => {
+                                            var option = document.createElement('option');
+                                            option.value = slot.id;
+                                            if (slot.status === 'available') {
+                                                option.textContent = slot.display + " (Remaining: " + slot.remaining_slots + " of " + slot.limit + ")";
+                                            } else {
+                                                option.textContent = slot.display + " (Not Available)";
+                                                option.disabled = true;
+                                            }
+                                            
+                                            slotSelect.appendChild(option);
+                                        });
+                                    } else {
+                                        slotSelect.innerHTML += '<option value="" disabled>No slots available</option>';
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching slots:', error);
+                                    slotSelect.innerHTML = '<option value="">Select a slot</option>';
+                                    slotSelect.innerHTML += '<option value="" disabled>Error loading slots</option>';
+                                });
+                        }
+                        
+                        // Initialize slots on page load if date is already selected
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var dateInput = document.getElementById('inputDate{{i.booking.id}}');
+                            if (dateInput && dateInput.value) {
+                                fetchSlots{{i.booking.id}}(dateInput.value, {{i.booking.zipcode}});
+                            }
+                        });
+                    </script>
+
+                    
+
+                    
+                   
+                    
+                   
+                    
+                    {% comment %} <h6 class="mb-0 text-uppercase">Category Form</h6> {% endcomment %}
+                    
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+                
+                {% comment %} <button type="submit" class="btn btn-primary">Save </button> {% endcomment %}
+            </div>
+            </form>
+        </div>
+    </div>
+</div>

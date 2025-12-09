@@ -1,0 +1,108 @@
+{% load static %}
+<!--sidebar wrapper -->
+
+<div class="sidebar-wrapper" data-simplebar="true">
+    <div class="sidebar-header">
+        <div>
+            <img src="{% static 'assets/images/logo-icon.png' %}" class="logo-icon" alt="logo icon">
+        </div>
+        <div>
+            <h4 class="logo-text">Homofix</h4>
+        </div>
+        <div class="toggle-icon ms-auto"><i class='bx bx-arrow-to-left'></i>
+        </div>
+    </div>
+    <!--navigation-->
+    <ul class="metismenu" id="menu">
+        <li>
+            <a href="{% url 'admin_dashboard' %}" class="">
+                <div class="parent-icon"><i class='bx bx-home-circle'></i>
+                </div>
+                <div class="menu-title">Dashboard</div>
+            </a>
+           
+        </li>
+        
+        <li class="menu-label"><hr></li>
+        
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Booking</div>
+            </a>
+            <ul>
+                
+                <li> <a href="{% url 'expert_task_assign' %}"><i class="bx bx-right-arrow-alt"></i>Booking List</a>
+                </li>
+                
+               
+             
+              
+               
+            </ul>
+        </li>
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Re-Booking</div>
+            </a>
+            <ul>
+                
+                <li> <a href="{% url 'expert_rebooking_Task' %}"><i class="bx bx-right-arrow-alt"></i>Re-Booking List</a>
+                </li>
+                
+               
+             
+              
+               
+            </ul>
+        </li>
+        {% comment %} <li>
+            <a href="{% url 'category' %}">
+                <div class="parent-icon"><i class='bx bx-cookie'></i>
+                </div>
+                <div class="menu-title">Category</div>
+            </a>
+        </li> {% endcomment %}
+       
+{% comment %} 
+        <li>
+            <a href="{% url 'product' %}">
+                <div class="parent-icon"><i class='bx bx-user-circle'></i>
+                </div>
+                <div class="menu-title">Product</div>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'addons' %}">
+                <div class="parent-icon"><i class='bx bx-user-circle'></i>
+                </div>
+                <div class="menu-title">Addon</div>
+            </a>
+        </li>
+
+
+        <li>
+            <a href="{% url 'technician' %}">
+                <div class="parent-icon"><i class='bx bx-user-circle'></i>
+                </div>
+                <div class="menu-title">Technician</div>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'support' %}">
+                <div class="parent-icon"><i class='bx bx-user-circle'></i>
+                </div>
+                <div class="menu-title">Support</div>
+            </a>
+        </li>
+        {% endcomment %}
+   
+       
+    </ul>
+    <!--end navigation-->
+</div>
+<!--end sidebar wrapper -->

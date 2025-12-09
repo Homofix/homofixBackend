@@ -1,0 +1,45 @@
+
+<div class="modal fade" id="exampleVerticallycenteredModal{{i.product.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rebooking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <P class="text-center mt-2" id="msg"></P>
+        
+            
+            <form action="{% url 'support_rebooking_update'%}" method = "POST"  id="productform">
+                {% csrf_token %}
+            <div class="row">
+                <div class="col-xl-9 mx-auto">
+
+                  
+
+                   <input type="text" value="{{i.booking.id}}" name="booking_prod_id" hidden>
+
+                    
+                   
+                    <div class="row mb-3">
+                        {% comment %} <label for="inputDateTime" class="form-label">Select Date & Time</label> {% endcomment %}
+                        <label for="inputDateTime" class="col-sm-12 col-form-label">Select Date & Time</label>
+                        <div class="col-sm-12">
+                            {% comment %} <input type="number" class="form-control"  placeholder="Date" id ="price" value="{{i.price}}" name="price" required> {% endcomment %}
+                            <input class="form-control" type="datetime-local"  id="inputDateTime" name="booking_date" required>
+                        </div>
+                    </div>
+                   
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+                
+                {% comment %} <button type="submit" class="btn btn-primary">Save </button> {% endcomment %}
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+

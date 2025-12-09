@@ -1,0 +1,84 @@
+<div class="modal fade" id="exampleDangerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">Verify Mobile No</h5>
+                
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <p id="test"></p>
+
+            <div class="modal-body text-white">
+                <form id="mobile-no-form" method="POST">
+                    {% csrf_token %}
+
+                    {% comment %} <div class="input-group mb-2">
+                        <input type="text" class="form-control" placeholder="Enter Username" name="username" required>
+                    </div> {% endcomment %}
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" placeholder="Enter a Name" name="full_name" >
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-group-text">+91</span>
+                        <input type="tel" class="form-control" placeholder="Enter a mobile no" maxlength="10" name="mob" required>
+                    </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Send</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include 'homofix_app/AdminDashboard/Booking_list/otp_modal.html' %}
+{% comment %} 
+<script>
+    const mobileNoForm = document.getElementById('mobile-no-form');
+    mobileNoForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (mobileNoForm.checkValidity()) {
+            const usernameInput = mobileNoForm.querySelector('input[name="username"]').value;
+            console.log("heloooooooo",usernameInput)
+            $('#exampleDangerModal').modal('hide');
+            $('#tech_category_add_modal').modal('show');
+        } else {
+            // Form is invalid, show error messages or handle it in some way
+        }
+    });
+</script> {% endcomment %}
+<script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function() {
+        $('#mobile-no-form').submit(function(event) {
+            event.preventDefault();
+            var form = $(this);
+            var formData = form.serialize();
+            $.ajax({
+                url: "{% url 'booking_list' %}",
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if(response.status == "Save"){
+                        $('#exampleDangerModal').modal('hide');
+                        $('#tech_category_add_modal').modal('show');
+
+                    }
+                    console.log(response)
+                    if(response.status == "Error"){
+                        console.log("error")
+                        
+                        $('#test').text("Username is already Taken Please create username unique")
+                        $('#mobile-no-form').trigger("reset");
+
+                    }
+                    
+                },
+                
+            });
+        });
+    });
+</script>

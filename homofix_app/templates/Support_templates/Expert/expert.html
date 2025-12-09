@@ -1,0 +1,180 @@
+{% extends 'Support_templates/Base/base.html' %}
+{% block title %}Technician{% endblock title %}
+{% block main-content %}
+
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Technician</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Technician List</li>
+                </ol>
+            </nav>
+        </div>
+        
+    </div>
+    <!--end breadcrumb-->
+  
+    <h6 class="mb-0 text-uppercase">List of Technician</h6>
+    <hr>
+	{% include 'homofix_app/Base/messages.html' %}
+	<div class="ms-auto mt-2 mb-2" ><a href="{% url 'support_expert_add' %}" class="btn btn-light  mt-2 mt-lg-0"><i class="bx bxs-plus-square" ></i>New Expert</a></div>
+    <div class="card">
+        
+        <div class="card-body">
+            
+            <div class="table-responsive">
+                
+                <table id="example2" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#SR No.</th>
+                            <th>Expert ID</th>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Mobile</th>
+                            <th>Email</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Area</th>
+                            <th>Working Pincode</th>
+                            
+                            
+                            <th>Status</th>
+                            <th>Action</th>
+                            <th>Cancel Booking History</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in technician %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{i.expert_id}}</td>
+                            <td>{{i.admin.first_name}}</td>
+                            <td>{{i.admin.username}}</td>
+                            {% comment %} <td>{{i.subcategory.Category_id.category_name}}</td> {% endcomment %}
+                            <td>
+                                {% if i.subcategories.exists %}
+                                {{ i.subcategories.last.Category_id.category_name }}
+                                {% endif %}
+                            </td>
+                            {% comment %} <td>{{i.subcategory.name}}</td> {% endcomment %}
+                            <td>
+                                {% for subcategory in i.subcategories.all %}
+                                {{ subcategory.name }}
+                                {% endfor %}
+                            </td>
+                            <td>{{i.mobile}}</td>
+                            <td>{{i.admin.email}}</td>
+                            <td>{{i.city}}</td>
+                            <td>{{i.state}}</td>
+                            <td>{{i.serving_area}}</td>
+                            <td>
+                                {% for pincode in i.working_pincode_areas.all %}
+                                    {{ pincode.code }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    No Pincode
+                                {% endfor %}
+                            </td>
+                            
+                            
+                            <td><span class="badge bg-success">{{i.status}}</span></td>
+                            
+                            
+                             <td>
+                                <div class="d-flex order-actions">
+                                  
+                                    <a href="{% url 'expert_edit_profile' i.id %}" class="" ><i class='bx bxs-edit'></i></a>
+                                    
+                                </div>
+                            </td> 
+                            <td class="nowrap"><a href="{% url "cancel_by_expert_support" i.id %}"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal4">View Details</button></a></td>
+                           
+                            
+                        </tr>
+                        <div class="col">
+                            {% comment %} {% include 'homofix_app/AdminDashboard/Technician/edit_technician_modal.html' %} {% endcomment %}
+                            {% comment %} {% include 'homofix_app/AdminDashboard/Technician/delete_technician_modal.html' %} {% endcomment %}
+                        </div>
+                        {% endfor %}
+                       
+                    </tbody>
+
+                    
+                    
+                </table>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col">
+    <!-- Button trigger modal -->
+    {% comment %} <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Vertically Centered</button> {% endcomment %}
+    <!-- Modal -->
+   {% include 'Support_templates/Expert/add_Expert_modal.html' %}
+</div>
+
+
+{% comment %} <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+
+
+<script>
+	$(document).on('submit', '#technicianform',function(e){
+		e.preventDefault();
+		var category_id = $('#category_id').val()
+		var username = $('#username').val()
+		var email = $('#email').val()
+		var password = $('#password').val()
+		
+		
+
+		$.ajax({
+			type: 'POST',
+			url:"{% url 'technician' %}",
+			data:{
+				category_id:category_id,
+				username:username,
+				email:email,
+				password:password,
+				csrfmiddlewaretoken:$("input[name=csrfmiddlewaretoken]").val()
+			},
+			success:function(data){
+				if(data.status == "Save"){
+					// alert("Form Submitted Successfully")
+					$('#technicianform').trigger("reset");
+					$('#msg').text("Technician Add Successfully")
+				 }
+				if(data.status == "error"){
+					// alert("Form Submitted Successfully")
+					
+					$('#msg').text("Username is already Taken")
+				 }
+				 if(data.status == "0"){
+					$('#msg').text("Unable to save")
+					
+				}
+				
+
+				
+				
+				
+				
+
+			}
+		})
+	})
+
+</script> {% endcomment %}
+  
+{% endblock main-content %}

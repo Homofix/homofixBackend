@@ -1,0 +1,55 @@
+<div class="modal  fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header mb-2">
+                {% comment %} <h5 class="modal-title">Category</h5> {% endcomment %}
+                <div class="card-title d-flex align-items-center">
+                    <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                    </div>
+                    <h5 class="mb-0 text-white">Add Category</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+
+            <form action="{% url 'add_category' %}" method="POST" id="categoryform" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row mb-1">
+                    <div class="col-xl-9 mx-auto">
+                        <div class="row mb-3 mx-2">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Icon Image</label>
+                            <div class="col-sm-12 ">
+                                <input type="file" class="form-control"
+                                    placeholder="Enter Your Category Name" id="category_img"
+                                    name="category_img" required>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+                <div class="row mb-1">
+                    <div class="col-xl-9 mx-auto">
+                        <div class="row mb-3 mx-2">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Enter Your
+                                Category Name</label>
+                            <div class="col-sm-12 ">
+                                <input type="text" class="form-control"
+                                    placeholder="Enter Your Category Name" id="category_name"
+                                    name="category_name" required>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save </button>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+</div>

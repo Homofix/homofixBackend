@@ -1,0 +1,119 @@
+{% load static %}
+<!--sidebar wrapper -->
+
+<div class="sidebar-wrapper" data-simplebar="true">
+    <div class="sidebar-header">
+        <div>
+            <img src="{% static 'assets/images/logolight.png' %}" class="logo-icon" alt="logo icon">
+        </div>
+        <div>
+            <h4 class="logo-text">HF</h4>
+        </div>
+        <div class="toggle-icon ms-auto"><i class='bx bx-arrow-to-left'></i>
+        </div>
+    </div>
+    <!--navigation-->
+    <ul class="metismenu" id="menu">
+        <li>
+            <a href="{% url 'support_dashboard' %}" class="">
+                <div class="parent-icon"><i class='bx bx-home-circle'></i>
+                </div>
+                <div class="menu-title">Dashboard</div>
+            </a>
+           
+        </li>
+        
+        <li class="menu-label"><hr></li>
+
+        {% if support.can_new_booking == True %}
+        <li>
+            <a href="javascript:;" class="has-arrow">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Booking</div>
+            </a>
+            <ul>
+                
+                
+                <li> <a href="{% url 'support_orders' %}"><span class="alert-count">{% if order_count != null %}{{order_count}} {% else %} 0 {% endif %}</span><i class="bx bx-right-arrow-alt"></i>New Booking</a>
+                </li>
+                
+                <li> <a href="{% url 'support_list_of_task' %}"><i class="bx bx-right-arrow-alt"></i>Assign Booking</a>
+                </li>
+                
+                
+                <li> <a href="{% url 'order_cancel' %}"><i class="bx bx-right-arrow-alt"></i>Cancel Booking</a>
+                </li>
+                
+            </ul>
+        </li>
+        {% endif %}
+        {% if support.can_rebooking == True %}
+        <li>
+            <a href="javascript:;" class="has-arrow">
+                <div class="parent-icon"><i class='bx bx-store'></i>
+                </div>
+                <div class="menu-title">Completed Booking</div>
+            </a>
+            <ul>
+                
+                 
+                <li> <a href="{% url 'support_booking_complete' %}"><i class="bx bx-right-arrow-alt"></i>Complete-Booking</a>
+                </li>
+                <li> <a href="{% url 'support_rebooking_list' %}"><i class="bx bx-right-arrow-alt"></i>Re-Booking List</a>
+                </li>
+                
+            </ul>
+        </li>
+        {% endif %}
+        {% if support.can_expert_create == True %}
+        <li>
+            <a href="javascript:;" class="has-arrow">
+                <div class="parent-icon"><i class='bx bx-user-circle'></i>
+                </div>
+                <div class="menu-title">Expert</div>
+            </a>
+            <ul>
+                
+                 
+                <li> <a href="{% url 'support_list_of_expert' %}"><i class="bx bx-right-arrow-alt"></i>List of Expert</a>
+                </li>
+                
+            </ul>
+        </li>
+        {% endif %}
+        {% if support.can_contact_us_enquiry == True %}
+        <li> 
+            <a href="{% url 'support_contact_us' %}"></span><i class="bx bx-right-arrow-alt"></i>Contact Us</a>
+        </li>
+        {% endif %}
+        {% if support.can_job_enquiry == True %}
+        <li> 
+            <a href="{% url 'support_job_enquiry' %}"></span><i class="bx bx-right-arrow-alt"></i>Job Enquiry</a>
+        </li>
+        {% endif %}
+        {% comment %} <li>
+            <a href="{% url 'category' %}">
+                <div class="parent-icon"><i class='bx bx-cookie'></i>
+                </div>
+                <div class="menu-title">Category</div>
+            </a>
+        </li>
+       
+
+       
+
+        <li>
+            <a href="{% url 'support' %}">
+                <div class="parent-icon"><i class='bx bx-user-circle'></i>
+                </div>
+                <div class="menu-title">Support</div>
+            </a>
+        </li>
+        {% endcomment %}
+   
+       
+    </ul>
+    <!--end navigation-->
+</div>
+<!--end sidebar wrapper -->

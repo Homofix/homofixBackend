@@ -1,0 +1,153 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% block title %}Homofix|Share Percentage{% endblock title %}
+{% block main-content %}
+
+<div class="page-content">
+    <style>
+        .nowrap {
+            white-space: nowrap;
+          }
+          
+    </style>
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Share Percentage</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Share Percentage List</li>
+                </ol>
+            </nav>
+        </div>
+        
+    </div>
+    <!--end breadcrumb-->
+  
+    <h6 class="mb-0 text-uppercase">List of  Share Percentage</h6>
+    <hr>
+
+    {% include 'homofix_app/Base/messages.html' %}
+    {% comment %} <div class="ms-auto mt-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal"><a href="javascript:;" class="btn btn-light radius-30 mt-2 mt-lg-0"><i class="bx bxs-plus-square" ></i>Add New  Percentage</a></div> {% endcomment %}
+    <div class="card">
+        
+        <div class="card-body">
+            
+            <div class="table-responsive">
+                <table id="example2" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SI No</th>
+                            <th>#Order</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Product</th>
+                            <th>Expert</th>
+                            <th>Username</th>
+                            <th>Mobile</th>
+                            <th>Subtotal</th>
+                            
+                            <th>GST Amount</th>
+                            <th>Addons Amount</th>
+                            <th>total</th>
+                            <th class="nowrap">Homofix Share  Percentage</th>
+                            <th>Homofix Share</th>
+                            <th>Expert Share</th>
+                            {% comment %} <th>Total Amt</th> {% endcomment %}
+                            <th>Date</th>
+                           
+                            {% comment %} <th>Action</th> {% endcomment %}
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in share %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{i.task.booking.order_id}}</td>
+                            <td>
+                                {% if i.task.booking.booking_product.exists %}
+                                {{ i.task.booking.booking_product.first.product.subcategory.Category_id.category_name }}
+                            {% else %}
+                                N/A
+                            {% endif %} 
+                            </td>
+                            <td>
+                                {% if i.task.booking.booking_product.exists %}
+                                {{ i.task.booking.booking_product.first.product.subcategory.name }}
+                            {% else %}
+                                N/A
+                            {% endif %} 
+                            </td>
+                            <td>
+                                {% for booking_product in i.task.booking.booking_product.all %}
+                                        <h6 class="mb-1 nowrap font-14">{{ booking_product.product.name }} ({{ booking_product.quantity }})</h6>
+                                        {% endfor %}
+                            </td>
+                            <td>{{i.task.technician.admin.first_name}}</td>
+                            <td>{{i.task.technician.admin.username}}</td>
+                            <td>{{i.task.technician.mobile}}</td>
+                            {% comment %} <td>
+                                {% if i.task.booking.bookingproduct_set.exists %}
+                                    {{ i.task.booking.bookingproduct_set.first.total_price }}
+                                {% else %}
+                                    N/A
+                                {% endif %} 
+                            </td> {% endcomment %}
+                            <td>{{i.task.booking.subtotal}}</td>
+                            
+                            <td>{{i.task.booking.tax_amount}}</td>
+                            <td>{{i.task.booking.total_addons}}</td>
+                            {% comment %} <td>
+                                {% if i.task.booking.bookingproduct_set.exists %}
+                                {{ i.task.booking.bookingproduct_set.first.total_price_with_tax }}
+                            {% else %}
+                                N/A
+                            {% endif %} 
+                            </td> {% endcomment %}
+                            <td>{{i.task.booking.final_amount}}</td>
+                            <td>{{i.hod_share_percentage}} %</td>
+                           
+                            
+                            <td>Rs {{i.company_share}}</td>
+                            <td>Rs {{i.technician_share}}</td>
+                            {% comment %} <td>Rs {{i.task.booking.}}</td> {% endcomment %}
+                            {% comment %} <td>Rs {{ i.task.booking.bookingproduct_set.total_price }}</td> {% endcomment %}
+
+                            <td>{{i.date}}</td>
+                           
+                            
+
+                            {% comment %} <td>
+                                <div class="d-flex order-actions">
+                                    <a href="javascript:;" class="" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal{{i.id}}"><i class='bx bxs-edit'></i></a>
+                                    <a href="javascript:;" class="ms-3" data-bs-toggle="modal" data-bs-target="#exampleDangerModal{{i.id}}" ><i class='bx bxs-trash'></i></a>
+                                </div>
+                            </td> {% endcomment %}
+                           
+                            
+                        </tr>
+
+                       
+                        {% endfor %}
+                       
+                    </tbody>
+                    
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col">
+   
+    <!-- Modal -->
+    {% include 'homofix_app/AdminDashboard/SharePercentage/add_share_percentage_modal.html' %}
+</div>
+
+
+
+{% endblock main-content %}

@@ -1,0 +1,133 @@
+<div class="modal  fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header mb-2">
+                {% comment %} <h5 class="modal-title">Category</h5> {% endcomment %}
+                <div class="card-title d-flex align-items-center">
+                    <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                    </div>
+                    <h5 class="mb-0 text-white">Add Sub-Category</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+
+            <form action="{% url 'subcategory' %}" method="POST" id="categoryform" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row mb-1">
+                    <div class="col-xl-9 mx-auto">
+                        <div class="row mb-3 mx-2">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Select Your Category</label>
+                            <div class="col-sm-12 ">
+                                <select class="form-control" name="category_id">
+                                    <option selected disabled ,"true"> --- Select  ---</option>
+                                    {% for i in category %}
+                                        <option class="bg-dark" value="{{ i.id }}" >{{i.category_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+            
+                        {% comment %} <div id="sub-categories">
+                            <div class="sub-category mb-3 mx-2">
+                                <label for="inputEnterYourName" class="form-label">Enter Your Sub-Category</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Enter Your Sub Category Name" name="subcategory_name[]" required>
+                                    <button type="button" class="btn btn-danger remove-sub-category">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class=" btn-light btn " id="add-sub-category"><i class="bx bxs-plus-square"></i>New</button>
+                         {% endcomment %}
+                         <div id="sub-categoriesicon">
+                            <div class="sub-category mb-3 mx-3" id="sub-categoriesicon-1">
+                                <label for="inputEnterYourName" class="form-label">Upload Image</label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" placeholder="Enter Your Sub Category Name" name="subcategory_image" required>
+                                    {% comment %} <button type="button" class="btn btn-light remove-sub-category" disabled><i class='bx bxs-trash'></i></button> {% endcomment %}
+                                </div>
+                            </div>
+                        </div>
+                         <div id="sub-categories">
+                            <div class="sub-category mb-3 mx-3" id="sub-category-1">
+                                <label for="inputEnterYourName" class="form-label">Sub-Category</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Enter Your Sub Category Name" name="subcategory_name" required>
+                                    {% comment %} <button type="button" class="btn btn-light remove-sub-category" disabled><i class='bx bxs-trash'></i></button> {% endcomment %}
+                                </div>
+                            </div>
+                        </div>
+                        {% comment %} <button type="button" class="btn btn-light mx-3" id="add-sub-category"><i class="bx bxs-plus-square"></i>New</button> {% endcomment %}
+                        
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save </button>
+                </div>
+            </form>
+            
+            
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% comment %} <script>
+    $(document).ready(function() {
+        var subCategoryCount = 1; // initialize sub-category counter
+        var subCategoryiconCount = 1;
+        
+        // add new sub-category input field
+        $('#add-sub-category').click(function() {
+            subCategoryCount++; // increment sub-category counter
+            subCategoryiconCount++;
+            var subCategoryId = 'sub-category-' + subCategoryCount; // create sub-category id
+            var subCatogryIconId = 'image-' + subCategoryiconCount;
+            
+            var newSubCategory = $(`
+                <div class="sub-category mb-3 mx-3" id="${subCategoryId}" style="display: none;">
+                    <label for="inputEnterYourName" class="form-label">Sub-Category ${subCategoryCount}</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Enter Your Sub Category Name" name="subcategory_name[]" required>
+                        <button type="button" class="btn btn-light remove-sub-category"><i class='bx bxs-trash'></i></button>
+                    </div>
+                </div>
+            `);
+            var newSubCategoryicon = $(`
+                <div class="sub-category mb-3 mx-3" id="${subCatogryIconId}" style="display: none;">
+                    <label for="inputEnterYourName" class="form-label">Sub-Category ${subCategoryiconCount}</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Enter Your Sub Category Name" name="subcategory_name[]" required>
+                        <button type="button" class="btn btn-light remove-sub-category"><i class='bx bxs-trash'></i></button>
+                    </div>
+                </div>
+            `);
+            
+            $('#sub-categories').append(newSubCategory);
+            newSubCategory.fadeIn(); // smoothly show the new input field
+            
+            // enable remove button for previous sub-category
+            $('#sub-category-' + (subCategoryCount - 1)).find('.remove-sub-category').prop('disabled', false);
+        });
+        
+        // remove sub-category input field
+        $(document).on('click', '.remove-sub-category', function() {
+            var subCategoryToRemove = $(this).closest('.sub-category');
+            var subCategoryId = subCategoryToRemove.attr('id');
+            
+            subCategoryToRemove.fadeOut(function() { // smoothly remove the input field
+                subCategoryToRemove.remove();
+                
+                // disable remove button for previous sub-category
+                var previousSubCategoryId = 'sub-category-' + (subCategoryCount - 1);
+                if (subCategoryId === previousSubCategoryId) {
+                    $('#' + previousSubCategoryId).find('.remove-sub-category').prop('disabled', true);
+                }
+                
+                subCategoryCount--; // decrement sub-category counter
+            });
+        });
+    });
+    
+</script> {% endcomment %}

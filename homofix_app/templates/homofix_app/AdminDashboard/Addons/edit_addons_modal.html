@@ -1,0 +1,180 @@
+<div class="modal fade" id="exampleVerticallycenteredModal{{i.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Addons</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <P class="text-center mt-2" id="msg"></P>
+            
+            <form action="{% url 'addons' %}" method = "POST" enctype="multipart/form-data" id="productform">
+                {% csrf_token %}
+            <div class="row">
+                <div class="col-xl-9 mx-auto">
+  {% comment %} 
+                    <div class="mb-3">
+                        <label for="inputProductTitle" class="form-label">Category</label>
+                        <select class="form-select" name="category_name" id="select_category" required>
+                           <option value="" disabled selected>---SELECT---</option>
+                           {% for i in category %}
+                           <option value="{{i.id}}">{{i.category_name}}</option>
+                           {% endfor %}
+                        </select>
+                    </div> 
+  
+  
+  
+                    <div class="mb-3">
+                        <label for="inputProductTitle" class="form-label">Subcategory</label>
+                        <select class="form-select" name="subcategory_name" id="select_subcategory" required>
+                           
+                           <option  value="" selected disabled> --Select--</option>
+                        </select>
+                    </div> 
+  
+                
+                   
+                    
+                    <div class="mb-3">
+                           <label for="inputProductTitle" class="form-label">Product Name</label>
+                           <select class="form-select" name="product_id" id="product-select"  required>
+                              
+                              <option class="text-black" value="" selected disabled> --Select--</option>
+                           </select>
+                    </div> {% endcomment %}
+                    <div class="mb-3">
+                        <label for="inputProductTitle" class="form-label">Category</label>
+                        <select class="form-select" name="category_name" id="select-category-edit"  required>
+                           <option value="" disabled selected>---SELECT---</option>
+                           {% for cat in category %}
+                           <option value="{{cat.id}}" {% if cat.id == i.product.subcategory.Category_id.id %}selected{% endif %}>{{cat.category_name}}</option>
+                           {% endfor %}
+                        </select>
+                    </div> 
+  
+                    <div class="mb-3">
+                        <label for="inputProductTitle" class="form-label">Subcategory</label>
+                        <select class="form-select" name="subcategory_name" id="select-subcategory-edit" required>
+                           
+                           <option  value="" selected disabled> --Select--</option>
+                        </select>
+                    </div> 
+  
+                    <div class="mb-3">
+                        <label for="inputProductTitle" class="form-label">Product Name</label>
+                        <select class="form-select" name="product_id" id="product-select-edit"  required>
+                           
+                           <option class="text-black" value="" selected disabled> --Select--</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                           <label for="inputspare" class="form-label">Spare Part Name</label>
+                           <input class="form-control" type="text" name="spare_part">
+                           
+                    </div>
+                    <div class="mb-3">
+                           <label for="inputspare" class="form-label">Price</label>
+                           <input class="form-control" type="text" name="price">
+                           
+                    </div>
+                    
+  {% comment %}                     
+                    <div class="row mb-3">
+                        <label for="inputEnterYourName" class="col-sm-12 col-form-label">Description</label>
+                        <div class="col-sm-12">
+                            <textarea name="desc"></textarea>
+                            
+                        </div>
+                    </div> {% endcomment %}
+                    {% comment %} <h6 class="mb-0 text-uppercase">Category Form</h6> {% endcomment %}
+                    <div class="mb-3">
+                        <label for="inputProductDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="inputProductDescription" rows="3" name="desc"></textarea>
+                      </div>
+                    
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+                
+                {% comment %} <button type="submit" class="btn btn-primary">Save </button> {% endcomment %}
+            </div>
+            </form>
+        </div>
+    </div>
+  </div>
+  
+  {% comment %} 
+  <script>
+    CKEDITOR.replace( 'desc' );
+  </script> {% endcomment %}
+  
+  
+  
+  <script>
+    $(document).ready(function() {
+       // When the category dropdown changes, send an AJAX request to retrieve the corresponding subcategories
+       $("#select-category-edit").change(function() {
+         var category_id = $(this).val();
+         if (category_id) {
+           $.ajax({
+             url: "{% url 'get_subcategories' %}",
+             type: "GET",
+             data: {
+               category_id: category_id
+             },
+             dataType: "json",
+             success: function(data) {
+               // Clear the current options in the subcategory dropdown
+               $("#select-subcategory-edit").html("");
+               // Add the retrieved subcategories as options to the subcategory dropdown
+               $("#select-subcategory-edit").append('<option value="" selected disabled> --Select--</option>');
+               $.each(data, function(key, value) {
+                 $("#select-subcategory-edit").append('<option  value="' + value.id + '">' + value.name + '</option>');
+               });
+               // Enable the subcategory dropdown
+               $("#select-subcategory-edit").prop("disabled", false);
+             }
+           });
+         } else {
+           // If no category is selected, disable the subcategory dropdown and clear its options
+           $("#select-subcategory-edit").prop("disabled", true);
+           $("#select-subcategory-edit").html('<option value="" selected disabled> --Select--</option>');
+         }
+       });
+       
+       // When the subcategory dropdown changes, send an AJAX request to retrieve the corresponding products
+       $("#select-subcategory-edit").change(function() {
+          var subcategory_id = $(this).val();
+        
+          if (subcategory_id) {
+            $.ajax({
+              url: "{% url 'get_products' %}",
+              type: "GET",
+              data: {
+                subcategory_id: subcategory_id
+              },
+              dataType: "json",
+              success: function(data) {
+                // Clear the current options in the product selection dropdown
+                $("#product-select-edit").html("");
+                // Add the retrieved products as options to the product selection dropdown
+                $.each(data, function(key, value) {
+                  $("#product-select-edit").append(
+                    '<option value="' + value.id + '" data-rate="'  + '">' + value.name +   '</option>'
+                  );
+                });
+              }
+            });
+          } else {
+            // If no subcategory is selected, disable the product selection dropdown and clear its options
+            $("#product-select-edit").prop("disabled", true);
+            $("#product-select-edit").html('<option value="" selected disabled> --Select--</option>');
+          }
+        });
+        
+     });
+     
+  </script>  

@@ -1,0 +1,104 @@
+{% extends 'Support_templates/Base/base.html' %}
+{% load static %}
+{% block main-content %}
+<style>
+    .nowrap {
+        white-space: nowrap;
+      }
+</style>
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Re-Booking</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Rebooking Details</li>
+                </ol>
+            </nav>
+        </div>
+
+    </div>
+    <!--end breadcrumb-->
+
+    <h6 class="mb-0 text-uppercase">List of Rebooking</h6>
+    <hr>
+
+    {% include 'homofix_app/Base/messages.html' %}
+    
+    <div class="card">
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="example2" class=" table  mb-0">
+                    <thead class="table-light">
+                        
+                        <tr >
+                            <th>#SI No</th>
+                            <th>category</th>
+                            <th>Product</th>
+                            <th>Price</th>                         
+                            <th class="nowrap">Assign</th>
+                            <th>Warranty</th>
+                            
+                            <th>Actions</th> 
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in booking_prod %}
+                        <tr >
+                            <td>#{{forloop.counter}}</td>
+                            <td>
+                                {{i.product.subcategory.Category_id.category_name}}
+                            </td>
+                            <td>{{i.product.name}}</td>
+                          
+                            <td>Rs {{i.booking.final_amount}}</td>
+                         
+                            <td class="nowrap">{{task.technician.admin.username}}</td>
+                            <td>{{i.product.warranty}} days</td>
+                           
+                            <td>
+                               
+                                <a class="mx-2" href="javascript:;" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal{{i.product.id}}"><button class="btn btn-sm btn-info"  >Rebooking</button></a>
+                            </td>
+                            
+                            
+                            
+                           
+                            
+                        </tr>
+
+                        <div class="col">
+                            {% include 'Support_templates/Rebooking/rebooking_modal.html' %}
+                           
+                           
+                        </div>
+                        {% endfor %}
+
+
+
+                    </tbody>
+                    
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col">
+
+    <!-- Modal -->
+    {% include 'Support_templates/Orders/mobile_no_modal.html' %}
+</div>
+
+
+
+{% endblock main-content %}

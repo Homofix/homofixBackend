@@ -1,0 +1,230 @@
+{% extends 'Support_templates/Base/base.html' %}
+{% load static %}
+{% block main-content %}
+<style>
+   .nowrap {
+   white-space: nowrap;
+   }
+</style>
+<div class="page-content">
+   <!--breadcrumb-->
+   <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+      <div class="breadcrumb-title pe-3">Assign</div>
+      <div class="ps-3">
+         <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+               <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+               </li>
+               <li class="breadcrumb-item active" aria-current="page">List for Assign Expert</li>
+            </ol>
+         </nav>
+      </div>
+   </div>
+   <!--end breadcrumb-->
+   <h6 class="mb-0 text-uppercase">List of Expert</h6>
+   <hr>
+   {% include 'homofix_app/Base/messages.html' %}
+   <div class="row">
+      <div class="col-xl-9 mx-auto">
+         <h6 class="mb-0 text-uppercase text-center">Order Details</h6>
+         <hr>
+         <div class="card">
+            <div class="card-body">
+               <div class="table-responsive">
+                  <table class="table table-hover align-items-center mb-0">
+                     <thead class="table-light">
+                        <tr>
+                           <th class="nowrap">ORDER ID</th>
+                           <th>Category</th>
+                           <th>Subcategory</th>
+                           <th>Product Name</th>
+                           <th>Customer</th>
+                           <th>Mobile</th>
+                           <th>City</th>
+                           <th>State</th>
+                           <th>Area</th>
+                           <th>zipcode</th>
+                           <th>Address</th>
+                           <th>Total Price</th>
+                           <th>Date</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr>
+                           <td >{{booking.order_id}}</td>
+                           {% comment %} <td>{{booking.product.category.category_name}}</td> {% endcomment %}
+                           <td>
+                              {% if booking.booking_product.exists %}
+                                    {{ booking.booking_product.first.product.subcategory.Category_id.category_name }}
+                                {% else %}
+                                    N/A
+                                {% endif %} 
+                           </td>
+                           <td>
+                              {% if booking.booking_product.exists %}
+                                    {{ booking.booking_product.first.product.subcategory.name }}
+                                {% else %}
+                                    N/A
+                                {% endif %} 
+                           </td>
+                           {% comment %} <td>{{booking.product.name}}</td> {% endcomment %}
+                           <td>
+                              {% for booking_product in booking.booking_product.all %}
+                              {{ booking_product.product.name }} 
+                              {% endfor %}
+                           </td>
+                            <td>{{booking.booking_customer}}</td>
+                            <td>{{booking.mobile}}</td>
+                            <td>{{booking.city}}</td>
+                            <td>{{booking.state}}</td>
+                            <td>{{booking.area}}</td>
+                            <td>{{booking.zipcode}}</td>
+                            <td>{{booking.booking_address}}</td>
+                           <td>
+                             {{booking.final_amount}}
+                           </td>
+                           <td class="nowrap">{{booking.booking_date}}</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="card">
+      <div class="card-body">
+         <div class="table-responsive">
+            <table id="example2" class=" table  mb-0">
+               <thead class="table-light">
+                  <tr >
+                     <th>Expert Id#</th>
+                     <th>Name</th>
+                     <th>Contact No</th>
+                     <th>Review</th>
+                     <th>City</th>
+                     <th>State</th>
+                     <th>Service Area</th>
+                     
+                     <th>Active/Inactive</th>
+                     <th>Task</th>
+                     <th>Action</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {% for i in expert %}
+                  {% if i.status == "Active" %}
+                  <tr >
+                     <td>
+                        #{{i.expert_id}}
+                     </td>
+                     <td>{{i.admin.username}}</td>
+                     <td>{{i.mobile}}</td>
+                     <td>{{i.rating}} Star</td>
+                     <td>{{i.city}}</td>
+                     <td>{{i.state}}</td>
+                     <td>{{i.serving_area}}</td>
+                     
+                     <td>
+                        <div class="badge rounded-pill bg-light p-2 text-uppercase px-3"><i
+                           class='bx bxs-circle me-1'></i>{{i.status}}</div>
+                     </td>
+                     <td>
+                       
+
+
+                         {% with task=i.task_set.last %}
+                        {% if task.booking.status == "Assign" or task.booking.status == "Inprocess" %}
+                           <input class="btn btn-sm btn-danger" type="submit" value="OnProcess" disabled>
+                        
+                        {% else %}
+                           <input class="btn btn-sm btn-success" type="submit" value="New">
+                        {% endif %}
+                     {% endwith %} 
+                     </td>
+                     {% comment %} 
+                     <td><input type="text" value="{{booking.id}}"></td>
+                     <td><input type="text" value="{{i.id}}"></td>
+                     {% endcomment %}
+                     {% comment %} <a href="{% url 'support_Task_assign' %}">Assign</a> {% endcomment %}
+                     <td>
+                        <form action="{% url 'support_Task_assign' %}" method="POST">
+                           {% csrf_token %}
+                           <input type="text" value="{{booking.id}}" name="booking_id" hidden>
+                           <input type="text" value="{{i.id}}" name="technician_id" hidden>
+                           {% comment %} {% for task in i.task_set.all %}
+                           {% if task.booking.status == "Assign" %}
+                           <input class="btn btn-sm btn-warning" type="submit" value="Assign" disabled >
+                           {% else %}
+                           {% endif %}
+                           {% endfor %} {% endcomment %}
+                           {% comment %} {% if booking.status == "cancelled" or booking.status == "completed" %}
+                           <input class="btn btn-sm btn-warning" type="submit" value="Assign" >
+                           {% else %}
+                           {% for task in i.task_set.all %}
+                           {% if task.booking.status == "Assign"  %}
+                           
+                           <span class="badge bg-secondary">In Process</span>
+                           {% elif booking.status == "completed" %}
+                           <input class="btn btn-sm btn-warning" type="submit" value="Assign">
+                           {% endif %}
+                           {% if i.booking.status == "completed" %}
+                           <input class="btn btn-sm btn-warning" type="submit" value="Assign">
+                           {% endif %}
+                           {% empty %}
+                           <input class="btn btn-sm btn-warning" type="submit" value="Assign">
+                           {% endfor %}
+                           {% endif %}
+                            {% endcomment %}
+                            {% comment %} {% if booking.status == "Assign" %}
+                            <input class="btn btn-sm btn-warning" type="submit" value="Assign" disabled>       
+                            {% else %}
+                            <input class="btn btn-sm btn-warning" type="submit" value="Assign">
+                            {% endif %} {% endcomment %}
+                            {% comment %} {% if i.status_choice == "Assign" or i.status_choice == "in_process" or i.status_choice == "Reached" %}
+                            <input class="btn btn-sm btn-warning" type="submit" value="Assign" disabled>
+                            {% else %}
+                            <input class="btn btn-sm btn-warning" type="submit" value="Assign">
+                            
+                            {% endif %} {% endcomment %}
+                            {% comment %} {% for task in i.task_set.all %}
+                        {% if task.booking.status == "Assign" %}
+                           <input class="btn btn-sm btn-warning" type="submit" value="Assign" disabled>
+                        {% elif task.booking.status == "Completed" %}
+                           <input class="btn btn-sm btn-warning" type="submit" value="Assign" disabled>
+                        {% else %}
+                           <input class="btn btn-sm btn-warning" type="submit" value="Assign">
+                        {% endif %}
+                     {% empty %}
+                        <input class="btn btn-sm btn-warning" type="submit" value="Assign">
+                     {% endfor %} {% endcomment %}
+                     {% comment %} {% with task=i.task_set.last %}
+                     {% if task.booking.status == "Assign" %}
+                        <input class="btn btn-sm btn-warning" type="submit" value="Assign" disabled>
+                     {% elif task.booking.status == "Completed" %}
+                        <input class="btn btn-sm btn-warning" type="submit" value="Assign" disabled>
+                     {% else %}
+                        <input class="btn btn-sm btn-warning" type="submit" value="Assign">
+                     {% endif %}
+                  {% endwith %} {% endcomment %}
+                  {% comment %} <input class="btn btn-sm btn-warning" type="submit" value="Assign"> {% endcomment %}
+                  <input class="btn btn-sm btn-warning" type="submit" value="Assign">
+
+
+                        </form>
+                     </td>
+                     
+                  </tr>
+                  {% endif %}
+                  {% endfor %}
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+<div class="col">
+   <!-- Modal -->
+   {% include 'Support_templates/Orders/mobile_no_modal.html' %}
+</div>
+{% endblock main-content %}

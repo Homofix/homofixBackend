@@ -1,0 +1,213 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% load static %}
+{% block main-content %}
+
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Customer Profile</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Customer Profile</li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="ms-auto">
+            <div class="btn-group">
+                <a href="{% url 'admin_customer_history' customer.id %}"><button type="button" class="btn btn-light">History</button></a>
+        
+            </div>
+        </div>
+      
+    </div>
+    <center>{% include 'homofix_app/Base/messages.html' %}</center>
+    <!--end breadcrumb-->
+    <div class="container">
+        <div class="main-body">
+            <div class="row">
+               
+                
+                <div class="col-lg-12">
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                    <div class="card">
+                        <div class="card-body">
+                            
+                            
+                           
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Name</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{customer.admin.first_name}}" name="first_name" readonly>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Username</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{customer.admin.username}}" name="username" readonly>
+                                </div>
+                            </div>
+                            {% comment %} <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Email</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{customer.admin.email}}" name="email">
+                                </div>
+                            </div> {% endcomment %}
+
+                            
+                           
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Mobile</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{customer.mobile}}" name="mob_no">
+                                </div>
+                            </div>
+                            
+     
+                           
+
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">City</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="{{customer.city}}" name="city">
+                                    {% comment %} <input type="text" class="form-control" value="{{technician.city}}" name="city"> {% endcomment %}
+                                    
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">State</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    {% comment %} <input type="text" class="form-control" value="{{technician.state}}" name="state"> {% endcomment %}
+                                    <select class="single-select" name="state" class="form-control">
+                                        <option selected disabled ,"true"> --- Select city ---</option>
+                                        {% for state in state_choices %}
+                                            <option value="{{ state.0 }}" {% if state.0 == customer.state %}selected{% endif %}>{{ state.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Area</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{customer.area}}" name="area">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Zip Code</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="number" class="form-control" value="{{customer.zipcode}}" name="zipcode">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Address</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{customer.address}}" name="address">
+                                </div>
+                            </div>
+                          
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">GST NO</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="{{customer.gst_no}}" name="gst_no">
+                                </div>
+                            </div>
+                          
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0"> Date</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control datepicker" value="{{ customer.date}}" name="date" readonly>
+                                    {% comment %} <input type="text" class="form-control datepicker" data-date-format="d-m-Y" placeholder="dd-mm-yyyy" value="{{ technician.joining_date|date:'Y-m-d' }}" name="date_of_joining"> {% endcomment %}
+
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-9">
+                                    <input type="submit" class="btn btn-light px-4" value="Save Changes">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                   
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function() {
+        // When the category dropdown changes, send an AJAX request to retrieve the corresponding subcategories
+        $("#select1").change(function() {
+            var category_id = $(this).val();
+            if (category_id) {
+                $.ajax({
+                    url: "{% url 'get_subcategories' %}",
+                    type: "GET",
+                    data: {
+                        category_id: category_id
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        // Clear the current options in the subcategory dropdown
+                        $("#product-select").html("");
+                        // Add the retrieved subcategories as options to the subcategory dropdown
+                        $("#product-select").append(
+                            '<option  value="" selected disabled> --Select--</option>'
+                        );
+                        $.each(data, function(key, value) {
+                            $("#product-select").append(
+                                '<option class="text-black" value="' + value.id + '">' + value.name + '</option>'
+                            );
+                        });
+                        // Enable the subcategory dropdown
+                        $("#product-select").prop("disabled", false);
+                    }
+                });
+            } else {
+                // If no category is selected, disable the subcategory dropdown and clear its options
+                $("#product-select").prop("disabled", true);
+                $("#product-select").html('<option value="" selected disabled> --Select--</option>');
+            }
+        });
+    });
+ </script>
+ 
+{% endblock main-content %}

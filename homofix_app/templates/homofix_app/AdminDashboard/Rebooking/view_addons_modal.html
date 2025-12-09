@@ -1,0 +1,43 @@
+<div class="modal  fade" id="exampleVerticallycenteredModal-{{task.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header mb-2">
+                <div class="card-title d-flex align-items-center">
+                    <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                    </div>
+                    <h5 class="mb-0 text-white">Addons Details</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="table-responsive">
+                <table id="example2" class=" table  mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            
+                            <th>Name</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        {% for addon in addons %}
+                                {% if addon.booking_prod_id.booking.id == task.booking.id %}
+                                    <tr>
+                                          <!-- Use forloop.counter -->
+                                        <td>{{ addon.spare_parts_id.spare_part }}</td>
+                                        <td>{{ addon.quantity }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+                
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save </button>
+            </div>
+        </div>
+    </div>
+</div>

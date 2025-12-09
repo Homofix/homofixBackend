@@ -1,0 +1,165 @@
+{% extends 'homofix_app/Base/base.html' %}
+{% load static %}
+{% block title %}Admin|Profile{% endblock title %}
+{% block main-content %}
+
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Create Admin </div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Create Admin </li>
+                </ol>
+            </nav>
+        </div>
+       
+    </div>
+    <!--end breadcrumb-->
+    <div class="container">
+        <P class="text-center" id="msg"></P>
+        <div class="main-body">
+            <div class="row">
+               
+                <div class="col-lg-10">
+                    <div class="card">
+                        <form action="" method="POST" id="adminprofileform">
+                            {% csrf_token %}
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">First Name</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="first_name" id="first_name" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Last Name</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="last_name" id="last_name">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Email</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control"  name="email" id="email">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Mobile</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control"  name="mobile" id="mobile">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Password</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control"  name="password" id="password" required>
+                                </div>
+                            </div>
+                            {% comment %} <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Phone</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="(239) 816-9029">
+                                </div>
+                            </div> {% endcomment %}
+                            {% comment %} <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Mobile</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="(320) 380-4539">
+                                </div>
+                            </div> {% endcomment %}
+                            {% comment %} <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Address</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" value="Bay Area, San Francisco, CA">
+                                </div>
+                            </div> {% endcomment %}
+                           <div class="row">
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-9">
+                                    <input type="submit" class="btn btn-light px-4" value="Save">
+                                </div>
+                            </div> 
+                        </div>
+                    </form>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+
+
+<script>
+	$(document).on('submit', '#adminprofileform',function(e){
+		e.preventDefault();
+		let first_name = $('#first_name').val()
+		let last_name = $('#last_name').val()
+		let email = $('#email').val()
+		let mobile = $('#mobile').val()
+		let password = $('#password').val()
+		
+        
+		
+		
+		$.ajax({
+			type: 'POST',
+			url:"{% url 'add_admin' %}",
+			data:{
+				first_name:first_name,
+				last_name:last_name,
+				email:email,
+				mobile:mobile,
+				password:password,
+				csrfmiddlewaretoken:$("input[name=csrfmiddlewaretoken]").val()
+			},
+			success:function(data){
+				if(data.status == "Save"){
+                    window.location.href = "{% url 'admin_list' %}";
+					// alert("Form Submitted Successfully")
+					$('#adminprofileform').trigger("reset");
+					$('#msg').text("Admin Create  Successfully")
+				 }
+				if(data.status == "error"){
+					// alert("Form Submitted Successfully")
+					$('#adminprofileform').trigger("reset");
+					$('#msg').text("Error  Mobile Number is already Taken")
+				 }
+				
+				 
+				
+
+				
+
+			}
+		})
+
+		
+	})
+
+</script>
+  
+{% endblock main-content %}

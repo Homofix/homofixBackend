@@ -1,0 +1,95 @@
+<div class="modal  fade" id="exampleVerticallycenteredModal{{i.id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header mb-2">
+                <div class="card-title d-flex align-items-center">
+                    <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                    </div>
+                    <h5 class="mb-0 text-white">Update Sub-Category</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+
+            <form action="{% url 'edit_subcategory' %}" method="POST" id="categoryform" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row mb-2 mx-1">
+                    <div class="col-xl-9 mx-auto">
+                        <div class="row mb-3">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Category
+                                </label>
+                            <div class="col-sm-12">
+                                <input type="text" value="{{i.id}}" name="sub_category_id" hidden>
+                               
+                                <select name="category_id" class="form-control">
+                                    {% for cat in category %}
+                                    <option class="bg-dark" value="{{ cat.id }}" {% if cat.id == i.Category_id.id %}selected{% endif %}>
+                                        {{ cat.category_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                
+                            </div>
+                        </div>
+
+                    <div class="col-xl-12 mx-auto">
+                        <div class="row mb-3">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Sub-Category Image
+                                </label>
+                            <div class="col-sm-12">
+                                <input class="form-control" type="file"  name="sub_category_image" >
+                                {% if i.subcategory_image.url != "" %}<a href="{{i.subcategory_image.url}}">{{i.subcategory_image}}</a>{% endif %}
+                               
+                               
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-12 mx-auto">
+                        <div class="row mb-3">
+                            <label for="inputEnterYourName" class="col-sm-12 col-form-label">Sub-Category
+                                </label>
+                            <div class="col-sm-12">
+                                <input class="form-control" type="text" value="{{i.name}}" name="sub_category_name" >
+                               
+                               
+                            </div>
+                        </div>
+                    </div>
+
+
+                        {% comment %} <div class="card border-top border-0 border-4 modal-color">
+                            <div class="card-body">
+                                <div class="border p-4 rounded">
+                                    <div class="card-title d-flex align-items-center">
+                                        <div><i class="bx bxs-user me-1 font-22 text-white"></i>
+                                        </div>
+                                        <h5 class="mb-0 text-white">Update Category</h5>
+                                    </div>
+                                    <hr>
+                                    <div class="row mb-3">
+                                        <label for="inputEnterYourName" class="col-sm-12 col-form-label">Enter Your
+                                            Category Name</label>
+                                        <div class="col-sm-12">
+                                            <input type="text" value="{{i.id}}" name="category_id" hidden>
+                                            <input type="text" class="form-control"
+                                                placeholder="Enter Your Category Name" id="category_name"
+                                                name="category_name" value={{i.category_name}} required>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div> {% endcomment %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update </button>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+</div>
