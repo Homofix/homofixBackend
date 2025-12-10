@@ -65,7 +65,7 @@
                     <tbody>
                         {% for i in rebooking %}
                         <tr>
-                            <td>{{forloop.counter}}</td>
+                            <td>{{ forloop.counter0|add:rebooking.start_index }}</td>
                             
                             <td>
                                 {{i.booking_product.booking.order_id}}

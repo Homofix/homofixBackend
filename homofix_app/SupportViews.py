@@ -29,7 +29,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Par
 from django.db.models import Avg, Q
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_date
-
+from django.core.paginator import Paginator
 
 def index(request,id):
     booking_id = Booking.objects.get(id=id)
@@ -1780,11 +1780,28 @@ def support_contact_us(request):
     return render(request,'Support_templates/ContactUs/contact_us.html',context)    
 
 def support_job_enquiry(request):
+    q = request.GET.get('q', '').strip()
+
     user = request.user
     support = Support.objects.get(admin=user)   
-    job_enquiry = JobEnquiry.objects.all()
+    job_enquiry_qs = JobEnquiry.objects.all().order_by('-id')
+
+    if q:
+        job_enquiry_qs = job_enquiry_qs.filter(
+            Q(name__icontains=q) |
+            Q(mobile__icontains=q) |
+            Q(email__icontains=q) |
+            Q(expert_in__icontains=q) 
+           
+        ).order_by('-id')
+    paginator = Paginator(job_enquiry_qs, 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
+    
     context = {
-        'job_enquiry':job_enquiry,
+        'page_obj': page_obj,
+        'search_query': q,
         'support':support,
     }
 

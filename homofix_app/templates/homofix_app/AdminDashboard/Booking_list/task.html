@@ -79,7 +79,7 @@
                         {% for i in task %}
                         {% comment %} {% if i.booking.status != 'Completed'  %} {% endcomment %}
                         <tr>
-                            <td>{{forloop.counter}}</td>
+                            <td>{{ forloop.counter0|add:task.start_index }}</td>
                             <td>
                                 {{i.booking.order_id}}
                             </td>

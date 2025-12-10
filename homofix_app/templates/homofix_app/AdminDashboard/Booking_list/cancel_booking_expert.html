@@ -67,7 +67,7 @@
 
                         </tr>
                     </thead>
-                    <tbody>
+                    {% comment %} <tbody>
                         {% for booking in booking %}
                         <tr class="text-nowrap">
                             <td>{{forloop.counter}}</td>
@@ -159,7 +159,130 @@
                         {% endfor %}
 
 
-                    </tbody>
+                    </tbody> {% endcomment %}
+                    <tbody>
+{% for t in booking %}
+<tr class="text-nowrap">
+
+    <!-- Serial Number with pagination -->
+    <td>{{ forloop.counter0|add:booking.start_index }}</td>
+
+    <!-- Order ID -->
+    <td>{{ t.booking.order_id }}</td>
+
+    <!-- Expert ID -->
+    <td>{{ t.technician.expert_id }}</td>
+
+    <!-- Category Name -->
+    <td>
+        {% if t.booking.booking_product.exists %}
+            {{ t.booking.booking_product.first.product.subcategory.Category_id.category_name }}
+        {% else %}
+            N/A
+        {% endif %}
+    </td>
+
+    <!-- Subcategory Name -->
+    <td>
+        {% if t.booking.booking_product.exists %}
+            {{ t.booking.booking_product.first.product.subcategory.name }}
+        {% else %}
+            N/A
+        {% endif %}
+    </td>
+
+    <!-- Booking Products -->
+    <td>
+        <div class="d-flex align-items-center">
+            <div class="ms-2">
+                {% for bp in t.booking.booking_product.all %}
+                    <h6 class="mb-1 nowrap font-14">
+                        {{ bp.product.name }} ({{ bp.quantity }})
+                    </h6>
+                {% endfor %}
+            </div>
+        </div>
+    </td>
+
+    <!-- Customer Name -->
+    <td>{{ t.booking.booking_customer }}</td>
+
+    <!-- Customer Mobile -->
+    <td>{{ t.booking.mobile }}</td>
+
+    <!-- City -->
+    <td>{{ t.booking.city }}</td>
+
+    <!-- State -->
+    <td>{{ t.booking.state }}</td>
+
+    <!-- Area -->
+    <td>{{ t.booking.area }}</td>
+
+    <!-- Address -->
+    <td>{{ t.booking.booking_address }}</td>
+
+    <!-- Zipcode -->
+    <td>{{ t.booking.zipcode }}</td>
+
+    <!-- Status -->
+    <td>
+        <div class="badge rounded-pill bg-light p-2 text-uppercase px-3">
+            <i class='bx bxs-circle me-1'></i>{{ t.booking.status }}
+        </div>
+    </td>
+
+    <!-- Final Amount -->
+    <td>Rs {{ t.booking.final_amount }}</td>
+
+    <!-- Booking Date -->
+    <td>{{ t.booking.booking_date }}</td>
+
+    <!-- Supported / Admin By -->
+    <td>
+        {% if t.booking.supported_by %}
+            {{ t.booking.supported_by.admin.username }}
+        {% elif t.booking.admin_by %}
+            {{ t.booking.admin_by.admin.username }}
+        {% else %}
+            Website
+        {% endif %}
+    </td>
+
+    <!-- Payment Mode -->
+    <td>
+        {% if t.booking.online %}
+            Online
+        {% else %}
+            Cash on Service
+        {% endif %}
+    </td>
+
+    <!-- Cancel Reason -->
+    <td>{{ t.booking.cancel_reason }}</td>
+
+    <!-- Time Slot -->
+    <td style="white-space: nowrap;">
+        {% if t.booking.slot == 1 %}08:00 AM - 09:00 AM
+        {% elif t.booking.slot == 2 %}09:00 AM - 10:00 AM
+        {% elif t.booking.slot == 3 %}10:00 AM - 11:00 AM
+        {% elif t.booking.slot == 4 %}11:00 AM - 12:00 PM
+        {% elif t.booking.slot == 5 %}12:00 PM - 01:00 PM
+        {% elif t.booking.slot == 6 %}01:00 PM - 02:00 PM
+        {% elif t.booking.slot == 7 %}02:00 PM - 03:00 PM
+        {% elif t.booking.slot == 8 %}03:00 PM - 04:00 PM
+        {% elif t.booking.slot == 9 %}04:00 PM - 05:00 PM
+        {% elif t.booking.slot == 10 %}05:00 PM - 06:00 PM
+        {% elif t.booking.slot == 11 %}06:00 PM - 07:00 PM
+        {% elif t.booking.slot == 12 %}07:00 PM - 08:00 PM
+        {% else %}No Slot
+        {% endif %}
+    </td>
+
+</tr>
+{% endfor %}
+</tbody>
+
 
                 </table>
 

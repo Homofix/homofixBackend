@@ -57,7 +57,7 @@
                     <tbody>
                         {% for i in customer %}
                         <tr>
-                            <td>{{forloop.counter}}</td>
+                            <td>{{ forloop.counter0|add:customer.start_index }}</td>
                             <td>{{i.admin.first_name}}</td>                                                      
                             <td>{{i.admin.username}}</td>                                                      
                             <td>{{i.mobile}}</td>
@@ -124,30 +124,30 @@
                 </ul>
             </div> {% endcomment %}
             <div class="pagination">
-    <ul class="pagination justify-content-center">
-        {% if customer.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}">First</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ customer.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Previous</a>
-            </li>
-        {% endif %}
+                <ul class="pagination justify-content-center">
+                    {% if customer.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ customer.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
 
-        <li class="page-item disabled">
-            <span class="page-link">Page {{ customer.number }} of {{ customer.paginator.num_pages }}</span>
-        </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ customer.number }} of {{ customer.paginator.num_pages }}</span>
+                    </li>
 
-        {% if customer.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ customer.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Next</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ customer.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}">Last</a>
-            </li>
-        {% endif %}
-    </ul>
-</div>
+                    {% if customer.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ customer.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ customer.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
 
         </div>
     </div>

@@ -68,7 +68,8 @@
                     <tbody>
                         {% for i in pincode %}
                         <tr>
-                            <td>{{forloop.counter}}</td>
+                            <td>{{ forloop.counter0|add:pincode.start_index }}</td>
+
                             <td>{{i.state}}</td>
                             <td>{{i.code}}</td>
                            
@@ -100,35 +101,31 @@
             </div>
         </div>
 
-        <nav>
-            <ul class="pagination justify-content-end">
-    {% if pincode.has_previous %}
-        <li class="page-item">
-            <a class="page-link" href="?q={{ query }}&page={{ pincode.previous_page_number }}">Prev</a>
-        </li>
-    {% else %}
-        <li class="page-item disabled"><span class="page-link">Prev</span></li>
-    {% endif %}
+        <div class="pagination">
+                <ul class="pagination justify-content-center">
+                    {% if pincode.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ pincode.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
 
-    {% for num in pincode.paginator.page_range %}
-        {% if pincode.number == num %}
-            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-        {% else %}
-            <li class="page-item"><a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a></li>
-        {% endif %}
-    {% endfor %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ pincode.number }} of {{ pincode.paginator.num_pages }}</span>
+                    </li>
 
-    {% if pincode.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="?q={{ query }}&page={{ pincode.next_page_number }}">Next</a>
-        </li>
-    {% else %}
-        <li class="page-item disabled"><span class="page-link">Next</span></li>
-    {% endif %}
-</ul>
-
-            
-        </nav>
+                    {% if pincode.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ pincode.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ pincode.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
 
     </div>
 </div>

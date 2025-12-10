@@ -38,6 +38,7 @@ from django.utils import timezone
 
 from django.http import JsonResponse
 from utils.firebase import send_push_notification
+from django.core.paginator import Paginator
 
 # def all_location(request):
 #     all_location = AllTechnicianLocation.objects.all()
@@ -360,11 +361,27 @@ def admin_update_profile(request):
     return render(request,'homofix_app/AdminDashboard/profile.html')
 
 def category(request):
-    category = Category.objects.all()
+    q = request.GET.get('q', '').strip()
+    category_qs = Category.objects.all()
+    if q:
+        category_qs = category_qs.filter(category_name__icontains=q)
+
+    paginator = Paginator(category_qs.order_by('category_name'), 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
     new_expert_count = Technician.objects.filter(status="New").count()
     rebooking_count = Rebooking.objects.all().count()
     customer_count = Customer.objects.all().count()
-    return render(request,'homofix_app/AdminDashboard/Category/category.html',{'category':category,'new_expert_count':new_expert_count,'rebooking_count':rebooking_count,'customer_count':customer_count})
+
+    context = {
+        'page_obj': page_obj,
+        'search_query': q,
+        'new_expert_count': new_expert_count,
+        'rebooking_count': rebooking_count,
+        'customer_count': customer_count,
+    }
+    return render(request,'homofix_app/AdminDashboard/Category/category.html',context)
 
 def add_category(request):
     if request.method == "POST":
@@ -408,8 +425,15 @@ def edit_Category(request):
         return redirect('category')
 
 def subcategory(request):
+    q = request.GET.get('q', '').strip()
     category = Category.objects.all()
-    sub_category = SubCategory.objects.all()
+    sub_category_qs = SubCategory.objects.all()
+    if q:
+        sub_category_qs = sub_category_qs.filter(name__icontains=q)
+    paginator = Paginator(sub_category_qs.order_by('name'), 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
     rebooking_count = Rebooking.objects.all().count()
     customer_count = Customer.objects.all().count()
     if request.method == 'POST':
@@ -431,7 +455,8 @@ def subcategory(request):
 
     context = {
         'category':category,
-        'sub_category':sub_category,
+        'page_obj': page_obj,
+        'search_query': q,
         'rebooking_count':rebooking_count,
         'customer_count':customer_count
     }
@@ -462,7 +487,20 @@ def delete_subcategory(request,id):
 
 def technician(request):
     category = Category.objects.all()
-    technician = Technician.objects.all()
+    q = request.GET.get('q', '').strip()
+    technician_qs = Technician.objects.all()
+    if q:
+        technician_qs = technician_qs.filter(
+            Q(admin__first_name__icontains=q) |
+            Q(admin__last_name__icontains=q) |
+            Q(admin__username__icontains=q) |
+            Q(mobile__icontains=q) |
+            Q(subcategories__name__icontains=q)
+        )
+    paginator = Paginator(technician_qs.order_by('admin'), 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
     # user_status = {}
     # for user in technician:
     #     # check if user is logged in by looking at their last login time
@@ -504,7 +542,7 @@ def technician(request):
         # else:
         #     return JsonResponse({'status':0})
 
-    return render(request,'homofix_app/AdminDashboard/Technician/technician.html',{'category':category,'technician':technician,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count})
+    return render(request,'homofix_app/AdminDashboard/Technician/technician.html',{'category':category,'technician':technician,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count,'page_obj': page_obj,'search_query': q})
 
 
 
@@ -862,7 +900,17 @@ def technician_payment_history(request,id):
     # return redirect('technician_payment_history',technician.id)  
 
 def product(request):
-    product = Product.objects.all()
+    q = request.GET.get('q', '').strip()
+    product_qs = Product.objects.all()
+    if q:
+        product_qs = product_qs.filter(
+            Q(name__icontains=q) |
+            Q(subcategory__name__icontains=q)
+        )
+    paginator = Paginator(product_qs.order_by('name'), 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
     category = Category.objects.all()
     categories = Category.objects.all()
     subcategory = SubCategory.objects.all()
@@ -909,7 +957,10 @@ def product(request):
         return redirect("product")
 
     context = {
-        "product": product,
+        # "product": product,
+        'page_obj': page_obj,
+        'search_query': q,
+
         "category": category,
         "new_expert_count": new_expert_count,
         "booking_count": booking_count,
@@ -1054,8 +1105,18 @@ def delete_product(request,id):
 
 
 def addons(request):
+    q = request.GET.get('q', '').strip()
     category = Category.objects.all()
-    addons = SpareParts.objects.all()
+    addons_qs = SpareParts.objects.all()
+    if q:
+        addons_qs = addons_qs.filter(
+            Q(spare_part__icontains=q) |
+            Q(product__name__icontains=q)
+        )
+    paginator = Paginator(addons_qs.order_by('spare_part'), 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
     product = Product.objects.all()
     subcategory = SubCategory.objects.all()
     new_expert_count = Technician.objects.filter(status="New").count()
@@ -1074,7 +1135,7 @@ def addons(request):
         return redirect('addons')
         
 
-    return render(request,'homofix_app/AdminDashboard/Addons/addon.html',{'addons':addons,'product':product,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count,'category':category,'subcategory':subcategory})
+    return render(request,'homofix_app/AdminDashboard/Addons/addon.html',{'addons':addons,'product':product,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count,'category':category,'subcategory':subcategory,'page_obj': page_obj,'search_query': q})
 
 
 def edit_addons(request,id):
@@ -1123,9 +1184,21 @@ def delete_addons(request,id):
     return redirect('addons')
 
 def addons_details(request):
-    addon = Addon.objects.all()
+    q = request.GET.get('q', '').strip()
+
+    addon_qs = Addon.objects.all()
+    if q:
+        addon_qs = addon_qs.filter(
+            Q(spare_parts_id__spare_part__icontains=q) |
+            Q(booking_prod_id__product__name__icontains=q)
+        )
+    paginator = Paginator(addon_qs.order_by('description'), 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
     context = {
-        'addon':addon
+        'page_obj': page_obj,
+        'search_query': q,
     }
     return render(request,'homofix_app/AdminDashboard/Addons/addons_detail.html',context)
 
@@ -1133,12 +1206,23 @@ def addons_details(request):
 # --------------------- SUPPORT CREATION --------------------- 
 
 def support(request):
-    suppt = Support.objects.all()
+    q = request.GET.get('q', '').strip()
+    suppt_qs = Support.objects.all()
+    if q:
+        suppt_qs = suppt_qs.filter(
+            Q(admin__first_name__icontains=q) |
+            Q(admin__last_name__icontains=q) |
+            Q(mobile__icontains=q)
+        )
+    paginator = Paginator(suppt_qs.order_by('id'), 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
     new_expert_count = Technician.objects.filter(status="New").count()
     booking_count = Booking.objects.filter(status = "New").count()
     rebooking_count = Rebooking.objects.all().count()
     customer_count = Customer.objects.all().count()
-    return render(request,'homofix_app/AdminDashboard/Support/support.html',{'suppt':suppt,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count})
+    return render(request,'homofix_app/AdminDashboard/Support/support.html',{'page_obj':page_obj,'search_query': q,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count})
 
 def add_support(request):
     
@@ -1526,10 +1610,21 @@ def delete_universal_slot(request,id):
 
 
 def add_faq(request):
+    q = request.GET.get('q', '').strip()
     product = Product.objects.all()
     category = Category.objects.all()
     subcategory =SubCategory.objects.all()
-    faqs = FAQ.objects.all()
+    faqs_qs = FAQ.objects.all()
+    if q:
+        faqs_qs = faqs_qs.filter(
+            Q(question__icontains=q) |
+            Q(product__subcategory__name__icontains=q)
+        )
+    paginator = Paginator(faqs_qs.order_by('question'), 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+        
+
     new_expert_count = Technician.objects.filter(status="New").count()
     booking_count = Booking.objects.filter(status = "New").count()
     rebooking_count = Rebooking.objects.all().count()
@@ -1545,7 +1640,9 @@ def add_faq(request):
         
     context = {
         'product':product,
-        'faqs':faqs,
+        # 'faqs':faqs,
+        'page_obj': page_obj,
+        'search_query': q,
         'new_expert_count':new_expert_count,
         'booking_count':booking_count,
         'rebooking_count':rebooking_count,
@@ -2776,8 +2873,21 @@ def reassign(request):
 
 
 def ListofNewExpert(request):
+    q = request.GET.get('q', '').strip()
     category = Category.objects.all().order_by("-id")
-    technician = Technician.objects.filter(status="New")
+    technician_qs = Technician.objects.filter(status="New")
+    if q:
+        technician_qs = technician_qs.filter(
+            Q(admin__first_name__icontains=q) |
+            Q(admin__last_name__icontains=q) |
+            Q(admin__username__icontains=q) |
+            Q(mobile__icontains=q) |
+            Q(subcategories__name__icontains=q)
+        )
+    paginator = Paginator(technician_qs.order_by('admin'), 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
     new_expert_count = Technician.objects.filter(status="New").count()
     booking_count = Booking.objects.filter(status = "New").count()
     rebooking_count = Rebooking.objects.all().count()
@@ -2786,6 +2896,8 @@ def ListofNewExpert(request):
     context = {
         'category' :category,
         'technician':technician,
+        'page_obj': page_obj,
+        'search_query': q,
         'new_expert_count':new_expert_count,
         'booking_count':booking_count,
         'rebooking_count':rebooking_count,
@@ -3080,7 +3192,7 @@ def admin_job_enquiry(request):
 
 
 def admin_share_percentage(request):
-    share_percentage = HodSharePercentage.objects.all().order_by("-id")
+    share_percentage = HodSharePercentage.objects.all().order_by("-id")[:3]
     new_expert_count = Technician.objects.filter(status="New").count()
     booking_count = Booking.objects.filter(status = "New").count()
     rebooking_count = Rebooking.objects.all().count()
@@ -3112,26 +3224,47 @@ def admin_share_percentage_update(request):
 
         
 def admin_share_list(request):
-    share = Share.objects.all().order_by("-id")
+    q = request.GET.get('q', '').strip()
+    share_qs = (
+        Share.objects.all()
+        .select_related('task__booking', 'task__technician__admin')
+        .prefetch_related(
+            Prefetch(
+                'task__booking__booking_product',
+                queryset=BookingProduct.objects.select_related('product__subcategory__Category_id')
+            )
+        )
+        .order_by('-id')
+    )
+    if q:
+        share_qs = share_qs.filter(
+            Q(task__technician__admin__first_name__icontains=q) |
+            Q(task__technician__admin__last_name__icontains=q) |
+            Q(task__booking__order_id__icontains=q) |
+            Q(task__booking__booking_product__product__subcategory__name__icontains=q)
+        )
+    paginator = Paginator(share_qs, 25)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
+
     testint = Share.objects.aggregate(Sum('company_share'))
     
     new_expert_count = Technician.objects.filter(status="New").count()
     booking_count = Booking.objects.filter(status = "New").count()
     rebooking_count = Rebooking.objects.all().count()
     customer_count = Customer.objects.all().count()
-    ttl = 0
-    for i in share:
-        sub_ttl = i.task.booking.total_amount
-        tax_amount = i.task.booking.tax_amount
-        
-        ttl += Decimal(sub_ttl) + Decimal(tax_amount)
+    final_sum = share_qs.aggregate(Sum('task__booking__final_amount_field'))['task__booking__final_amount_field__sum'] or 0
+    ttl = Decimal(final_sum)
         
     context = {
         'new_expert_count':new_expert_count,
         'booking_count':booking_count,
         'rebooking_count':rebooking_count,
         'customer_count':customer_count,
-        'share':share,
+        # 'share':share,
+        'page_obj': page_obj,
+        'search_query': q,
         'ttl':ttl,
         'testint':testint
     }
@@ -3254,13 +3387,31 @@ def admin_customer_history(request,id):
 # --------------------------- Customer Payment Details -----------------------------    
 
 def admin_customer_payment(request):
+    q = request.GET.get('q', '').strip()
     new_expert_count = Technician.objects.filter(status="New").count()
     booking_count = Booking.objects.filter(status = "New").count()
     rebooking_count = Rebooking.objects.all().count()
     customer_count = Customer.objects.all().count()
-    payment = Payment.objects.all().order_by("-id")
+    payment_qs = Payment.objects.all().order_by("-id")
+    if q:
+        payment_qs = payment_qs.filter(
+            Q(booking_id__order_id__icontains=q) |
+            Q(booking_id__customer__admin__username__icontains=q) |
+            Q(booking_id__customer__admin__first_name__icontains=q) |
+            Q(booking_id__customer__admin__last_name__icontains=q) |
+            Q(booking_id__customer__mobile__icontains=q) 
+        )
+
+    paginator = Paginator(payment_qs, 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
+
+
     context = {
-        'payment':payment,
+        # 'payment':payment,
+        'page_obj': page_obj,
+        'search_query': q,
         'new_expert_count':new_expert_count,
         'booking_count':booking_count,
         'rebooking_count':rebooking_count,
@@ -3294,9 +3445,27 @@ def admin_customer_payment(request):
 # ------------------------------- Withdraw Request ----------------------     
 
 def admin_withdraw_request(request):
-    withdraw_req = WithdrawRequest.objects.all()
+    q = request.GET.get('q', '').strip()
+    withdraw_req_qs = WithdrawRequest.objects.all()
+    if q:
+        withdraw_req_qs = withdraw_req_qs.filter(
+            Q(technician_id__admin__username__icontains=q) |
+            Q(technician_id__admin__first_name__icontains=q) |
+            Q(technician_id__admin__last_name__icontains=q) |
+            Q(technician_id__admin__email__icontains=q) |
+            Q(technician_id__mobile__icontains=q) |
+            Q(technician_id__expert_id__icontains=q)
+        )
+
+    paginator = Paginator(withdraw_req_qs, 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
+
     context = {
-        'withdraw_req':withdraw_req
+        'page_obj': page_obj,
+        'search_query': q,
+
     }
     return render(request,'homofix_app/AdminDashboard/Withdraw/withdraw_request.html',context)
 
@@ -3322,10 +3491,25 @@ def expert_accept_withraw_request(request,withdraw_id):
 
 def recharge(request):
     
-    
-    recharge = RechargeHistory.objects.all()
+    q = request.GET.get('q', '').strip()
+
+    recharge_qs = RechargeHistory.objects.all().order_by('-id')
+    if q:
+        recharge_qs = recharge_qs.filter(
+            Q(technician_id__expert_id__icontains=q) |
+            Q(technician_id__admin__username__icontains=q) |
+            Q(technician_id__admin__first_name__icontains=q) |
+            Q(technician_id__admin__last_name__icontains=q) |
+            Q(technician_id__mobile__icontains=q)
+        ).order_by('-id')
+    paginator = Paginator(recharge_qs, 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
+
     context = {
-        'recharge':recharge
+        'page_obj': page_obj,
+        'search_query': q,
     }
     return render(request,'homofix_app/AdminDashboard/Recharge/list_of_recharge.html',context)
 

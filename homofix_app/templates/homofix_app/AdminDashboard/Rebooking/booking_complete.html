@@ -73,62 +73,60 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for task in task %}
+                        {% for t in task %}
                         <tr>
-                            <td>{{forloop.counter}}</td>
+                            <td>{{ forloop.counter0|add:task.start_index }}</td>
                             <td>
-                                #{{task.booking.order_id}}
+                                #{{t.booking.order_id}}
                             </td>
-                            {% comment %} <td>{{task.booking.product.category.category_name}}</td> {% endcomment %}
+                            
                             <td>
-                                {% if task.booking.booking_product.exists %}
-                                    {{ task.booking.booking_product.first.product.subcategory.Category_id.category_name }}
+                                {% if t.booking.booking_product.exists %}
+                                    {{ t.booking.booking_product.first.product.subcategory.Category_id.category_name }}
                                 {% else %}
                                     N/A
                                 {% endif %} 
                             </td>
                             <td>
-                                {% if task.booking.booking_product.exists %}
-                                    {{ task.booking.booking_product.first.product.subcategory.name }}
+                                {% if t.booking.booking_product.exists %}
+                                    {{ t.booking.booking_product.first.product.subcategory.name }}
                                 {% else %}
                                     N/A
                                 {% endif %} 
                             </td>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    {% comment %} <div class="recent-product-img">
-                                        <img src="" alt="">
-                                    </div> {% endcomment %}
+                                    
                                     <div class="ms-2">
-                                        {% comment %} <h6 class="mb-1 font-14">{{task.booking.product.name}}</h6> {% endcomment %}
-                                        {% for booking_product in task.booking.booking_product.all %}
+                                        
+                                        {% for booking_product in t.booking.booking_product.all %}
                                         <h6 class="mb-1 nowrap font-14">{{ booking_product.product.name }} ({{ booking_product.quantity }})</h6>
                                         {% endfor %}
                                         
                                     </div>
                                 </div>
                             </td>
-                            <td>{{task.booking.customer.admin.first_name}}</td>
-                            <td>{{task.booking.customer.mobile}}</td>
-                            <td>{{task.booking.customer.city}}</td>
-                            <td>{{task.booking.customer.state}}</td>
-                            <td>{{task.booking.customer.area}}</td>
-                            <td>{{task.booking.customer.zipcode}}</td>
-                            <td>{{task.booking.customer.gst_no}}</td>
+                            <td>{{t.booking.customer.admin.first_name}}</td>
+                            <td>{{t.booking.customer.mobile}}</td>
+                            <td>{{t.booking.customer.city}}</td>
+                            <td>{{t.booking.customer.state}}</td>
+                            <td>{{t.booking.customer.area}}</td>
+                            <td>{{t.booking.customer.zipcode}}</td>
+                            <td>{{t.booking.customer.gst_no}}</td>
                             <td>
                                 <div class="badge rounded-pill bg-light p-2 text-uppercase px-3"><i
-                                        class='bx bxs-circle me-1'></i>{{task.booking.status}}</div>
+                                        class='bx bxs-circle me-1'></i>{{t.booking.status}}</div>
                             </td>
                             
-                            {% comment %} <td>Rs{{task.booking.product.price}}</td> {% endcomment %}
+                            
                             <td>
-                                {{task.booking.final_amount}}
+                                {{t.booking.final_amount}}
                             </td>
-                            <td class="nowrap">{{task.booking.booking_date}}</td>
+                            <td class="nowrap">{{t.booking.booking_date}}</td>
                             <td>
                                 
                                  {% for invoice in invoices %}
-                                 {% if invoice.booking_id.id == task.booking.id %}
+                                 {% if invoice.booking_id.id == t.booking.id %}
                                  {{ invoice.updated_at }}
                                  {% endif %}
                                 
@@ -139,66 +137,54 @@
                             
                             </td>
                             <td class="nowrap">
-                                {% if task.booking.supported_by %}
-                                {{task.booking.supported_by.admin.username}}
-                            {% elif task.booking.admin_by%}
-                            {{task.booking.admin_by.admin.username}}
+                                {% if t.booking.supported_by %}
+                                {{t.booking.supported_by.admin.username}}
+                            {% elif t.booking.admin_by%}
+                            {{t.booking.admin_by.admin.username}}
                             {% else %}
                                 Website
                             {% endif %}
                             </td>
                             <td>
-                            {% if task.booking.online == True %}
+                            {% if t.booking.online == True %}
                             Online
                             {% else %}
                             Cash on Service
                             {% endif %}
                             </td>
-                            {% comment %} <td class="nowrap">{{task.booking.supported_by.admin.username}}</td> {% endcomment %}
-                            <td>{{task.technician.admin.username}}</td>
+                            
+                            <td>{{t.technician.admin.username}}</td>
                            
-                            {% comment %} <td>
-                                <div class="d-flex">
-                                    <a class="mx-2" href="{% url 'support_rebooking_update' task.id %}"><button class="btn btn-sm btn-info" >Rebooking</button></a>
-                                    <a class="mx-2" href="{% url 'support_rebooking_product' task.id %}"><button class="btn btn-sm btn-info" >testing</button></a>
-                                    <a href="{% url 'support_rebooking' task.id %}"><button class="btn btn-sm btn-info" >testing2</button></a>
-                                   
-                                </div>
-                            </td> {% endcomment %}
-                            {% comment %} <td class="nowrap"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal4">View Details</button></td> {% endcomment %}
+                            
                             <td style="white-space: nowrap;">
-                                {% if task.booking.slot == 1 %}08:00 AM - 09:00 AM
-                                {% elif task.booking.slot == 2 %}09:00 AM - 10:00 AM
-                                {% elif task.booking.slot == 3 %}10:00 AM - 11:00 AM
-                                {% elif task.booking.slot == 4 %}11:00 AM - 12:00 PM
-                                {% elif task.booking.slot == 5 %}12:00 PM - 01:00 PM
-                                {% elif task.booking.slot == 6 %}01:00 PM - 02:00 PM
-                                {% elif task.booking.slot == 7 %}02:00 PM - 03:00 PM
-                                {% elif task.booking.slot == 8 %}03:00 PM - 04:00 PM
-                                {% elif task.booking.slot == 9 %}04:00 PM - 05:00 PM
-                                {% elif task.booking.slot == 10 %}05:00 PM - 06:00 PM
-                                {% elif task.booking.slot == 11 %}06:00 PM - 07:00 PM
-                                {% elif task.booking.slot == 12 %}07:00 PM - 08:00 PM
+                                {% if t.booking.slot == 1 %}08:00 AM - 09:00 AM
+                                {% elif t.booking.slot == 2 %}09:00 AM - 10:00 AM
+                                {% elif t.booking.slot == 3 %}10:00 AM - 11:00 AM
+                                {% elif t.booking.slot == 4 %}11:00 AM - 12:00 PM
+                                {% elif t.booking.slot == 5 %}12:00 PM - 01:00 PM
+                                {% elif t.booking.slot == 6 %}01:00 PM - 02:00 PM
+                                {% elif t.booking.slot == 7 %}02:00 PM - 03:00 PM
+                                {% elif t.booking.slot == 8 %}03:00 PM - 04:00 PM
+                                {% elif t.booking.slot == 9 %}04:00 PM - 05:00 PM
+                                {% elif t.booking.slot == 10 %}05:00 PM - 06:00 PM
+                                {% elif t.booking.slot == 11 %}06:00 PM - 07:00 PM
+                                {% elif t.booking.slot == 12 %}07:00 PM - 08:00 PM
                                 {% else %}No Slot
                                 {% endif %}
                             </td>
                             
                             <td>
-                                <button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal-{{task.id}}">View Addons</button>
+                                <button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal-{{t.id}}">View Addons</button>
                                 <div>
                                    
-                                    {% comment %} {% for addon in addons %}
-                                     {% if addon.booking_prod_id.booking.id == task.booking.id %}
-                                            <p>{{ addon.spare_parts_id.spare_part }} ({{ addon.quantity }}) - Rs {{ addon.spare_parts_id.price }}</p>
-                                        {% endif %}
-                                    {% endfor %} {% endcomment %}
+                                    
                                 </div>
                                 {% include "homofix_app/AdminDashboard/Rebooking/view_addons_modal.html" %}
                             </td>
                             
                             
-                            <td class="nowrap"><a href="{% url 'admin_rebooking' task.id %}"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal4">View Details</button></a></td>
-                            <td class="nowrap"><a href="{% url 'new_invoice' task.booking.id %}"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal4">Invoice</button></a></td>
+                            <td class="nowrap"><a href="{% url 'admin_rebooking' t.id %}"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal4">View Details</button></a></td>
+                            <td class="nowrap"><a href="{% url 'new_invoice' t.booking.id %}"><button type="button" class="btn btn-light btn-sm radius-30 px-4" data-bs-toggle="modal" data-bs-target="#exampleDarkModal4">Invoice</button></a></td>
                             
                         </tr>
 
@@ -218,25 +204,25 @@
 {% comment %} 
             <div class="pagination">
                 <ul class="pagination justify-content-center">
-                    {% if task.has_previous %}
+                    {% if t.has_previous %}
                         <li class="page-item">
                             <a class="page-link" href="?page=1">First</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ task.previous_page_number }}">Previous</a>
+                            <a class="page-link" href="?page={{ t.previous_page_number }}">Previous</a>
                         </li>
                     {% endif %}
             
                     <li class="page-item disabled">
-                        <span class="page-link">Page {{ task.number }} of {{ task.paginator.num_pages }}</span>
+                        <span class="page-link">Page {{ t.number }} of {{ t.paginator.num_pages }}</span>
                     </li>
             
-                    {% if task.has_next %}
+                    {% if t.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ task.next_page_number }}">Next</a>
+                            <a class="page-link" href="?page={{ t.next_page_number }}">Next</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ task.paginator.num_pages }}">Last</a>
+                            <a class="page-link" href="?page={{ t.paginator.num_pages }}">Last</a>
                         </li>
                     {% endif %}
                 </ul>

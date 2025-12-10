@@ -65,10 +65,10 @@
 
                         </tr>
                     </thead>
-                    <tbody>
+                    {% comment %} <tbody>
                         {% for booking in booking %}
                         <tr class="text-nowrap">
-                            <td>{{forloop.counter}}</td>
+                            <td>{{ forloop.counter0|add:booking.start_index }}</td>
                             <td>
                                 {{booking.order_id}}
                             </td>
@@ -130,15 +130,7 @@
                             {% else %}
                             Cash on Service
                             {% endif %}
-                            {% comment %} <td>
-                                {% for task in tasks %}
-                                    {% if task.booking == booking %}
-                                        {{ task.technician.expert_id }}
-                                        {% else %}
-                                        no expert
-                                    {% endif %}
-                                {% endfor %}
-                            </td> {% endcomment %}
+                            
 
                             <td>
                                {{booking.cancel_reason}}
@@ -165,7 +157,100 @@
                         {% endfor %}
 
 
-                    </tbody>
+                    </tbody> {% endcomment %}
+                    <tbody>
+    {% for b in booking %}
+    <tr class="text-nowrap">
+        <td>{{ forloop.counter0|add:booking.start_index }}</td>
+
+        <td>{{ b.order_id }}</td>
+
+        <td>
+            {% if b.booking_product.exists %}
+                {{ b.booking_product.first.product.subcategory.Category_id.category_name }}
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+
+        <td>
+            {% if b.booking_product.exists %}
+                {{ b.booking_product.first.product.subcategory.name }}
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+
+        <td>
+            <div class="d-flex align-items-center">
+                <div class="ms-2">
+                    {% for booking_product in b.booking_product.all %}
+                        <h6 class="mb-1 nowrap font-14">
+                            {{ booking_product.product.name }} ({{ booking_product.quantity }})
+                        </h6>
+                    {% endfor %}
+                </div>
+            </div>
+        </td>
+
+        <td>{{ b.booking_customer }}</td>
+        <td>{{ b.mobile }}</td>
+        <td>{{ b.city }}</td>
+        <td>{{ b.state }}</td>
+        <td>{{ b.area }}</td>
+        <td>{{ b.booking_address }}</td>
+        <td>{{ b.zipcode }}</td>
+
+        <td>
+            <div class="badge rounded-pill bg-light p-2 text-uppercase px-3">
+                <i class='bx bxs-circle me-1'></i>{{ b.status }}
+            </div>
+        </td>
+
+        <td>Rs {{ b.final_amount }}</td>
+
+        <td>{{ b.booking_date }}</td>
+
+        <td>
+            {% if b.supported_by %}
+                {{ b.supported_by.admin.username }}
+            {% elif b.admin_by %}
+                {{ b.admin_by.admin.username }}
+            {% else %}
+                Website
+            {% endif %}
+        </td>
+
+        <td>
+            {% if b.online %}
+                Online
+            {% else %}
+                Cash on Service
+            {% endif %}
+        </td>
+
+        <td>{{ b.cancel_reason }}</td>
+
+        <td style="white-space: nowrap;">
+            {% if b.slot == 1 %}08:00 AM - 09:00 AM
+            {% elif b.slot == 2 %}09:00 AM - 10:00 AM
+            {% elif b.slot == 3 %}10:00 AM - 11:00 AM
+            {% elif b.slot == 4 %}11:00 AM - 12:00 PM
+            {% elif b.slot == 5 %}12:00 PM - 01:00 PM
+            {% elif b.slot == 6 %}01:00 PM - 02:00 PM
+            {% elif b.slot == 7 %}02:00 PM - 03:00 PM
+            {% elif b.slot == 8 %}03:00 PM - 04:00 PM
+            {% elif b.slot == 9 %}04:00 AM - 05:00 PM
+            {% elif b.slot == 10 %}05:00 PM - 06:00 PM
+            {% elif b.slot == 11 %}06:00 PM - 07:00 PM
+            {% elif b.slot == 12 %}07:00 PM - 08:00 PM
+            {% else %}No Slot
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+
 
                 </table>
 

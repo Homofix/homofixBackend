@@ -91,7 +91,8 @@
                        
                         
                         <tr >
-                            <td>{{forloop.counter}}</td>
+                            <td>{{ forloop.counter0|add:bookings.start_index }}</td>
+
                             <td>
                                 {{booking.order_id}}
                             </td>
