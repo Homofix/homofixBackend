@@ -485,22 +485,11 @@ def delete_subcategory(request,id):
     messages.success(request,"Deleted")
     return redirect('subcategory')
 
+
+
 def technician(request):
     category = Category.objects.all()
-    q = request.GET.get('q', '').strip()
-    technician_qs = Technician.objects.all()
-    if q:
-        technician_qs = technician_qs.filter(
-            Q(admin__first_name__icontains=q) |
-            Q(admin__last_name__icontains=q) |
-            Q(admin__username__icontains=q) |
-            Q(mobile__icontains=q) |
-            Q(subcategories__name__icontains=q)
-        )
-    paginator = Paginator(technician_qs.order_by('admin'), 10)
-    page = request.GET.get('page')
-    page_obj = paginator.get_page(page)
-
+    technician = Technician.objects.all()
     # user_status = {}
     # for user in technician:
     #     # check if user is logged in by looking at their last login time
@@ -542,7 +531,69 @@ def technician(request):
         # else:
         #     return JsonResponse({'status':0})
 
-    return render(request,'homofix_app/AdminDashboard/Technician/technician.html',{'category':category,'technician':technician,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count,'page_obj': page_obj,'search_query': q})
+    return render(request,'homofix_app/AdminDashboard/Technician/technician.html',{'category':category,'technician':technician,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count})
+
+
+
+
+# def technician(request):
+#     category = Category.objects.all()
+#     q = request.GET.get('q', '').strip()
+#     technician_qs = Technician.objects.all().order_by('-id')
+#     if q:
+#         technician_qs = technician_qs.filter(
+#             Q(admin__first_name__icontains=q) |
+#             Q(admin__last_name__icontains=q) |
+#             Q(admin__username__icontains=q) |
+#             Q(mobile__icontains=q) |
+#             Q(subcategories__name__icontains=q)
+#         ).distinct()
+#     paginator = Paginator(technician_qs, 10)
+#     page = request.GET.get('page')
+#     page_obj = paginator.get_page(page)
+
+#     # user_status = {}
+#     # for user in technician:
+#     #     # check if user is logged in by looking at their last login time
+#     #     if user.admin.last_login is not None and timezone.now() - user.admin.last_login < timezone.timedelta(seconds=1):
+#     #         # user is online
+#     #         user_status[user.id] = 'online'
+#     #     else:
+#     #         # user is offline
+#     #         user_status[user.id] = 'offline'
+#     # print("user status",user_status)
+#     new_expert_count = Technician.objects.filter(status="New").count()
+#     booking_count = Booking.objects.filter(status = "New").count()
+#     rebooking_count = Rebooking.objects.all().count()
+#     customer_count = Customer.objects.all().count()
+#     if request.method == "POST":
+        
+#         category_id = request.POST.get('category_id')
+#         username = request.POST.get('username')
+#         email = request.POST.get('email')
+#         password = request.POST.get('password')
+
+       
+
+#         ctg = Category.objects.get(id=category_id)
+        
+      
+#         if CustomUser.objects.filter(username = username).exists():
+#             # return JsonResponse({'status': 'error', 'message': 'Username is already Taken'})
+#             messages.error(request,'Username is already Taken')
+#             return redirect('technician')
+            
+#         user = CustomUser.objects.create_user(username=username,password=password,email=email,user_type='2')
+#         user.technician.category = ctg
+#         user.save()
+#         messages.success(request,'Technician Register Successfully')
+#         # if(user.is_active):
+#         #     return JsonResponse({'status':'Save'})
+            
+#         # else:
+#         #     return JsonResponse({'status':0})
+
+#     return render(request,'homofix_app/AdminDashboard/Technician/technician.html',{'category':category,'technician':technician,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count,'page_obj': page_obj,'search_query': q})
 
 
 
@@ -1111,6 +1162,7 @@ def addons(request):
     if q:
         addons_qs = addons_qs.filter(
             Q(spare_part__icontains=q) |
+            Q(product__subcategory__name__icontains=q) |
             Q(product__name__icontains=q)
         )
     paginator = Paginator(addons_qs.order_by('spare_part'), 10)

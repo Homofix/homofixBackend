@@ -1069,6 +1069,41 @@ def order_cancel(request):
     }
     return render(request,'Support_templates/Orders/cancel_order.html',context)    
 
+def support_expert_order_cancel(request):
+    user = request.user
+    support = Support.objects.get(admin=user)
+    order_count = Booking.objects.filter(status="New").count()
+
+    query = request.GET.get('q', '')
+
+    task_list = Task.objects.filter(booking__status="Cancelled").order_by("-id")
+
+
+    if query:
+        task_list = task_list.filter(
+            Q(booking__order_id__icontains=query) |
+            Q(technician__expert_id__icontains=query) |
+            Q(technician__admin__username__icontains=query) |
+            Q(booking__customer__admin__first_name__icontains=query) |
+            Q(booking__customer__admin__last_name__icontains=query) |
+            
+            Q(booking__customer__mobile__icontains=query)
+        )
+    paginator = Paginator(task_list, 10)
+    page_number = request.GET.get('page')
+    booking = paginator.get_page(page_number)
+
+
+    
+
+    context = {
+        'booking': booking,
+        'support': support,
+        'order_count': order_count,
+        'search_query': query,
+    }
+    return render(request,'Support_templates/Orders/cancel_order_expert.html',context)    
+
 def support_booking_complete(request):
     user = request.user
     support = Support.objects.get(admin=user)

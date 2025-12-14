@@ -1,16 +1,21 @@
-{% extends 'homofix_app/Base/base.html' %}
+{% extends 'Support_templates/Base/base.html' %}
 {% load static %}
 {% block main-content %}
 <div class="page-content">
+    <style>
+        .nowrap {
+            white-space: nowrap;
+          }
+    </style>
     <!--breadcrumb-->
     <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">Cancel</div>
+        <div class="breadcrumb-title pe-3">Order</div>
         <div class="ps-3">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0 p-0">
                     <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
                     </li>
-                    <li class="breadcrumb-item active" aria-current="page">Booking</li>
+                    <li class="breadcrumb-item active" aria-current="page">Order List</li>
                 </ol>
             </nav>
         </div>
@@ -20,14 +25,11 @@
 
     <h6 class="mb-0 text-uppercase">List of Cancel Booking</h6>
     <hr>
-    
-
     <form method="get" class="d-flex mt-2 mt-lg-0" style="gap: 10px;">
         <input type="text" name="q" value="{{ search_query }}" placeholder="Search by Order ID, Name or Mobile" class="form-control" />
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
-
-    {% include 'homofix_app/Base/messages.html' %}
+    {% include 'Support_templates/Base/messages.html' %}
     {% comment %} <div class="ms-auto mt-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleDangerModal"><a
             href="javascript:;" class="btn btn-light radius-30 mt-2 mt-lg-0"><i class="bx bxs-plus-square"></i>Add New
             Order</a></div> {% endcomment %}
@@ -36,7 +38,7 @@
         <div class="card-body">
 
 
-            <div class="table-responsive">
+             <div class="table-responsive">
                 <table id="" class=" table  mb-0">
                     <thead class="table-light">
                         <tr class="text-nowrap">
@@ -199,33 +201,6 @@
 
 
             </div>
-{% comment %}             
-            <div class="pagination">
-                <ul class="pagination justify-content-center">
-                    {% if booking.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1">First</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ booking.previous_page_number }}">Previous</a>
-                        </li>
-                    {% endif %}
-            
-                    <li class="page-item disabled">
-                        <span class="page-link">Page {{ booking.number }} of {{ booking.paginator.num_pages }}</span>
-                    </li>
-            
-                    {% if booking.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ booking.next_page_number }}">Next</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ booking.paginator.num_pages }}">Last</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div> {% endcomment %}
-
             <div class="pagination">
                 <ul class="pagination justify-content-center">
                     {% if booking.has_previous %}
@@ -251,7 +226,6 @@
                     {% endif %}
                 </ul>
             </div>
-
 
 
         </div>

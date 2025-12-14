@@ -22,6 +22,7 @@ urlpatterns = [
         name="support_delete_of_task",
     ),
     path('Support/Order/Cancel', SupportViews.order_cancel, name='order_cancel'),
+    path('Support/Expert/Order/Cancel', SupportViews.support_expert_order_cancel, name='support_expert_order_cancel'),
     path('Support/Task/Counting/<int:expert_id>/', SupportViews.support_task_counting, name='support_task_counting'),
     path('Support/Booking/Complete/', SupportViews.support_booking_complete, name='support_booking_complete'),
     path('Support/Booking/Rebooking/<int:task_id>', SupportViews.support_rebooking, name='support_rebooking'),
