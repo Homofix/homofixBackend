@@ -4651,7 +4651,7 @@ def export_to_excel(request):
     task_list = Task.objects.filter(booking__status="Completed") \
                             .select_related('booking', 'technician', 'supported_by') \
                             .defer('description') \
-                            .order_by("-id")[:10]
+                            .order_by("-id")[:100]
 
     if booking_id:
         task_list = task_list.filter(booking__order_id__icontains=booking_id)
