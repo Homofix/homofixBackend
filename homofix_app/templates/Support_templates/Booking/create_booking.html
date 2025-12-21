@@ -113,8 +113,8 @@
                         
                         {% comment %} <input type="text" id="total-amount"> {% endcomment %}
                         <div class="mb-3">
-                           <label for="inputDateTime" class="form-label">Select Date & Time</label>
-                           <input class="form-control" type="datetime-local"  id="inputDateTime" name="booking_date" required>
+                           <label for="inputDateTime" class="form-label">Select Date</label>
+                           <input class="form-control" type="date"  id="inputDateTime" name="booking_date" required>
                         </div>
                         <div class="mb-3">
                            <label for="inputCity" class="form-label">City</label>
@@ -146,7 +146,18 @@
                         </div>
                         <div class="mb-3">
                            <label for="inputDateTime" class="form-label">Zip Code</label>
-                           <input class="form-control" type="number" name="zip_code" required>
+                           {% comment %} <input class="form-control" type="number" name="zip_code" required> {% endcomment %}
+                           <select class="single-select" name="zip_code" id="zip_code_dropdown" required>
+                              <option value="" disabled selected>---SELECT---</option>
+                           </select>
+                        </div>
+
+                         <div class="mb-3">
+                           <label for="inputDateTime" class="form-label">Select Slot</label>
+                           <select class="single-select" name="slot" id="slot-dropdown" required>
+                              <option value="" disabled selected>---SELECT---</option>
+                              <!-- JS will populate -->
+                           </select>
                         </div>
                         <div class="mb-3">
                            <label for="inputProductaddress" class="form-label">Address</label>
@@ -279,12 +290,90 @@
            // If no subcategory is selected, disable the product selection dropdown and clear its options
            $("#product-select").prop("disabled", true);
            $("#product-select").html('<option value="" selected disabled> --Select--</option>');
-         }
-       });
+        }
+      });
+
+      // When the state dropdown changes, send an AJAX request to retrieve the corresponding pincodes
+      $("select[name='state']").change(function() {
+        var state = $(this).val();
+        if (state) {
+          $.ajax({
+            url: "{% url 'support_get_pincodes' %}",
+            type: "GET",
+            data: { state: state },
+            dataType: "json",
+            success: function(data) {
+              $("#zip_code_dropdown").html('<option value="" disabled selected>---SELECT---</option>');
+              $.each(data, function(key, value) {
+                $("#zip_code_dropdown").append('<option value="' + value.code + '">' + value.code + '</option>');
+              });
+            }
+          });
+        } else {
+          $("#zip_code_dropdown").html('<option value="" disabled selected>---SELECT---</option>');
+        }
+      });
        
     });
     
 </script>
 
+
+<script>
+  $(document).ready(function () {
+    function fetchSlotAvailability() {
+        var zipcode = $("#zip_code_dropdown").val();
+        var dateVal = $("#inputDateTime").val();
+        var subId = $("#select_subcategory").val();
+        var subcategory_ids = [];
+        if (subId) { subcategory_ids.push(subId); }
+
+        if (zipcode && dateVal) {
+            var date = dateVal; // input type=date returns YYYY-MM-DD
+            
+            var $slotSelect = $("#slot-dropdown");
+            $slotSelect.html('<option disabled selected>---SELECT---</option>');
+            $slotSelect.append('<option value="" disabled>Loading slots...</option>');
+            
+            $.ajax({
+                url: "{% url 'support_get_available_slots' %}",
+                type: "GET",
+                dataType: "json",
+                data: {
+                    date: date,
+                    pincode: zipcode,
+                    "subcategory_ids[]": subcategory_ids
+                },
+                success: function (data) {
+                    $slotSelect.html('<option disabled selected>---SELECT---</option>');
+                    if (data.slots && data.slots.length > 0) {
+                        $.each(data.slots, function (index, slot) {
+                            var option = document.createElement('option');
+                            option.value = slot.id;
+                            if (slot.status === 'available') {
+                                option.textContent = slot.display + " (Remaining: " + slot.remaining_slots + " of " + slot.limit + ")";
+                            } else {
+                                option.textContent = slot.display + " (Not Available)";
+                                option.disabled = true;
+                            }
+                            $slotSelect.append(option);
+                        });
+                    } else {
+                        $slotSelect.append('<option value="" disabled>No slots available</option>');
+                    }
+                },
+                error: function(error) {
+                    console.error('Error fetching slots:', error);
+                    $slotSelect.html('<option disabled selected>---SELECT---</option>');
+                    $slotSelect.append('<option value="" disabled>Error loading slots</option>');
+                }
+            });
+        }
+    }
+
+    $("#zip_code_dropdown, #inputDateTime, #select_subcategory").on("change", fetchSlotAvailability);
+});
+
+</script>
 
 {% endblock main-content %}

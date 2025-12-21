@@ -754,6 +754,7 @@ def support_booking(request):
         city = request.POST.get('city')
         area = request.POST.get('area')
         description = request.POST.get('description')
+        slot = request.POST.get('slot')
         total_amount = int(request.POST.get('total_amount'))
         mobile = request.session.get("mob", "Default value if key does not exist")
         
@@ -784,6 +785,7 @@ def support_booking(request):
             state=state,
             area=area,
             zipcode=zip_code,
+            slot=slot,
         )
 
 
@@ -825,12 +827,14 @@ def support_booking(request):
         messages.success(request, 'Booking created successfully.')
         return redirect('support_orders')
 
+    slot = Slot.objects.all()
     context = {
         'prod': prod,
         'state_choices':state_choices,
         'category':category,
         'support':support,
-        'order_count':order_count
+        'order_count':order_count,
+        'slot':slot
     }
     return render(request, 'Support_templates/Booking/create_booking.html', context)
 
