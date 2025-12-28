@@ -16,7 +16,7 @@
                     <div class="row mb-3">
                         <label for="inputDate{{booking.id}}" class="form-label">Select Date</label>
                         <div class="col-sm-12">
-                            <input class="form-control" type="date" value="{{booking.booking_date|date:'Y-m-d'}}" id="inputDate{{booking.id}}" name="booking_date" onchange="fetchSlots{{booking.id}}(this.value, {{booking.zipcode}})">
+                            <input class="form-control" type="date" value="{{booking.booking_date|date:'Y-m-d'}}" id="inputDate{{booking.id}}" name="booking_date" onchange="fetchSlots{{booking.id}}(this.value, '{{booking.zipcode|default_if_none:""}}')">
                             <input class="form-control" type="text" value="{{booking.id}}" name="booking_id" hidden>
                         </div>
                     </div>
@@ -46,7 +46,7 @@
                             
                             // Collect subcategory IDs from this booking's products
                             var subcategoryIds = [
-                                {% for bp in booking.bookingproduct_set.all %}
+                                {% for bp in booking.booking_product.all %}
                                     {{ bp.product.subcategory.id }}{% if not forloop.last %}, {% endif %}
                                 {% endfor %}
                             ];
@@ -54,7 +54,9 @@
                             // Make AJAX request to fetch slots with subcategory-aware logic
                             var params = new URLSearchParams();
                             params.append('date', date);
-                            params.append('pincode', pincode);
+                            if (pincode) {
+                                params.append('pincode', pincode);
+                            }
                             subcategoryIds.forEach(function(id){ params.append('subcategory_ids[]', id); });
                             fetch(`/Accounts/Admin/get_available_slots?` + params.toString())
                                 .then(response => response.json())
@@ -91,7 +93,7 @@
                         document.addEventListener('DOMContentLoaded', function() {
                             var dateInput = document.getElementById('inputDate{{booking.id}}');
                             if (dateInput && dateInput.value) {
-                                fetchSlots{{booking.id}}(dateInput.value, {{booking.zipcode}});
+                                fetchSlots{{booking.id}}(dateInput.value, '{{booking.zipcode|default_if_none:""}}');
                             }
                         });
                     </script>

@@ -16,7 +16,7 @@
                     <div class="row mb-3">
                         <label for="inputDate{{i.booking.id}}" class="form-label">Select Date</label>
                         <div class="col-sm-12">
-                            <input class="form-control" type="date" value="{{i.booking.booking_date|date:'Y-m-d'}}" id="inputDate{{i.booking.id}}" name="booking_date" onchange="fetchSlots{{i.booking.id}}(this.value, {{i.booking.zipcode}})">
+                            <input class="form-control" type="date" value="{{i.booking.booking_date|date:'Y-m-d'}}" id="inputDate{{i.booking.id}}" name="booking_date" onchange="fetchSlots{{i.booking.id}}(this.value, '{{i.booking.zipcode|default_if_none:""}}')">
                             <input class="form-control" type="text" value="{{i.booking.id}}" name="booking_id" hidden>
                         </div>
                     </div>
@@ -54,7 +54,9 @@
                             // Make AJAX request to fetch slots with subcategory logic
                             var params = new URLSearchParams();
                             params.append('date', date);
-                            params.append('pincode', pincode);
+                            if (pincode) {
+                                params.append('pincode', pincode);
+                            }
                             subcategoryIds.forEach(function(id){ params.append('subcategory_ids[]', id); });
                             fetch(`/Accounts/Admin/get_available_slots?` + params.toString())
                                 .then(response => response.json())
@@ -91,7 +93,7 @@
                         document.addEventListener('DOMContentLoaded', function() {
                             var dateInput = document.getElementById('inputDate{{i.booking.id}}');
                             if (dateInput && dateInput.value) {
-                                fetchSlots{{i.booking.id}}(dateInput.value, {{i.booking.zipcode}});
+                                fetchSlots{{i.booking.id}}(dateInput.value, '{{i.booking.zipcode|default_if_none:""}}');
                             }
                         });
                     </script>
