@@ -45,6 +45,16 @@ def assign_employee_to_booking(booking):
             if any(subcat in tech_subcats for subcat in subcategory_ids):
                 filtered_techs.append(tech)
 
+        # Sort technicians by rating (descending) for prioritized round-robin
+        def get_rating(t):
+            try:
+                # Handle CharField: remove non-numeric chars if needed, convert to float
+                return float(t.rating) if t.rating else 0.0
+            except ValueError:
+                return 0.0
+        
+        filtered_techs.sort(key=get_rating, reverse=True)
+
         if not filtered_techs:
             print("❌ No matching technicians found for this pincode & subcategory.")
             return None

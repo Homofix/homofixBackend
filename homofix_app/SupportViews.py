@@ -1292,15 +1292,17 @@ def support_get_pincodes(request):
 
 
 def get_available_slots(request):
-   
     from django.http import JsonResponse
     from datetime import time as dt_time
-
+    from homofix_app.models import SLOT_CHOICES_DICT
+    # print("helooooooooooooooooo")
+    
     date_str = request.GET.get('date')
-    print("Dateeeeeeeeeeeeeeeee",date_str)
-    pincode = request.GET.get('pincode')
+    zipcode = request.GET.get('pincode')
+    # print("date",date_str)
+    # print("zipcodeeeee",zipcode)
 
-    # subcategory_ids support: either comma-separated 'subcategory_ids' or array 'subcategory_ids[]'
+    # Parse subcategory_ids
     raw_ids = request.GET.get('subcategory_ids')
     list_ids = request.GET.getlist('subcategory_ids[]')
     try:
@@ -1314,43 +1316,98 @@ def get_available_slots(request):
     if not date_str:
         return JsonResponse({'error': 'Date is required'}, status=400)
 
+    # Resolve subcategories
+    subcategories = SubCategory.objects.filter(id__in=subcategory_ids)
+
     try:
         # Convert date string to date object
         date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
-        aware_start_dt = timezone.make_aware(datetime.datetime.combine(date_obj, dt_time.min))
-        aware_end_dt = timezone.make_aware(datetime.datetime.combine(date_obj, dt_time.max))
+    except ValueError:
+        return JsonResponse({'error': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
 
-        # Get universal slot limit
-        universal_slot_obj = UniversalCredential.objects.first()
-        universal_limit = universal_slot_obj.universal_slot if universal_slot_obj and universal_slot_obj.universal_slot is not None else 0
+    universal_slot_obj = UniversalCredential.objects.first()
+    universal_limit = universal_slot_obj.universal_slot if universal_slot_obj and universal_slot_obj.universal_slot is not None else 0
 
-        # Resolve subcategories queryset if provided
-        subcategories = SubCategory.objects.filter(id__in=subcategory_ids) if subcategory_ids else SubCategory.objects.none()
+    response_slots = []
 
-        response_slots = []
-
-        # First: check for a null slot (slot=None) with limit=0 => block all slots
-        null_slots = Slot.objects.filter(date=date_obj, slot=None)
-        if subcategories.exists():
-            null_slots = null_slots.filter(subcategories__in=subcategories).distinct()
-        else:
-            null_slots = null_slots.distinct()
-
-        null_slot_blocks_all = False
-        for ns in null_slots:
-            # zip match or global
-            zip_ok = True
-            if ns.pincode.exists():
+    # Check for a slot with null slot value for this date and subcategories
+    # This means all slots for this date should be unavailable
+    null_slot_exists = False
+    
+    if subcategories.exists():
+        null_slots = Slot.objects.filter(
+            date=date_obj,
+            slot=None,
+            subcategories__in=subcategories
+        ).distinct()
+        
+        for null_slot in null_slots:
+            # Check if zipcode matches or if no pincode restriction exists
+            has_pincode = null_slot.pincode.exists()
+            pincode_match = False
+            if zipcode and has_pincode:
                 try:
-                    zip_ok = pincode and ns.pincode.filter(code=int(pincode)).exists()
-                except Exception:
-                    zip_ok = False
-            if zip_ok and ns.limit == 0:
-                null_slot_blocks_all = True
-                break
+                    if null_slot.pincode.filter(code=int(zipcode)).exists():
+                        pincode_match = True
+                except ValueError:
+                    pass
+            
+            if pincode_match or (not has_pincode):
+                if null_slot.limit == 0:
+                    null_slot_exists = True
+                    break
+    
+    # If a null slot with limit=0 exists, all slots are unavailable
+    if null_slot_exists:
+        for slot_number in range(1, 13):
+            response_slots.append({
+                "id": slot_number,
+                "display": SLOT_CHOICES_DICT.get(slot_number, f"Slot {slot_number}"),
+                "status": "unavailable",
+                "limit": 0,
+                "current_bookings": 0,
+                "remaining_slots": 0
+            })
+        
+        return JsonResponse({'slots': response_slots})
 
-        if null_slot_blocks_all:
-            for slot_number in range(1, 13):
+    # Process each slot normally if no null slot exists
+    for slot_number in range(1, 13):
+        # Default values
+        limit = universal_limit
+        matching_slot = None
+        # Flag to track if we've already added this slot to the response
+        slot_added = False
+        
+        # Check for specific slot configurations in the database
+        if subcategories.exists():
+            slots = Slot.objects.filter(
+                date=date_obj,
+                slot=slot_number,
+                subcategories__in=subcategories
+            ).distinct()
+        else:
+            slots = Slot.objects.none()
+
+        if slots.exists():
+            for slot_obj in slots:
+                # Case 1: If zipcode is provided and slot has matching pincode
+                if zipcode and slot_obj.pincode.exists():
+                    try:
+                        if slot_obj.pincode.filter(code=int(zipcode)).exists():
+                            matching_slot = slot_obj
+                            break
+                    except ValueError:
+                        pass
+                # Case 2: If slot has no pincode restrictions (applies to all)
+                elif not slot_obj.pincode.exists():
+                    matching_slot = slot_obj
+                    break
+
+        # Determine limit based on matching slot
+        if matching_slot and matching_slot.limit is not None:
+            if matching_slot.limit == 0:
+                # If limit is 0, slot is unavailable
                 response_slots.append({
                     "id": slot_number,
                     "display": SLOT_CHOICES_DICT.get(slot_number, f"Slot {slot_number}"),
@@ -1359,77 +1416,52 @@ def get_available_slots(request):
                     "current_bookings": 0,
                     "remaining_slots": 0
                 })
-            return JsonResponse({'slots': response_slots})
-
-        # Process each slot number with pincode/subcategory aware logic
-        for slot_number in range(1, 13):
-            limit = universal_limit
-            matching_slot = None
-            slot_qs = Slot.objects.filter(date=date_obj, slot=slot_number)
-            if subcategories.exists():
-                slot_qs = slot_qs.filter(subcategories__in=subcategories).distinct()
+                # Mark this slot as added and skip further processing
+                slot_added = True
             else:
-                slot_qs = slot_qs.distinct()
+                # Use the specific slot's limit
+                limit = matching_slot.limit
 
-            if slot_qs.exists():
-                for slot_obj in slot_qs:
-                    # match zipcode or global
-                    if slot_obj.pincode.exists():
-                        try:
-                            if pincode and slot_obj.pincode.filter(code=int(pincode)).exists():
-                                matching_slot = slot_obj
-                                break
-                        except Exception:
-                            pass
-                    else:
-                        matching_slot = slot_obj
-                        break
+        # Skip the rest of the processing if we've already added this slot
+        if slot_added:
+            continue
 
-            # Determine limit and handle explicit zero limit
-            slot_added = False
-            if matching_slot and matching_slot.limit is not None:
-                if matching_slot.limit == 0:
-                    response_slots.append({
-                        "id": slot_number,
-                        "display": SLOT_CHOICES_DICT.get(slot_number, f"Slot {slot_number}"),
-                        "status": "unavailable",
-                        "limit": 0,
-                        "current_bookings": 0,
-                        "remaining_slots": 0
-                    })
-                    slot_added = True
-                else:
-                    limit = matching_slot.limit
+        # Calculate current assigned bookings
+        aware_start_dt = timezone.make_aware(datetime.datetime.combine(date_obj, dt_time.min))
+        aware_end_dt = timezone.make_aware(datetime.datetime.combine(date_obj, dt_time.max))
+        
+        booking_filter = {
+            'booking_date__range': (aware_start_dt, aware_end_dt),
+            'slot': slot_number,
+        }
+        
+        if zipcode:
+            booking_filter['zipcode'] = zipcode
+            
+        current_count = Booking.objects.filter(**booking_filter).count()
+        remaining = limit - current_count
 
-            if slot_added:
-                continue
-
-            # Calculate current bookings for this slot
-            booking_filter = {
-                'booking_date__range': (aware_start_dt, aware_end_dt),
-                'slot': slot_number,
-            }
-            if pincode:
-                booking_filter['zipcode'] = pincode
-
-            current_count = Booking.objects.filter(**booking_filter).count()
-            remaining = max(0, (limit or 0) - current_count)
-
+        # If limit is 0, slot is unavailable
+        if limit == 0:
             response_slots.append({
                 "id": slot_number,
                 "display": SLOT_CHOICES_DICT.get(slot_number, f"Slot {slot_number}"),
-                "status": "available" if remaining > 0 and (limit or 0) > 0 else "unavailable",
-                "limit": limit or 0,
+                "status": "unavailable",
+                "limit": limit,
                 "current_bookings": current_count,
-                "remaining_slots": remaining
+                "remaining_slots": 0
+            })
+        else:
+            response_slots.append({
+                "id": slot_number,
+                "display": SLOT_CHOICES_DICT.get(slot_number, f"Slot {slot_number}"),
+                "status": "available" if remaining > 0 else "unavailable",
+                "limit": limit,
+                "current_bookings": current_count,
+                "remaining_slots": remaining if remaining > 0 else 0
             })
 
-        return JsonResponse({'slots': response_slots})
-
-    except ValueError:
-        return JsonResponse({'error': 'Invalid date format'}, status=400)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'slots': response_slots})
 
 
 
