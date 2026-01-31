@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.http import FileResponse
 from django.utils.html import format_html
-from . models import CustomUser,AdminHOD,Technician,Product,Category,SpareParts,Customer,Support,FAQ,Booking,Task,Rebooking,BookingProduct,SubCategory,ContactUs,JobEnquiry,HodSharePercentage,Payment,Addon,Wallet,TechnicianLocation,Kyc,showonline,RechargeHistory,Share,AllTechnicianLocation,WithdrawRequest,Attendance,Blog,Offer,MostViewed,HomePageService,Carrer,ApplicantCarrer,LegalPage,Invoice,Settlement,Coupon,feedback,AutoAssignSetting,Pincode,UniversalCredential,Slot,UniversalSlotTracker,BookingTracker,WalletHistory
+from . models import CustomUser,AdminHOD,Technician,Product,Category,SpareParts,Customer,Support,FAQ,Booking,Task,Rebooking,BookingProduct,SubCategory,ContactUs,JobEnquiry,HodSharePercentage,Payment,Addon,Wallet,TechnicianLocation,Kyc,showonline,RechargeHistory,Share,AllTechnicianLocation,WithdrawRequest,Attendance,Blog,Offer,MostViewed,HomePageService,Carrer,ApplicantCarrer,LegalPage,Invoice,Settlement,Coupon,feedback,AutoAssignSetting,Pincode,UniversalCredential,Slot,UniversalSlotTracker,BookingTracker,WalletHistory,WorkingStateCity
 
 
 # Register your models here.
@@ -57,6 +57,7 @@ admin.site.register(Slot)
 # admin.site.register(Invoice)
 admin.site.register(UniversalSlotTracker)
 admin.site.register(WalletHistory)
+admin.site.register(WorkingStateCity)
 
 
 

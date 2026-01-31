@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Technician,CustomUser,Task,Booking,Product,Customer,Rebooking,BookingProduct,JobEnquiry,Kyc,SpareParts,Addon,TechnicianLocation,showonline,RechargeHistory,Wallet,WalletHistory,WithdrawRequest,AllTechnicianLocation,Blog,MostViewed,Category,SubCategory,feedback,Offer,HomePageService,ApplicantCarrer,Carrer,Coupon,LegalPage,FAQ,HodSharePercentage,Payment,Settlement
+from .models import Technician,CustomUser,Task,Booking,Product,Customer,Rebooking,BookingProduct,JobEnquiry,Kyc,SpareParts,Addon,TechnicianLocation,showonline,RechargeHistory,Wallet,WalletHistory,WithdrawRequest,AllTechnicianLocation,Blog,MostViewed,Category,SubCategory,feedback,Offer,HomePageService,ApplicantCarrer,Carrer,Coupon,LegalPage,FAQ,HodSharePercentage,Payment,Settlement,WorkingStateCity
 
 from django.utils.safestring import mark_safe
 from django.utils.html import strip_tags
@@ -976,3 +976,11 @@ class CustomerBookingDetailSerializer(serializers.ModelSerializer):
         model = Booking
         fields = "__all__"
         # depth = 1
+
+
+
+class WorkingStateCitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkingStateCity
+        fields = ['id', 'state', 'city', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']

@@ -1,6 +1,6 @@
 from rest_framework.generics import GenericAPIView,CreateAPIView
 from rest_framework.authentication import BasicAuthentication
-from homofix_app.serializers import LoginSerliazer,CustomerLoginSerliazer,ExpertSerliazer,CustomUserSerializer,TaskSerializer,RebookingSerializer,JobEnquirySerliazer,ProductSerializer,BokingSerializer,KycSerializer,SparePartsSerializer,AddonsSerializer,TechnicianLocationSerializer,AddonsGetSerializer,TechnicianOnlineSerializer,TechnicianRechargeHistorySerializer,TechnicianWalletSerializer,TechnicianWalletHistorySerializer,TechnicianWithdrawRequestSerializer,AllTechnicianLocationSerializer,BlogSerializer,MostViewed,MostViewedSerializer,VerifyOtpSerializer,CategorySerializer,SubcategorySerializer,CustSerailizer,LoginCustomrSerializers,FeedbackSerailizer,OfferSerializer,testingBooking,HomePageSerailizer,BookingProductSerializer,CustomerLoginn,AddonsDeleteSerailizers,ApplicantCarrerSerliazer,CarrerSerliazer,BkingProductSerializer,BkingSerializer,LegalPageSerializer,faqSerializer,HodSharPercentageSerliazer,CouponSerializer,TskSerializer,PaymentSerializer,cuSeralizerDemo,SettlementSeralizer,CustomerBookingDetailSerializer,TechnicianStatusUpdateSerializer,SparePartssubcategorySerializer
+from homofix_app.serializers import LoginSerliazer,CustomerLoginSerliazer,ExpertSerliazer,CustomUserSerializer,TaskSerializer,RebookingSerializer,JobEnquirySerliazer,ProductSerializer,BokingSerializer,KycSerializer,SparePartsSerializer,AddonsSerializer,TechnicianLocationSerializer,AddonsGetSerializer,TechnicianOnlineSerializer,TechnicianRechargeHistorySerializer,TechnicianWalletSerializer,TechnicianWalletHistorySerializer,TechnicianWithdrawRequestSerializer,AllTechnicianLocationSerializer,BlogSerializer,MostViewed,MostViewedSerializer,VerifyOtpSerializer,CategorySerializer,SubcategorySerializer,CustSerailizer,LoginCustomrSerializers,FeedbackSerailizer,OfferSerializer,testingBooking,HomePageSerailizer,BookingProductSerializer,CustomerLoginn,AddonsDeleteSerailizers,ApplicantCarrerSerliazer,CarrerSerliazer,BkingProductSerializer,BkingSerializer,LegalPageSerializer,faqSerializer,HodSharPercentageSerliazer,CouponSerializer,TskSerializer,PaymentSerializer,cuSeralizerDemo,SettlementSeralizer,CustomerBookingDetailSerializer,TechnicianStatusUpdateSerializer,SparePartssubcategorySerializer,WorkingStateCitySerializer
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,7 +10,7 @@ from rest_framework.viewsets import ViewSet,ModelViewSet,ReadOnlyModelViewSet
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.decorators import api_view,authentication_classes, permission_classes
-from .models import CustomUser,Technician,Task,Rebooking,JobEnquiry,Product,Booking,Kyc,SpareParts,Addon,TechnicianLocation,showonline,RechargeHistory,Wallet,WalletHistory,WithdrawRequest,HodSharePercentage,Share,AllTechnicianLocation,Blog,MostViewed,Customer,Category,SubCategory,feedback,Offer,BookingProduct,HomePageService,ApplicantCarrer,Carrer,LegalPage,FAQ,Invoice,Coupon,Payment,Settlement,Pincode,Slot,UniversalCredential,UniversalSlotTracker
+from .models import CustomUser,Technician,Task,Rebooking,JobEnquiry,Product,Booking,Kyc,SpareParts,Addon,TechnicianLocation,showonline,RechargeHistory,Wallet,WalletHistory,WithdrawRequest,HodSharePercentage,Share,AllTechnicianLocation,Blog,MostViewed,Customer,Category,SubCategory,feedback,Offer,BookingProduct,HomePageService,ApplicantCarrer,Carrer,LegalPage,FAQ,Invoice,Coupon,Payment,Settlement,Pincode,Slot,UniversalCredential,UniversalSlotTracker,WorkingStateCity
 from decimal import Decimal
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
@@ -3411,3 +3411,20 @@ def save_fcm_token(request):
 #         return Response({"success": True, "message": "Token saved/updated successfully"})
 #     except Technician.DoesNotExist:
 #         return Response({"success": False, "message": "Technician not found"})
+
+
+
+
+
+class WorkingStateCityViewSet(ReadOnlyModelViewSet):
+    authentication_classes = [BasicAuthentication]
+    serializer_class = WorkingStateCitySerializer
+    queryset = WorkingStateCity.objects.all()
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        state = self.request.query_params.get('state')
+        if state:
+            queryset = queryset.filter(state__iexact=state)
+        return queryset

@@ -249,7 +249,9 @@ urlpatterns = [
     path('Accounts/Admin/Delete/Slot/<int:id>', HodViews.delete_slot, name='delete_slot'),
     path('Accounts/Admin/get_available_slots', HodViews.get_available_slots, name='get_available_slots'),
 
-
+    path('Accounts/Admin/WorkingState/',HodViews.working_state,name="working_state"),
+    path('WorkingState/Delete/<int:id>',HodViews.delete_working_state,name="delete_working_state"),
+    path('WorkingState/Edit/',HodViews.edit_working_State,name="edit_working_State"),
     
     ##########################  upload csv file pincode ##################################
 

@@ -57,6 +57,7 @@ router.register('Company-percentage', API_Views.HodPercentageViewSet, basename='
 router.register('Payment-Details', API_Views.PaymentViewSet, basename='Payment-Details')
 router.register('Customer-Booking-Details', API_Views.CustomerBookingDetailsViewSet, basename='Customer-Booking-Details')
 router.register('Settlement-Details', API_Views.SettlementViewSet, basename='Settlement-Details')
+router.register('WorkingStateCity', API_Views.WorkingStateCityViewSet, basename='WorkingStateCity')
 
 
 

@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect,HttpResponse,get_object_or_404
 # from django.contrib.auth.decorators import login_required
-from .models import CustomUser,Category,Technician,Product,SpareParts,Support,FAQ,Booking,Task,STATE_CHOICES,SubCategory,Rebooking,ContactUs,JobEnquiry,HodSharePercentage,Customer,Share,Payment,Addon,Wallet,WalletHistory,TechnicianLocation,AdminHOD,AllTechnicianLocation,BookingProduct,WithdrawRequest,RechargeHistory,Attendance,Coupon,Kyc,Blog,Offer,MostViewed,HomePageService,Carrer,ApplicantCarrer,LegalPage,Invoice,Payment,Settlement,feedback,Pincode,UniversalCredential,AutoAssignSetting,SLOT_CHOICES,Slot,showonline
+from .models import CustomUser,Category,Technician,Product,SpareParts,Support,FAQ,Booking,Task,STATE_CHOICES,SubCategory,Rebooking,ContactUs,JobEnquiry,HodSharePercentage,Customer,Share,Payment,Addon,Wallet,WalletHistory,TechnicianLocation,AdminHOD,AllTechnicianLocation,BookingProduct,WithdrawRequest,RechargeHistory,Attendance,Coupon,Kyc,Blog,Offer,MostViewed,HomePageService,Carrer,ApplicantCarrer,LegalPage,Invoice,Payment,Settlement,feedback,Pincode,UniversalCredential,AutoAssignSetting,SLOT_CHOICES,Slot,showonline,WorkingStateCity
 from django.http import JsonResponse,HttpResponseRedirect
 from django.contrib import messages
 from django.urls import reverse
@@ -5071,3 +5071,85 @@ def ajax_check_slot_availability(request):
         })
 
     return JsonResponse({"slots": response_slots})
+
+
+
+
+
+def working_state(request):
+    q = request.GET.get('q', '').strip()
+    category_qs = WorkingStateCity.objects.all()
+    if q:
+        category_qs = category_qs.filter(
+            Q(state__icontains=q) | Q(city__icontains=q)
+        )
+    paginator = Paginator(category_qs.order_by('state','city'), 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
+    new_expert_count = Technician.objects.filter(status="New").count()
+    rebooking_count = Rebooking.objects.all().count()
+    customer_count = Customer.objects.all().count()
+    
+    if request.method == "POST":
+        state = request.POST.get('state_name')
+        city = request.POST.get('city')
+        working_state = WorkingStateCity.objects.create(state=state,city=city)
+        working_state.save()
+        messages.success(request,f'{state} Add Successfully')
+        return redirect('working_state')
+
+    context = {
+        'page_obj': page_obj,
+        'search_query': q,
+        'new_expert_count': new_expert_count,
+        'rebooking_count': rebooking_count,
+        'customer_count': customer_count,
+    }
+    return render(request,'homofix_app/AdminDashboard/WorkingState/working_state.html',context)
+
+
+
+def delete_working_state(request,id):
+    working_state = WorkingStateCity.objects.get(id=id)
+    working_state.delete()
+    messages.success(request,"Records are Successfully Deleted")
+    return redirect('working_state')
+
+
+def add_category(request):
+    if request.method == "POST":
+        
+        category_name = request.POST.get('category_name')
+        category_img = request.FILES.get('category_img')
+        
+        
+        
+        if Category.objects.filter(category_name = category_name).exists():
+            # return JsonResponse({'status': 'error', 'message': 'Category is already Taken'})
+            messages.warning(request,f'{category_name} already Exists')
+            return redirect('category')
+            
+        category = Category.objects.create(category_name=category_name,icon=category_img)
+        category.save()
+        messages.success(request,f'{category_name} Add Successfully')
+        return redirect('category')
+       
+        
+        # return JsonResponse({'status':'Save','cat_Data':cat_Data})
+
+
+
+
+def edit_working_State(request):
+    if request.method == "POST":
+        state_id = request.POST.get('state_id')
+        
+        state_name = request.POST.get('state')
+        city_name = request.POST.get('city')
+        working_state = WorkingStateCity.objects.get(id=state_id) 
+        working_state.state = state_name
+        working_state.city = city_name
+        working_state.save()
+        messages.success(request,"Records are Updated Successfully")
+        return redirect('working_state')
