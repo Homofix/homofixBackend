@@ -5,6 +5,7 @@ from django.utils import timezone
 from datetime import datetime, time
 from decimal import Decimal
 from utils.firebase import send_push_notification
+from utils.background import run_in_background
 
 def assign_employee_to_booking(booking):
     print("🟢 assign_employee_to_booking function CALLED!")
@@ -116,6 +117,21 @@ def assign_employee_to_booking(booking):
 
         tracker = TechnicianAssignmentTracker.objects.first()
         technician_list = list(filtered_techs)
+        tech_ids = [t.id for t in technician_list]
+
+        # Bulk fetch Wallets
+        # Assuming technician_id is the field name in Wallet model
+        wallets = Wallet.objects.filter(technician_id__in=tech_ids)
+        # Create a map of technician_id -> total_share
+        wallet_map = {w.technician_id: w.total_share for w in wallets}
+
+        # Bulk fetch Task Counts for Today
+        task_counts_qs = Task.objects.filter(
+            technician__id__in=tech_ids,
+            booking__booking_date__date=booking.booking_date.date()
+        ).values('technician').annotate(count=Count('id'))
+        
+        task_count_map = {item['technician']: item['count'] for item in task_counts_qs}
 
         # Find where to start in round-robin
         start_index = 0
@@ -131,16 +147,16 @@ def assign_employee_to_booking(booking):
         for i in range(len(technician_list)):
             tech = technician_list[(start_index + i) % len(technician_list)]
 
-            wallet = Wallet.objects.filter(technician_id=tech).first()
-            if not wallet or wallet.total_share < Decimal("1000.00"):
-                print(f"⚠ Technician {tech.id} skipped (wallet balance < 1000).")
-                continue  # Skip this technician
-
+            # Check wallet from map (avoid N+1 query)
+            total_share = wallet_map.get(tech.id)
             
-            active_tasks = Task.objects.filter(
-                technician=tech,
-                booking__booking_date__date=booking.booking_date.date()
-            ).count()
+            # If no wallet found or balance < 1000, skip
+            if total_share is None or total_share < Decimal("1000.00"):
+                print(f"⚠ Technician {tech.id} skipped (wallet balance < 1000).")
+                continue
+
+            # Check active tasks from map (avoid N+1 query)
+            active_tasks = task_count_map.get(tech.id, 0)
 
             if active_tasks < max_tasks_per_technician:
                 # ✅ Assign technician
@@ -154,21 +170,15 @@ def assign_employee_to_booking(booking):
                     supported_by=None,
                 )
 
-                if tech.fcm_token:  # maan ke chalte hain Technician model me fcm_token field hai
-                    send_push_notification(
+                if tech.fcm_token:
+                    # Async notification
+                    run_in_background(
+                        send_push_notification,
                         token=tech.fcm_token,
                         title="New Task Assigned",
                         body=f"Booking #{booking.id} ka task aapko assign hua hai.",
                         data={"booking_id": str(booking.id), "task_id": str(task.id)}
                     )
-
-                # ✅ Update Slot Limits for ALL matched slots
-                # if slot_qs.exists():
-                #     for slot_obj in slot_qs:
-                #         if slot_obj.limit is not None and slot_obj.limit > 0:
-                #             slot_obj.limit -= 1
-                #             slot_obj.save()
-                #             print(f"🟢 Slot ID {slot_obj.id} limit decreased. New limit: {slot_obj.limit}")
 
                 # Update tracker
                 if not tracker:

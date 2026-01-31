@@ -124,13 +124,18 @@
                         <div class="mb-3">
                            <label for="inputDateTime" class="form-label">State</label>
                            {% comment %} <input class="form-control" type="datetime-local"  id="inputDateTime" name="booking_date"> {% endcomment %}
-                           <select class="single-select" name="state" id="" required>
+                           {% comment %} <select class="single-select" name="state" id="" required>
                               <option value="" disabled selected>---SELECT---</option>
                               {% for state in state_choices %}
-                              {% comment %} 
-                              <option value="{{state.0}}">{{i.name}}</option>
-                              {% endcomment %}
+                              
                               <option value="{{ state.0 }}" {% if state.0 == technician.state %}selected{% endif %}>{{ state.1 }}</option>
+                              {% endfor %}
+                           </select> {% endcomment %}
+                           <select class="single-select" name="state" id="" required>
+                              <option value="" disabled selected>---SELECT---</option>
+                              {% for state in states  %}
+                              
+                              <option value="{{ state }}">{{ state }}</option>
                               {% endfor %}
                            </select>
                            {% comment %} <select class="single-select" name="state" class="form-control" required>

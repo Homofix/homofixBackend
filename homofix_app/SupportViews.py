@@ -735,7 +735,9 @@ def support_booking(request):
     support = Support.objects.get(admin=user)
     prod = Product.objects.all()
     category = Category.objects.all()
-    state_choices = STATE_CHOICES
+    # state_choices = STATE_CHOICES
+    pincode = Pincode.objects.all()
+    states = Pincode.objects.values_list("state", flat=True).distinct()
     supported_by = request.user.support
     
 
@@ -830,7 +832,9 @@ def support_booking(request):
     slot = Slot.objects.all()
     context = {
         'prod': prod,
-        'state_choices':state_choices,
+        # 'state_choices':state_choices,
+        'pincode':pincode,
+        'states':states,
         'category':category,
         'support':support,
         'order_count':order_count,
@@ -981,8 +985,7 @@ def support_task_counting(request,expert_id):
     technician = Technician.objects.get(id=expert_id)
     print(technician)
     task = Task.objects.filter(id=technician)
-    print("tasskkk",task)
-    print("gggggggggggg",technician)
+   
     return render(request,'test.html')
     # return redirect('support_List_of_expert',expert_id)
 
@@ -1230,7 +1233,8 @@ def support_rebooking_update(request):
     if request.method == 'POST':
         booking_product_id = request.POST.get('booking_prod_id')
         
-        booking_date = request.POST.get('booking_date')
+        booking_date_str = request.POST.get('booking_date')
+        slot_id = request.POST.get('slot')
         
         try:
             # booking_product = BookingProduct.objects.get(booking_id=booking_product_id)
@@ -1240,11 +1244,40 @@ def support_rebooking_update(request):
         except (BookingProduct.DoesNotExist, Task.DoesNotExist):
             raise Http404('BookingProduct or Task matching query does not exist.')
         
+        booking_datetime = None
+        if booking_date_str:
+            try:
+                import datetime
+                from django.utils.timezone import make_aware
+                from homofix_app.models import SLOT_CHOICES
+                
+                date_obj = datetime.datetime.strptime(booking_date_str, '%Y-%m-%d').date()
+                
+                if slot_id:
+                    try:
+                        slot_int = int(slot_id)
+                        slot_time_str = dict(SLOT_CHOICES).get(slot_int, "")
+                        if slot_time_str:
+                            start_time_str = slot_time_str.split(' - ')[0]
+                            start_time = datetime.datetime.strptime(start_time_str, '%I:%M %p').time()
+                            booking_datetime = datetime.datetime.combine(date_obj, start_time)
+                            booking_datetime = make_aware(booking_datetime)
+                    except ValueError:
+                        pass
+                
+                if not booking_datetime:
+                    # Fallback to midnight if no slot or invalid slot
+                    booking_datetime = datetime.datetime.combine(date_obj, datetime.time.min)
+                    booking_datetime = make_aware(booking_datetime)
+            except ValueError:
+                # Fallback if parsing fails (e.g. if it was a full datetime string from old form)
+                booking_datetime = booking_date_str
+
         # create a new rebooking object with the same booking and assign it to the same technician
         rebooking = Rebooking.objects.create(
             booking_product=booking_product,
             technician=task.technician,
-            booking_date=booking_date
+            booking_date=booking_datetime
         )
         
         # update the status of the original booking to "completed"

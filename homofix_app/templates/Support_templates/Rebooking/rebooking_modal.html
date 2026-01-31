@@ -1,6 +1,7 @@
 
+{% load custom_filters %}
 <div class="modal fade" id="exampleVerticallycenteredModal{{i.product.id}}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog  modal-dialog-centered">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Rebooking</h5>
@@ -21,14 +22,63 @@
                     
                    
                     <div class="row mb-3">
-                        {% comment %} <label for="inputDateTime" class="form-label">Select Date & Time</label> {% endcomment %}
-                        <label for="inputDateTime" class="col-sm-12 col-form-label">Select Date & Time</label>
+                        <label for="inputDate{{i.product.id}}" class="form-label">Select Date</label>
                         <div class="col-sm-12">
-                            {% comment %} <input type="number" class="form-control"  placeholder="Date" id ="price" value="{{i.price}}" name="price" required> {% endcomment %}
-                            <input class="form-control" type="datetime-local"  id="inputDateTime" name="booking_date" required>
+                            <input class="form-control" type="date" id="inputDate{{i.product.id}}" name="booking_date" required onchange="fetchSlots{{i.product.id}}(this.value, '{{i.booking.zipcode|default_if_none:""}}')">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="slotSelect{{i.product.id}}" class="form-label">Select Slot</label>
+                        <div class="col-sm-12">
+                            <select class="form-control" id="slotSelect{{i.product.id}}" name="slot" required>
+                                <option value="">Select a slot</option>
+                            </select>
                         </div>
                     </div>
                    
+                    <script>
+                        function fetchSlots{{i.product.id}}(date, pincode) {
+                            if (!date) return;
+                            var slotSelect = document.getElementById('slotSelect{{i.product.id}}');
+                            slotSelect.innerHTML = '<option value="">Select a slot</option>';
+                            slotSelect.innerHTML += '<option value="" disabled>Loading slots...</option>';
+                            
+                            var subcategoryIds = [{{ i.product.subcategory.id }}];
+                            
+                            var params = new URLSearchParams();
+                            params.append('date', date);
+                            if (pincode) {
+                                params.append('pincode', pincode);
+                            }
+                            subcategoryIds.forEach(function(id){ params.append('subcategory_ids[]', id); });
+                            
+                            fetch(`{% url "support_get_available_slots" %}?` + params.toString())
+                                .then(response => response.json())
+                                .then(data => {
+                                    slotSelect.innerHTML = '<option value="">Select a slot</option>';
+                                    if (data.slots && data.slots.length > 0) {
+                                        data.slots.forEach(slot => {
+                                            var option = document.createElement('option');
+                                            option.value = slot.id;
+                                            if (slot.status === 'available') {
+                                                option.textContent = slot.display + " (Remaining: " + slot.remaining_slots + " of " + slot.limit + ")";
+                                            } else {
+                                                option.textContent = slot.display + " (Not Available)";
+                                                option.disabled = true;
+                                            }
+                                            slotSelect.appendChild(option);
+                                        });
+                                    } else {
+                                        slotSelect.innerHTML += '<option value="" disabled>No slots available</option>';
+                                    }
+                                })
+                                .catch(error => {
+                                    slotSelect.innerHTML = '<option value="">Select a slot</option>';
+                                    slotSelect.innerHTML += '<option value="" disabled>Error loading slots</option>';
+                                });
+                        }
+                    </script>
                     
                 </div>
             </div>
