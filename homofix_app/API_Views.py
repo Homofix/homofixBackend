@@ -108,10 +108,10 @@ def generate_invoice_and_notify(booking_id):
                         )
                         options = {"enable-local-file-access": ""}
                         
-                        # Explicit configuration for wkhtmltopdf
-                        path_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-                        config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
-                        pdf_data = pdfkit.from_string(input_file, False, options=options, configuration=config)
+                        # Explicit configuration for wkhtmltopdf if needed, 
+                        # but assuming it's in PATH as it worked synchronously.
+                        # If it fails, the logger will catch it.
+                        pdf_data = pdfkit.from_string(input_file, False, options=options)
                         
                         if pdf_data:
                             invoice.invoice = pdf_data
@@ -550,9 +550,9 @@ class TaskViewSet(ModelViewSet):
             try:
                 booking = Booking.objects.get(id=booking_id)
                 print("bookingggggggg id here ",booking)
-                # if booking.status == "Completed":
-                #     print("workkkkkkkkkkkkkkkkk")
-                #     return Response({"success": False, "message": "Booking already processed."})
+                if booking.status == "Completed":
+                   
+                    return Response({"success": False, "message": "Booking already processed."})
                 task = Task.objects.get(booking=booking)
                 booking.status = status
                 booking.save()
