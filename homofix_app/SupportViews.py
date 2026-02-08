@@ -1661,8 +1661,9 @@ def support_expert_add(request):
         supported_by = request.user.support 
         user = CustomUser.objects.create_user(first_name=first_name,last_name=last_name,username=first_name+unique_number,password=password,email=email,user_type='2')
         user.technician.subcategories.set(subcat)
-        # user.technician.status = "New"
+        user.technician.status = "New"
         user.technician.supported_by = supported_by
+        user.technician.save()
         user.save()
         messages.success(request,'Expert Register Successfully')
         return redirect('support_list_of_expert')
