@@ -1663,7 +1663,6 @@ def support_expert_add(request):
         user.technician.subcategories.set(subcat)
         user.technician.status = "New"
         user.technician.supported_by = supported_by
-        user.technician.save()
         user.save()
         messages.success(request,'Expert Register Successfully')
         return redirect('support_list_of_expert')
@@ -1674,6 +1673,7 @@ def support_expert_add(request):
         'order_count':order_count,
     }
     return render(request,'Support_templates/Expert/add_expert.html',context)
+
 
 def support_list_of_expert(request):
     user = request.user
