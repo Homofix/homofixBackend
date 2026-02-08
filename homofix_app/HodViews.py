@@ -2294,7 +2294,7 @@ def admin_List_of_expert(request,id):
             working_pincode_areas__code=booking.zipcode,
             subcategories__in=booking_subcategories,
             status="Active",
-            showonline__online=True
+            # showonline__online=True
         )
         .distinct()
     )
