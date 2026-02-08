@@ -459,31 +459,16 @@ class Booking(models.Model):
             self.order_id = f'{year_month}{new_id:04}'
           # ✅ save calculated value
         super().save(*args, **kwargs)
-    def update_totals(self):
-        total = sum(bp.quantity * (bp.selling_price or bp.price)
-                    for bp in self.booking_product.all())
-        total += sum(addon.quantity * addon.spare_parts_id.price
-                     for bp in self.booking_product.all()
-                     for addon in bp.addon_set.all())
-        if self.coupon:
-            total -= self.coupon.discount_amount
-        hod_share_percentage = HodSharePercentage.objects.latest('id')
-        comp_val = float(total * (hod_share_percentage.percentage / 100))
-        comp_tax = float(comp_val * (0.18))
-        exp_val = float(total * ((1 - hod_share_percentage.percentage/100)))
-        exp_tax = float(exp_val * (0.05))
-        tax_rate = comp_tax + exp_tax 
-        final_amount = Decimal(total) + Decimal(round(tax_rate, 2))
-        self.final_amount_field = round(final_amount, 2)
-        super(Booking, self).save(update_fields=['final_amount_field'])
-
     @property
     def total_amount(self):
-        total = sum(bp.quantity * (bp.selling_price or bp.price)
-                    for bp in self.booking_product.all())
-        total += sum(addon.quantity * addon.spare_parts_id.price
-                     for bp in self.booking_product.all()
-                     for addon in bp.addon_set.all())
+        booking_products_prefetch = Prefetch('booking_product', queryset=BookingProduct.objects.select_related('product'))
+        addons_prefetch = Prefetch('booking_product__addon_set', queryset=Addon.objects.select_related('spare_parts_id'))
+        booking = Booking.objects.prefetch_related(booking_products_prefetch, addons_prefetch).get(id=self.id)
+        total = sum(booking_product.quantity * (booking_product.selling_price or booking_product.price) 
+                    for booking_product in booking.booking_product.all())
+        total += sum(addon.quantity * addon.spare_parts_id.price 
+                     for booking_product in booking.booking_product.all() 
+                     for addon in booking_product.addon_set.all())
         if self.coupon:
             total -= self.coupon.discount_amount
         return total
@@ -585,8 +570,6 @@ class BookingProduct(models.Model):
         # Set the total price with tax for this booking product
         self.total_price_with_tax = total_price_with_tax
         super().save(*args, **kwargs)
-        if self.booking_id:
-            self.booking.update_totals()
 
     # def __str__(self):
     #     return self.product.name
@@ -631,11 +614,6 @@ class Addon(models.Model):
     quantity = models.IntegerField(default=1)
     date = models.DateField(auto_now_add=True)
     description = models.TextField(null=True,blank=True)
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        bk = self.booking_prod_id.booking
-        bk.update_totals()
 
 
 class HodSharePercentage(models.Model):
@@ -1038,7 +1016,6 @@ class BookingTracker(models.Model):
 
     def __str__(self):
         return f"BookingTracker for {self.booking.order_id} (Slot: {self.slot}, Date: {self.date})"
-
 
 
 

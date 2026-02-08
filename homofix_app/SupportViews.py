@@ -824,7 +824,9 @@ def support_booking(request):
                 booking=booking,
                 product=product,
                 quantity=quantity,
-                total_price=total_amount
+                total_price=total_amount,
+                selling_price=product.selling_price,
+                price=product.price,
                 # price=price
             )
             # total_price = sum(price_list)
@@ -1627,6 +1629,7 @@ def support_rebooking_product(request, task_id):
 
 
     # return render(request,'Support_templates/Rebooking/rebooking_product.html',{'booking_prod':booking_prod})    
+
 def support_expert_add(request):
     
     category = Category.objects.all()
