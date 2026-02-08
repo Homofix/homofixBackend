@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse,HttpResponseRedirect
 from django.urls import reverse
-from .models import Support,Customer,Product,Booking,CustomUser,Task,Technician,Category,STATE_CHOICES,Rebooking,BookingProduct,SubCategory,ContactUs,JobEnquiry,Addon,Invoice,Slot,SLOT_CHOICES,UniversalCredential,SLOT_CHOICES_DICT,Pincode,showonline,Wallet,WalletHistory,Settlement,Share,Kyc,TechnicianLocation
+from .models import Support,Customer,Product,Booking,CustomUser,Task,Technician,Category,STATE_CHOICES,Rebooking,BookingProduct,SubCategory,ContactUs,JobEnquiry,Addon,Invoice,Slot,SLOT_CHOICES,UniversalCredential,SLOT_CHOICES_DICT,Pincode,showonline,Wallet,WalletHistory,Settlement,Share,Kyc,TechnicianLocation,feedback
 # from datetime import datetime,timedelta
 from datetime import timedelta
 from django.utils import timezone
@@ -393,6 +393,24 @@ def dashboard(request):
     support = Support.objects.get(admin=user)  
     booking = Booking.objects.filter(status="New").order_by('-id')[:10]
 
+    query = request.GET.get('q', '')
+    feedback_qs = feedback.objects.all()
+    if query:
+        feedback_qs = feedback_qs.filter(
+            Q(description__icontains=query)
+            | Q(customer_id__admin__first_name__icontains=query)
+            | Q(technician_id__admin__username__icontains=query)
+            | Q(technician_id__expert_id__icontains=query)
+            | Q(booking_id__order_id__icontains=query)
+        )
+    feedback_list = feedback_qs.order_by('-id')
+    paginator = Paginator(feedback_list, 10)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    
+    
     new_expert_count = Technician.objects.filter(status="New").count()
     booking_count = Booking.objects.filter(status = "New").count()
     booking_complete = Booking.objects.filter(status = "Completed").count()
@@ -408,7 +426,9 @@ def dashboard(request):
         'rebooking_count':rebooking_count,
         'customer_count':customer_count,
         'booking':booking,
-        'order_count':order_count
+        'order_count':order_count,
+        'page_obj': page_obj,
+        'q': query
     }
 
     return render(request,'Support_templates/Dashboard/dashboard.html',context)

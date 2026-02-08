@@ -350,6 +350,108 @@
    <!--End Row-->
    
    <!--End Row-->
+     <div class="col-12 col-lg-12 col-xl-12 d-flex">
+         <div class="card radius-10 w-100">
+            <div class="card-header border-bottom bg-transparent">
+               <div class="d-flex align-items-center">
+                  <div>
+                     <h5 class="mb-0">Customer Review</h5>
+                  </div>
+                  
+               </div>
+            </div>
+            <form method="get" class="search-container">
+               <input type="text" id="search-input" name="q" class="form-control" placeholder="Search..." value="{{ q }}">
+            </form>
+            <ul class="list-group list-group-flush review-list">
+               {% for i in page_obj  %}
+               <li class="list-group-item bg-transparent">
+                  <div class="d-flex align-items-center">
+                     {% if i.technician_id.profile_pic and i.technician_id.profile_pic.url %}
+                     <img src="{{ i.technician_id.profile_pic.url }}" alt="user avatar" class="rounded-circle" width="55" height="55">
+                 {% else %}
+                     <img src="{% static 'assets/images/nww.jpg' %}" alt="user avatar" class="rounded-circle" width="55" height="55">
+                 {% endif %}
+                    <div class="ms-3">
+                      <h6 class="mb-0"> {{i.technician_id.admin.username}} </h6>
+                      <p class="mb-0 small-font">{{i.customer_id.admin.first_name}} : {{i.description}}.</p>
+                    </div>
+                    <div class="ms-auto star">
+                     
+
+                     {% if i.rating == 1 %}
+                     <i class='bx bxs-star text-white'></i>
+                     {% elif i.rating == 2 %}              
+                     <i class='bx bxs-star text-white'></i>
+                     <i class='bx bxs-star text-white'></i>
+                     {% elif i.rating == 3 %}
+                     <i class='bx bxs-star text-white'></i>
+                     <i class='bx bxs-star text-white'></i>
+                     <i class='bx bxs-star text-white'></i>
+                     {% elif i.rating == 4 %}
+                     <i class='bx bxs-star text-white'></i>
+                     <i class='bx bxs-star text-white'></i>
+                     <i class='bx bxs-star text-white'></i>
+                     <i class='bx bxs-star text-white'></i>
+                     {% else %}
+                     <i class='bx bxs-star text-white'></i>
+                     <i class='bx bxs-star text-white'></i>
+                     <i class='bx bxs-star text-white'></i>
+                     <i class='bx bxs-star text-white'></i>
+                     <i class='bx bxs-star text-white'></i>
+
+                     {% endif %}
+
+                     
+                     
+                      {% comment %} <i class='bx bxs-star text-white'></i>
+                      <i class='bx bxs-star text-white'></i>
+                      <i class='bx bxs-star text-white'></i>
+                      <i class='bx bxs-star text-white'></i>
+                      <i class='bx bxs-star text-white'></i> {% endcomment %}
+                    </div>
+                  </div>
+               </li>
+               
+               {% endfor %}
+               
+              
+             
+            </ul>
+            <div class="pagination mt-3 d-flex justify-content-center">
+               <nav>
+                 <ul class="pagination pagination-sm">
+                   {% if page_obj.has_previous %}
+                     <li class="page-item">
+                      <a class="page-link" href="?page=1{% if q %}&q={{ q|urlencode }}{% endif %}">First</a>
+                     </li>
+                     <li class="page-item">
+                      <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}">Previous</a>
+                     </li>
+                   {% endif %}
+             
+                   <li class="page-item disabled">
+                     <span class="page-link">
+                       Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                     </span>
+                   </li>
+             
+                   {% if page_obj.has_next %}
+                     <li class="page-item">
+                      <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}">Next</a>
+                     </li>
+                     <li class="page-item">
+                      <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if q %}&q={{ q|urlencode }}{% endif %}">Last</a>
+                     </li>
+                   {% endif %}
+                 </ul>
+               </nav>
+             </div>
+             
+         </div>
+      </div>
+
+
    <div class="card radius-10">
       <div class="card-body">
          <div class="d-flex align-items-center">
@@ -533,6 +635,8 @@
             </table>
          </div>
       </div>
+
+      
    </div>
 </div>
 

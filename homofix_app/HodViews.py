@@ -193,6 +193,7 @@ def admin_dashboard(request):
         total=Sum('final_amount_field')
     )['total'] or 0
 
+
     query = request.GET.get('q', '')
 
     feedback_qs = feedback.objects.all()
@@ -2910,29 +2911,61 @@ def Listofcancel_expert(request):
     return render(request, 'homofix_app/AdminDashboard/Booking_list/cancel_booking_expert.html', context)
 
 
-def cancel_by_expert(request,id):
-    booking = Task.objects.filter(booking__status="Cancelled", technician=id).order_by("-id")
+# def cancel_by_expert(request,id):
+#     booking = Task.objects.filter(booking__status="Cancelled", technician=id).order_by("-id")
 
-    new_expert_count = Technician.objects.filter(status="New").count()
-    booking_count = Booking.objects.filter(status = "New").count()
-    rebooking_count = Rebooking.objects.all().count()
-    customer_count = Customer.objects.all().count()
+#     new_expert_count = Technician.objects.filter(status="New").count()
+#     booking_count = Booking.objects.filter(status = "New").count()
+#     rebooking_count = Rebooking.objects.all().count()
+#     customer_count = Customer.objects.all().count()
    
-    # Fetch tasks related to the bookings
+#     # Fetch tasks related to the bookings
     
 
+#     context = {
+#         'booking': booking,
+#         'new_expert_count': new_expert_count,
+#         'booking_count': booking_count,
+#         'rebooking_count': rebooking_count,
+#         'customer_count': customer_count,
+#           # Pass tasks to the template
+#     }
+
+#     return render(request,'homofix_app/AdminDashboard/Booking_list/cancel_booking_expert.html',context)    
+    
+    
+
+from django.core.paginator import Paginator
+
+def cancel_by_expert(request, id):
+    booking_qs = Task.objects.filter(
+        booking__status="Cancelled",
+        technician=id
+    ).order_by("-id")
+
+    paginator = Paginator(booking_qs, 10)  # 10 records per page
+    page_number = request.GET.get('page')
+    booking = paginator.get_page(page_number)
+
+    new_expert_count = Technician.objects.filter(status="New").count()
+    booking_count = Booking.objects.filter(status="New").count()
+    rebooking_count = Rebooking.objects.all().count()
+    customer_count = Customer.objects.all().count()
+
     context = {
-        'booking': booking,
+        'booking': booking,  # ✅ Page object
         'new_expert_count': new_expert_count,
         'booking_count': booking_count,
         'rebooking_count': rebooking_count,
         'customer_count': customer_count,
-          # Pass tasks to the template
     }
 
-    return render(request,'homofix_app/AdminDashboard/Booking_list/cancel_booking_expert.html',context)    
-    
-    
+    return render(
+        request,
+        'homofix_app/AdminDashboard/Booking_list/cancel_booking_expert.html',
+        context
+    )
+
   
 
 
@@ -5078,12 +5111,12 @@ def ajax_check_slot_availability(request):
 
 def working_state(request):
     q = request.GET.get('q', '').strip()
-    category_qs = WorkingStateCity.objects.all()
+    category_qs = WorkingStateCity.objects.all().order_by('-id')
     if q:
         category_qs = category_qs.filter(
             Q(state__icontains=q) | Q(city__icontains=q)
         )
-    paginator = Paginator(category_qs.order_by('state','city'), 10)
+    paginator = Paginator(category_qs, 10)
     page = request.GET.get('page')
     page_obj = paginator.get_page(page)
 

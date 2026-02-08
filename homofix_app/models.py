@@ -1040,11 +1040,14 @@ class BookingTracker(models.Model):
         return f"BookingTracker for {self.booking.order_id} (Slot: {self.slot}, Date: {self.date})"
 
 
+
+
 class WorkingStateCity(models.Model):
     state = models.CharField(max_length=50,null=True,blank=True)
     city = models.CharField(max_length=50,null=True,blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now_add=True)
+
 
 @receiver(post_save,sender=CustomUser)
 def create_user_profile(sender,instance,created,**kwargs):

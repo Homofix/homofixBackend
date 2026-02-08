@@ -45,128 +45,6 @@ from rest_framework import generics
 from homofix_app.services.auto_assign import assign_employee_to_booking
 
 from utils.firebase import send_push_notification
-from utils.background import run_in_background
-import time as sys_time
-import logging
-import os
-
-# Configure logging for background tasks
-logger = logging.getLogger('background_tasks')
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler('background_tasks.log')
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
-def generate_invoice_and_notify(booking_id):
-    # Wait a few seconds to ensure the main transaction is committed
-    sys_time.sleep(3)
-    
-    try:
-        logger.info(f"Starting background task for booking_id: {booking_id}")
-        
-        # Re-fetch booking
-        try:
-            booking = Booking.objects.get(id=booking_id)
-            logger.info(f"Booking fetched. Status: {booking.status}")
-        except Booking.DoesNotExist:
-            logger.error(f"Booking {booking_id} not found.")
-            return
-
-        # ---------------- Invoice Generation ----------------
-        if booking.status == "Completed":
-            # tax = booking.tax_amount
-            subtotal = booking.subtotal
-            tax = Decimal(subtotal) * Decimal(0.18)
-            total = tax + subtotal
-            total_amt = Decimal(booking.total_amount) + Decimal(booking.tax_amount)
-            cgst_sgst = Decimal(total_amt) * Decimal(0.09)
-            grandtotal = total_amt + (cgst_sgst * 2)
-
-            invoice = Invoice.objects.filter(booking_id=booking).first()
-            if not invoice:
-                try:
-                    logger.info("Creating new invoice object...")
-                    invoice = Invoice.objects.create(booking_id=booking)
-                    bookingprod = BookingProduct.objects.filter(booking=booking).first()
-                    
-                    if not bookingprod:
-                        logger.warning("BookingProduct not found.")
-                        print("BookingProduct not found for booking ID:", booking.id)
-                    else:
-                        addon = Addon.objects.filter(booking_prod_id=bookingprod)
-                        
-                        input_file = render_to_string(
-                            "Invoice/invoice.html",
-                            {
-                                "booking": invoice,
-                                "addon": addon,
-                                "total": total,
-                                "cgst_sgst": cgst_sgst,
-                                "grandtotal": grandtotal,
-                            },
-                        )
-                        options = {"enable-local-file-access": ""}
-                        
-                        # Explicit configuration for wkhtmltopdf if needed, 
-                        # but assuming it's in PATH as it worked synchronously.
-                        # If it fails, the logger will catch it.
-                        pdf_data = pdfkit.from_string(input_file, False, options=options)
-                        
-                        if pdf_data:
-                            invoice.invoice = pdf_data
-                            invoice.save()
-                            logger.info("PDF data saved successfully.")
-                            print("PDF data saved in invoice successfully.")
-                        else:
-                            logger.error("pdfkit returned None.")
-                            print("Failed to generate PDF data for invoice")
-                except Exception as e:
-                    logger.error(f"Error creating invoice: {e}")
-                    print("Error creating invoice:", e)
-            else:
-                 logger.info("Invoice already exists.")
-                 print("Invoice already exists for booking ID:", booking.id)
-        else:
-            logger.info(f"Booking status is {booking.status}, skipping invoice.")
-        
-        # ---------------- Notification ----------------
-        task = Task.objects.filter(booking=booking).first()
-        if task:
-             # Technician Notification
-            technician = task.technician
-            if technician and hasattr(technician, "fcm_token") and technician.fcm_token:
-                try:
-                    send_push_notification(
-                        token=technician.fcm_token,
-                        title="Booking Update",
-                        body=f"Booking #{booking.id} status updated to {booking.status}",
-                        data={"booking_id": str(booking.id), "status": booking.status}
-                    )
-                    logger.info("Technician notification sent.")
-                except Exception as e:
-                    logger.error(f"Technician notification error: {e}")
-                    print("Technician notification error:", e)
-
-            # User Notification
-            booking_user = getattr(booking, "user", None)
-            if booking_user and hasattr(booking_user, "fcm_token") and booking_user.fcm_token:
-                try:
-                    send_push_notification(
-                        token=booking_user.fcm_token,
-                        title="Booking Update",
-                        body=f"Your booking #{booking.id} is now {booking.status}",
-                        data={"booking_id": str(booking.id), "status": booking.status}
-                    )
-                    logger.info("User notification sent.")
-                except Exception as e:
-                    logger.error(f"User notification error: {e}")
-                    print("User notification error:", e)
-
-    except Exception as e:
-        logger.critical(f"Critical error in background task: {e}")
-        print(f"Error in background task for booking {booking_id}: {e}")
-
 
 
 class LoginViewSet(CreateAPIView):
@@ -549,9 +427,7 @@ class TaskViewSet(ModelViewSet):
             print(booking_id)
             try:
                 booking = Booking.objects.get(id=booking_id)
-                print("bookingggggggg id here ",booking)
                 if booking.status == "Completed":
-                   
                     return Response({"success": False, "message": "Booking already processed."})
                 task = Task.objects.get(booking=booking)
                 booking.status = status
@@ -611,8 +487,72 @@ class TaskViewSet(ModelViewSet):
 
                     
 
-                    # Invoice generation moved to background task
+                    # ----------------------------------- Invoice Part -----------------------
 
+                    try:
+                        booking = Booking.objects.get(id=booking_id)
+                        booking.status = status
+                        booking.save()
+                        print("helooooo status", booking.status,"booking id",booking.id)
+               
+                        # tax = booking.tax_amount
+                        subtotal = booking.subtotal
+                        tax = Decimal(subtotal) * Decimal(0.18)
+                        total = tax + subtotal
+                        total_amt = Decimal(booking.total_amount) + Decimal(
+                            booking.tax_amount
+                        )
+                        cgst_sgst = Decimal(total_amt) * Decimal(0.09)
+                        grandtotal = total_amt + (cgst_sgst * 2)
+
+                        bkng_id = Booking.objects.filter(id=booking_id)
+                        if booking:
+                            invoice = Invoice.objects.filter(booking_id=booking).first()
+                            if not invoice:
+                                try:
+                                    invoice = Invoice.objects.create(booking_id=booking)
+                                    bookingprod = BookingProduct.objects.filter(
+                                        booking=booking
+                                    ).first()
+
+                                    if not bookingprod:
+                                        print("BookingProduct not found for booking ID:", booking.id)
+                                        raise Exception("BookingProduct not found")
+
+                                    # addon = Addon.objects.filter(booking_prod_id=bookingprod)
+
+                                    addon = Addon.objects.filter(
+                                        booking_prod_id=bookingprod
+                                    )
+
+                                    input_file = render_to_string(
+                                        "Invoice/invoice.html",
+                                        {
+                                            "booking": invoice,
+                                            "addon": addon,
+                                            "total": total,
+                                            "cgst_sgst": cgst_sgst,
+                                            "grandtotal": grandtotal,
+                                        },
+                                    )
+                                    options = {"enable-local-file-access": ""}
+
+                                    pdf_data = pdfkit.from_string(
+                                        input_file, False, options=options
+                                    )
+
+                                    if pdf_data:
+                                        invoice.invoice = pdf_data
+                                        invoice.save()
+                                        print("PDF data saved in invoice successfully.")
+                                    else:
+                                        print("Failed to generate PDF data for invoice")
+                                except Exception as inner_e:
+                                    print("Error creating invoice:", inner_e)
+                            else:
+                                print("Invoice already exists for booking ID:", booking.id)
+                    except Exception as e:
+                        print("Error in invoice creation process:", e)
 
                 if booking.status == "Completed" and booking.cash_on_service == True:
                     
@@ -666,13 +606,98 @@ class TaskViewSet(ModelViewSet):
                     settlement.save()
 
 
-                    # Invoice generation moved to background task
+                    try:
+                        booking = Booking.objects.get(id=booking_id)
+                        # tax = booking.tax_amount
+                        subtotal = booking.subtotal
+                        tax = Decimal(subtotal) * Decimal(0.18)
+                        total = tax + subtotal
+                        total_amt = Decimal(booking.total_amount) + Decimal(
+                            booking.tax_amount
+                        )
+                        cgst_sgst = Decimal(total_amt) * Decimal(0.09)
+                        grandtotal = total_amt + (cgst_sgst * 2)
 
+                        bkng_id = Booking.objects.filter(id=booking_id)
+                        
+                        if booking:
+                            invoice = Invoice.objects.filter(booking_id=booking).first()
+                            if not invoice:
+                                try:
+                                    invoice = Invoice.objects.create(booking_id=booking)
+                                    bookingprod = BookingProduct.objects.filter(
+                                        booking=booking
+                                    ).first()
+
+                                    if not bookingprod:
+                                        print("BookingProduct not found for booking ID:", booking.id)
+                                        raise Exception("BookingProduct not found")
+
+                                    # addon = Addon.objects.filter(booking_prod_id=bookingprod)
+
+                                    addon = Addon.objects.filter(
+                                        booking_prod_id=bookingprod
+                                    )
+
+                                    input_file = render_to_string(
+                                        "Invoice/invoice.html",
+                                        {
+                                            "booking": invoice,
+                                            "addon": addon,
+                                            "total": total,
+                                            "cgst_sgst": cgst_sgst,
+                                            "grandtotal": grandtotal,
+                                        },
+                                    )
+                                    options = {"enable-local-file-access": ""}
+
+                                    pdf_data = pdfkit.from_string(
+                                        input_file, False, options=options
+                                    )
+
+                                    if pdf_data:
+                                        invoice.invoice = pdf_data
+                                        invoice.save()
+                                        print("PDF data saved in invoice successfully.")
+                                    else:
+                                        print("Failed to generate PDF data for invoice")
+                                except Exception as inner_e:
+                                    print("Error creating invoice:", inner_e)
+                            else:
+                                print("Invoice already exists for booking ID:", booking.id)
+                    except Exception as e:
+                        print("Error in invoice creation process:", e)
 
 
                 
-                # ------------------- Async Tasks ----------------
-                run_in_background(generate_invoice_and_notify, booking.id)
+                # ------------------- Notificationssssssssssss 
+
+                 # ---------------- Notification Block ----------------
+                try:
+                    # Technician ko notification
+                    technician = task.technician
+                   
+                    if technician and hasattr(technician, "fcm_token") and technician.fcm_token:
+                        send_push_notification(
+                            token=technician.fcm_token,
+                            title="Booking Update",
+                            body=f"Booking #{booking.id} status updated to {booking.status}",
+                            data={"booking_id": str(booking.id), "status": booking.status}
+                        )
+                        print("sendginnnnnnnnnnn success")
+
+                    # User ko notification
+                    booking_user = getattr(booking, "user", None)
+                    if booking_user and hasattr(booking_user, "fcm_token") and booking_user.fcm_token:
+                        send_push_notification(
+                            token=booking_user.fcm_token,
+                            title="Booking Update",
+                            body=f"Your booking #{booking.id} is now {booking.status}",
+                            data={"booking_id": str(booking.id), "status": booking.status}
+                        )
+                except Exception as e:
+                    print("Notification error:", e)
+
                 # --------------------------------
 
                 return Response({"success": True})
@@ -799,8 +824,68 @@ class TechniciantaskViewSet(ModelViewSet):
                     )
                     settlement.save()
 
-                    # Invoice generation moved to background task
+                    # ----------------------------------- Invoice Part -----------------------
 
+                    try:
+                        # booking = Booking.objects.get(id=booking_id)
+                        # booking.status = status
+                        # booking.save()
+                        # print("helooooo status", booking.status,"booking id",booking.id)
+               
+                        # tax = booking.tax_amount
+                        subtotal = booking.subtotal
+                        tax = Decimal(subtotal) * Decimal(0.18)
+                        total = tax + subtotal
+                        total_amt = Decimal(booking.total_amount) + Decimal(
+                            booking.tax_amount
+                        )
+                        cgst_sgst = Decimal(total_amt) * Decimal(0.09)
+                        grandtotal = total_amt + (cgst_sgst * 2)
+
+                        bkng_id = Booking.objects.filter(id=booking_id)
+                        if booking:
+                            invoice = Invoice.objects.filter(booking_id=booking).first()
+                            if not invoice:
+                                invoice = Invoice.objects.create(booking_id=booking)
+                                bookingprod = BookingProduct.objects.filter(
+                                    booking=booking
+                                ).first()
+
+                                # addon = Addon.objects.filter(booking_prod_id=bookingprod)
+
+                                addon = Addon.objects.filter(
+                                    booking_prod_id=bookingprod
+                                )
+
+                                input_file = render_to_string(
+                                    "Invoice/invoice.html",
+                                    {
+                                        "booking": invoice,
+                                        "addon": addon,
+                                        "total": total,
+                                        "cgst_sgst": cgst_sgst,
+                                        "grandtotal": grandtotal,
+                                    },
+                                )
+                                options = {"enable-local-file-access": ""}
+
+                                pdf_data = pdfkit.from_string(
+                                    input_file, False, options=options
+                                )
+
+                                if pdf_data:
+                                    invoice.invoice = pdf_data
+                                    invoice.save()
+                                    # invoice.save()
+                                    print("PDF data saved in invoice successfully.")
+
+                                # return Response({'success': True})
+                            else:
+                                pass
+                                # Booking does not exist
+                                # return Response({'Error': False, 'error': 'Invoice already created'})
+                    except Exception as e:
+                        print(e)
 
                 if booking.status == "Completed" and booking.cash_on_service == True:
                     
@@ -853,9 +938,64 @@ class TechniciantaskViewSet(ModelViewSet):
                     )
                     settlement.save()
 
-                    # Invoice generation moved to background task
-                
-                run_in_background(generate_invoice_and_notify, booking.id)
+                    try:
+                        booking = Booking.objects.get(id=booking_id)
+                        # tax = booking.tax_amount
+                        subtotal = booking.subtotal
+                        tax = Decimal(subtotal) * Decimal(0.18)
+                        total = tax + subtotal
+                        total_amt = Decimal(booking.total_amount) + Decimal(
+                            booking.tax_amount
+                        )
+                        cgst_sgst = Decimal(total_amt) * Decimal(0.09)
+                        grandtotal = total_amt + (cgst_sgst * 2)
+
+                        bkng_id = Booking.objects.filter(id=booking_id)
+                        
+                        if booking:
+                            invoice = Invoice.objects.filter(booking_id=booking).first()
+                            if not invoice:
+                                invoice = Invoice.objects.create(booking_id=booking)
+                                bookingprod = BookingProduct.objects.filter(
+                                    booking=booking
+                                ).first()
+
+                                # addon = Addon.objects.filter(booking_prod_id=bookingprod)
+
+                                addon = Addon.objects.filter(
+                                    booking_prod_id=bookingprod
+                                )
+
+                                input_file = render_to_string(
+                                    "Invoice/invoice.html",
+                                    {
+                                        "booking": invoice,
+                                        "addon": addon,
+                                        "total": total,
+                                        "cgst_sgst": cgst_sgst,
+                                        "grandtotal": grandtotal,
+                                    },
+                                )
+                                options = {"enable-local-file-access": ""}
+
+                                pdf_data = pdfkit.from_string(
+                                    input_file, False, options=options
+                                )
+
+                                if pdf_data:
+                                    invoice.invoice = pdf_data
+                                    invoice.save()
+                                    # invoice.save()
+                                    print("PDF data saved in invoice successfully.")
+
+                                # return Response({'success': True})
+                            else:
+                                pass
+                                # Booking does not exist
+                                # return Response({'Error': False, 'error': 'Invoice already created'})
+                    except Exception as e:
+                        print(e)
+
                 return Response({"success": True})
             except Booking.DoesNotExist:
                 return Response({"success": False, "message": "Booking not found."})
@@ -1233,22 +1373,22 @@ def create_booking(request):
     data = request.data.copy()
     booking_products_data = data.pop('booking_products', [])
     
-    
+    # अगर स्लॉट नहीं दिया गया है तो booking_date के आधार पर स्लॉट निर्धारित करें
     if 'slot' not in data or not data['slot']:
         if 'booking_date' in data and data['booking_date']:
             try:
-               
+                # booking_date को datetime में कन्वर्ट करें
                 booking_datetime = datetime.strptime(data['booking_date'], '%Y-%m-%dT%H:%M:%S.%fZ')
             except ValueError:
                 try:
-                    
+                    # अगर पहला फॉर्मेट काम नहीं करता, तो दूसरा फॉर्मेट आज़माएं
                     booking_datetime = datetime.strptime(data['booking_date'], '%Y-%m-%dT%H:%M:%S')
                 except ValueError:
-                   
+                    # अगर फिर भी काम नहीं करता, तो अन्य फॉर्मेट आज़माएं
                     try:
                         booking_datetime = datetime.fromisoformat(data['booking_date'].replace('Z', '+00:00'))
                     except ValueError:
-                       
+                        # अगर कोई भी फॉर्मेट काम नहीं करता, तो एरर रिटर्न करें
                         return Response({
                             'status': 'error',
                             'message': 'Invalid booking_date format',
@@ -1256,7 +1396,7 @@ def create_booking(request):
             
             booking_time = booking_datetime.time()
             
-           
+            # समय के आधार पर स्लॉट निर्धारित करें
             if booking_time >= datetime.strptime('08:00', '%H:%M').time() and booking_time < datetime.strptime('09:00', '%H:%M').time():
                 data['slot'] = 1  # 08:00-09:00 AM
             elif booking_time >= datetime.strptime('09:00', '%H:%M').time() and booking_time < datetime.strptime('10:00', '%H:%M').time():
@@ -1282,7 +1422,7 @@ def create_booking(request):
             elif booking_time >= datetime.strptime('19:00', '%H:%M').time() and booking_time < datetime.strptime('20:00', '%H:%M').time():
                 data['slot'] = 12  # 07:00-08:00 PM
             elif booking_time >= datetime.strptime('20:00', '%H:%M').time():
-                data['slot'] = 12  
+                data['slot'] = 12  # रात 8 बजे के बाद सभी बुकिंग को अंतिम स्लॉट में डालें
     
     serializer = BkingSerializer(data=data)
     
@@ -3391,6 +3531,20 @@ def save_fcm_token(request):
         return Response({"success": False, "message": "Technician not found"})
 
 
+
+class WorkingStateCityViewSet(ReadOnlyModelViewSet):
+    authentication_classes = [BasicAuthentication]
+    serializer_class = WorkingStateCitySerializer
+    queryset = WorkingStateCity.objects.all()
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        state = self.request.query_params.get('state')
+        if state:
+            queryset = queryset.filter(state__iexact=state)
+        return queryset
+
 # @api_view(["POST"])
 # def save_fcm_token(request):
 #     tech_id = request.data.get("technician_id")
@@ -3411,20 +3565,3 @@ def save_fcm_token(request):
 #         return Response({"success": True, "message": "Token saved/updated successfully"})
 #     except Technician.DoesNotExist:
 #         return Response({"success": False, "message": "Technician not found"})
-
-
-
-
-
-class WorkingStateCityViewSet(ReadOnlyModelViewSet):
-    authentication_classes = [BasicAuthentication]
-    serializer_class = WorkingStateCitySerializer
-    queryset = WorkingStateCity.objects.all()
-    http_method_names = ['get']
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        state = self.request.query_params.get('state')
-        if state:
-            queryset = queryset.filter(state__iexact=state)
-        return queryset
