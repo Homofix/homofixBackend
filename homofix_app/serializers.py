@@ -22,7 +22,8 @@ class ExpertSerliazer(serializers.ModelSerializer):
     admin = CustomUserSerializer()
     class Meta:
         model = Technician
-        fields = "__all__"
+        exclude = ['supported_by']
+        #fields = "__all__"
         # fields = ['reference_id','created_at','updated_at','admin_id']   
         # depth = 1    
 
