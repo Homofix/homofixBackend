@@ -1,4 +1,5 @@
 {% extends 'homofix_app/Base/base.html' %}
+
 {% block title %}Homofix|Payment History{% endblock title %}
 {% block main-content %}
 
@@ -247,7 +248,7 @@
         <div class="card-body">
             
             <div class="table-responsive">
-                <table id="example" class="table table-striped">
+                <table id="example3" class="table table-striped">
                     <thead>
                         <tr>
                             
@@ -369,3 +370,11 @@
 
 
 {% endblock main-content %}
+
+{% block js %}
+<script>
+    $(document).ready(function() {
+        $('#example3').DataTable();
+    });
+</script>
+{% endblock js %}
