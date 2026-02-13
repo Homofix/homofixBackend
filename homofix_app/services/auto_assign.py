@@ -1,5 +1,5 @@
-from homofix_app .models import Technician,AutoAssignSetting,UniversalCredential,Slot,TechnicianAssignmentTracker,Task,Wallet
-from django.db.models import Count
+from homofix_app .models import Technician,AutoAssignSetting,UniversalCredential,Slot,TechnicianAssignmentTracker,Task,Wallet, feedback
+from django.db.models import Count, Avg
 from django.db.models import Q
 from django.utils import timezone
 from datetime import datetime, time
@@ -24,19 +24,16 @@ def assign_employee_to_booking(booking):
         subcategory_ids = list(
             booking.products.values_list('subcategory__id', flat=True).distinct()
         )
-        print("booking.booking_date:", booking.booking_date.date())
-        print("booking.slot:", booking.slot)
-        print("booking.zipcode:", booking.zipcode)
-        print("subcategory_ids:", subcategory_ids)
+       
 
         # --------------------------
         # Technician Filtering Logic
         # --------------------------
 
-        # Fetch technicians in pincode first
+        # Fetch technicians in pincode first, annotated with average rating
         techs_in_pincode = Technician.objects.filter(
             working_pincode_areas__code=int(booking.zipcode),showonline__online=1
-        ).prefetch_related("subcategories").distinct()
+        ).annotate(avg_rating=Avg('feedback__rating')).prefetch_related("subcategories").distinct()
 
         # Now filter in Python for subcategory match
         filtered_techs = []
@@ -49,7 +46,10 @@ def assign_employee_to_booking(booking):
             print("❌ No matching technicians found for this pincode & subcategory.")
             return None
 
-        print(f"✅ Technicians found: {[t.id for t in filtered_techs]}")
+        # Sort by rating (descending), treat None as 0
+        filtered_techs.sort(key=lambda x: x.avg_rating or 0, reverse=True)
+
+        print(f"✅ Technicians found (sorted by rating): {[f'{t.id} (Rating: {t.avg_rating})' for t in filtered_techs]}")
 
         # ----------------------
         # Slot Lookup Logic
@@ -101,26 +101,15 @@ def assign_employee_to_booking(booking):
             return None
 
         # -----------------------------
-        # Technician Round-robin Logic
+        # Technician Priority Logic (Based on Rating)
         # -----------------------------
 
-        tracker = TechnicianAssignmentTracker.objects.first()
-        technician_list = list(filtered_techs)
-
-        # Find where to start in round-robin
-        start_index = 0
-        if tracker and tracker.last_assigned_technician:
-            last_id = tracker.last_assigned_technician.id
-            ids = [t.id for t in technician_list]
-            if last_id in ids:
-                start_index = (ids.index(last_id) + 1) % len(ids)
+        technician_list = filtered_techs # Already sorted by rating
 
         assigned = False
         max_tasks_per_technician = 4
 
-        for i in range(len(technician_list)):
-            tech = technician_list[(start_index + i) % len(technician_list)]
-
+        for tech in technician_list:
             wallet = Wallet.objects.filter(technician_id=tech).first()
             if not wallet or wallet.total_share < Decimal("1000.00"):
                 print(f"⚠ Technician {tech.id} skipped (wallet balance < 1000).")
@@ -159,15 +148,6 @@ def assign_employee_to_booking(booking):
                 #             slot_obj.limit -= 1
                 #             slot_obj.save()
                 #             print(f"🟢 Slot ID {slot_obj.id} limit decreased. New limit: {slot_obj.limit}")
-
-                # Update tracker
-                if not tracker:
-                    tracker = TechnicianAssignmentTracker.objects.create(
-                        last_assigned_technician=tech
-                    )
-                else:
-                    tracker.last_assigned_technician = tech
-                    tracker.save()
 
                 print(f"✅ Task created for Technician {tech.id}. Technician total tasks today: {active_tasks + 1}")
                 assigned = True

@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import get_token
 import random
 import requests
+import threading
 from urllib.parse import urlencode
 import urllib
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -138,268 +139,89 @@ def create_invoice(self, booking):
 from django.db import transaction
 
 
-# class TaskViewSet(ModelViewSet):
-#     authentication_classes = [BasicAuthentication]
-#     serializer_class = TaskSerializer
-#     queryset = Task.objects.all()
+def generate_invoice_and_notifications(booking_id, status, task_id):
+    """
+    Helper function to generate invoice and send notifications in the background.
+    """
+    try:
+        from .models import Booking, Task, Invoice, BookingProduct, Addon
+        from django.template.loader import render_to_string
+        from decimal import Decimal
+        import pdfkit
+        from utils.firebase import send_push_notification
 
-#     def list(self, request, *args, **kwargs):
-#         technician_id = request.query_params.get("technician_id")
-#         if technician_id:
-#             tasks = self.queryset.filter(technician=technician_id)
-#             serializer = self.get_serializer(tasks, many=True)
-#             return Response(serializer.data)
-#         else:
-#             return super().list(request, *args, **kwargs)
-    
-#     # @action(detail=False, methods=['PATCH'])
-#     def put(self, request):
-#         booking_id = request.data.get("booking_id")
-#         print("bookinggggg idddd",booking_id)
-#         status = request.data.get("status")
-#         if booking_id and status:
-#             print(booking_id)
-#             try:
-#                 with transaction.atomic():
-#                     if booking.status == "Completed":
-#                         return Response({"success": False, "message": "Booking already processed."})
-#                     booking = Booking.objects.get(id=booking_id)
-#                     task = Task.objects.get(booking=booking)
-#                     booking.status = status
-#                     booking.save()
-                
-                
-#                     # return Response({'success': True})
-#                     if booking.status == "Completed" and booking.online == True:
-#                         print("okkkkkkkkkkkkkk")
-                    
-#                         # tax_rate = 0.18
-#                         booking_amount = booking.total_amount
+        booking = Booking.objects.get(id=booking_id)
+        task = Task.objects.get(id=task_id)
 
-#                         tax_amt = booking.tax_amount
+        # ----------------------------------- Invoice Part -----------------------
+        try:
+            # tax = booking.tax_amount
+            subtotal = booking.subtotal
+            tax = Decimal(subtotal) * Decimal(0.18)
+            total = tax + subtotal
+            total_amt = Decimal(booking.total_amount) + Decimal(booking.tax_amount)
+            cgst_sgst = Decimal(total_amt) * Decimal(0.09)
+            grandtotal = total_amt + (cgst_sgst * 2)
 
-#                         hod_share_percentage = HodSharePercentage.objects.latest("id")
-#                         hod_share_percentage_value = hod_share_percentage.percentage
+            invoice = Invoice.objects.filter(booking_id=booking).first()
+            if not invoice:
+                invoice = Invoice.objects.create(booking_id=booking)
+                bookingprod = BookingProduct.objects.filter(booking=booking).first()
 
-#                         hod_share = booking_amount * (hod_share_percentage_value / 100)
+                if bookingprod:
+                    addon = Addon.objects.filter(booking_prod_id=bookingprod)
+                    input_file = render_to_string(
+                        "Invoice/invoice.html",
+                        {
+                            "booking": invoice,
+                            "addon": addon,
+                            "total": total,
+                            "cgst_sgst": cgst_sgst,
+                            "grandtotal": grandtotal,
+                        },
+                    )
+                    options = {"enable-local-file-access": ""}
+                    pdf_data = pdfkit.from_string(input_file, False, options=options)
 
-#                         print("new hod share0", hod_share)
-#                         technician_share = booking_amount - hod_share
-#                         print("technicia sare", technician_share)
+                    if pdf_data:
+                        invoice.invoice = pdf_data
+                        invoice.save()
+                        print(f"✅ PDF data saved in invoice successfully for booking {booking_id}.")
+                    else:
+                        print(f"❌ Failed to generate PDF data for invoice {booking_id}")
+                else:
+                    print(f"⚠ BookingProduct not found for booking ID: {booking.id}")
+            else:
+                print(f"ℹ Invoice already exists for booking ID: {booking.id}")
+        except Exception as e:
+            print(f"❌ Error in invoice creation process for booking {booking_id}:", e)
 
-#                         # hod_share_with_tax = hod_share + tax_amt
-#                         hod_share_with_tax = float(str(hod_share)) + tax_amt
-#                         print("hod_share_with_tax", hod_share_with_tax)
+        # ---------------- Notification Block ----------------
+        try:
+            # Technician ko notification
+            technician = task.technician
+            if technician and hasattr(technician, "fcm_token") and technician.fcm_token:
+                send_push_notification(
+                    token=technician.fcm_token,
+                    title="Booking Update",
+                    body=f"Booking #{booking.id} status updated to {status}",
+                    data={"booking_id": str(booking.id), "status": status}
+                )
 
-#                         wallet_tecnician = technician_share
-#                         # wallet_tecnician = Decimal(technician_share) - Decimal(tax_amt)
-#                         print("wallet technician", wallet_tecnician)
+            # User ko notification
+            booking_user = getattr(booking, "user", None)
+            if booking_user and hasattr(booking_user, "fcm_token") and booking_user.fcm_token:
+                send_push_notification(
+                    token=booking_user.fcm_token,
+                    title="Booking Update",
+                    body=f"Your booking #{booking.id} is now {status}",
+                    data={"booking_id": str(booking.id), "status": status}
+                )
+        except Exception as e:
+            print(f"❌ Notification error for booking {booking_id}:", e)
 
-#                         # technician_share = booking_amount - hod_share
-
-#                         share = Share.objects.create(
-#                             task=task,
-#                             hod_share_percentage=hod_share_percentage,
-#                             technician_share=wallet_tecnician,
-#                             company_share=hod_share_with_tax,
-#                         )
-#                         share.save()
-#                         technician = task.technician
-#                         wallet, created = Wallet.objects.get_or_create(
-#                             technician_id=technician
-#                         )
-#                         wallet.total_share += Decimal(str(wallet_tecnician))
-
-#                         wallet.save()
-
-#                         # --------------------- Settlement --------------------------------
-
-#                         settlement = Settlement.objects.create(
-#                             technician_id=technician,
-#                             amount=wallet_tecnician,
-#                             settlement="Settlement Add",
-#                         )
-#                         settlement.save()
-
-#                         # ----------------------------------- Invoice Part -----------------------
-
-#                         try:
-#                             booking = Booking.objects.get(id=booking_id)
-#                             booking.status = status
-#                             booking.save()
-#                             print("helooooo status", booking.status,"booking id",booking.id)
-                
-#                             # tax = booking.tax_amount
-#                             subtotal = booking.subtotal
-#                             tax = Decimal(subtotal) * Decimal(0.18)
-#                             total = tax + subtotal
-#                             total_amt = Decimal(booking.total_amount) + Decimal(
-#                                 booking.tax_amount
-#                             )
-#                             cgst_sgst = Decimal(total_amt) * Decimal(0.09)
-#                             grandtotal = total_amt + (cgst_sgst * 2)
-
-#                             bkng_id = Booking.objects.filter(id=booking_id)
-#                             if booking:
-#                                 invoice = Invoice.objects.filter(booking_id=booking).first()
-#                                 if not invoice:
-#                                     invoice = Invoice.objects.create(booking_id=booking)
-#                                     bookingprod = BookingProduct.objects.filter(
-#                                         booking=booking
-#                                     ).first()
-
-#                                     # addon = Addon.objects.filter(booking_prod_id=bookingprod)
-
-#                                     addon = Addon.objects.filter(
-#                                         booking_prod_id=bookingprod
-#                                     )
-
-#                                     input_file = render_to_string(
-#                                         "Invoice/invoice.html",
-#                                         {
-#                                             "booking": invoice,
-#                                             "addon": addon,
-#                                             "total": total,
-#                                             "cgst_sgst": cgst_sgst,
-#                                             "grandtotal": grandtotal,
-#                                         },
-#                                     )
-#                                     options = {"enable-local-file-access": ""}
-
-#                                     pdf_data = pdfkit.from_string(
-#                                         input_file, False, options=options
-#                                     )
-
-#                                     if pdf_data:
-#                                         invoice.invoice = pdf_data
-#                                         invoice.save()
-#                                         # invoice.save()
-#                                         print("PDF data saved in invoice successfully.")
-
-#                                     # return Response({'success': True})
-#                                 else:
-#                                     pass
-#                                     # Booking does not exist
-#                                     # return Response({'Error': False, 'error': 'Invoice already created'})
-#                         except Exception as e:
-#                             print(e)
-
-#                     if booking.status == "Completed" and booking.cash_on_service == True:
-                        
-#                         booking.satatus = "Completed"
-#                         booking.save()
-#                         tax_rate = 0.18
-#                         booking_amount = booking.total_amount
-#                         print("final amount", booking_amount)
-
-#                         tax_amt = booking.tax_amount
-
-#                         hod_share_percentage = HodSharePercentage.objects.latest("id")
-#                         hod_share_percentage_value = hod_share_percentage.percentage
-#                         hod_share = booking_amount * (hod_share_percentage_value / 100)
-
-#                         acbb = Decimal(hod_share) * Decimal(0.18)
-#                         print(round(acbb, 2))
-#                         print("eeeeee", hod_share)
-#                         wallet_tecnician = Decimal(hod_share) + Decimal(tax_amt)
-#                         print("helloooo", wallet_tecnician)
-
-#                         technician_share = booking_amount - hod_share
-
-#                         print("technicia sare", technician_share)
-
-#                         print("eeeeeeeeeeeee", wallet_tecnician)
-#                         final_amt = booking.final_amount - wallet_tecnician
-
-#                         hod_share_with_tax = final_amt
-
-#                         share = Share.objects.create(
-#                             task=task,
-#                             hod_share_percentage=hod_share_percentage,
-#                             technician_share=hod_share_with_tax,
-#                             company_share=wallet_tecnician,
-#                         )
-#                         share.save()
-#                         technician = task.technician
-#                         wallet, created = Wallet.objects.get_or_create(
-#                             technician_id=technician
-#                         )
-#                         wallet.total_share -= Decimal(str(wallet_tecnician))
-
-#                         wallet.save()
-
-#                         settlement = Settlement.objects.create(
-#                             technician_id=technician,
-#                             amount=wallet_tecnician,
-#                             settlement="Settlement Deduction",
-#                         )
-#                         settlement.save()
-
-#                         try:
-#                             booking = Booking.objects.get(id=booking_id)
-#                             # tax = booking.tax_amount
-#                             subtotal = booking.subtotal
-#                             tax = Decimal(subtotal) * Decimal(0.18)
-#                             total = tax + subtotal
-#                             total_amt = Decimal(booking.total_amount) + Decimal(
-#                                 booking.tax_amount
-#                             )
-#                             cgst_sgst = Decimal(total_amt) * Decimal(0.09)
-#                             grandtotal = total_amt + (cgst_sgst * 2)
-
-#                             bkng_id = Booking.objects.filter(id=booking_id)
-                            
-#                             if booking:
-#                                 invoice = Invoice.objects.filter(booking_id=booking).first()
-#                                 if not invoice:
-#                                     invoice = Invoice.objects.create(booking_id=booking)
-#                                     bookingprod = BookingProduct.objects.filter(
-#                                         booking=booking
-#                                     ).first()
-
-#                                     # addon = Addon.objects.filter(booking_prod_id=bookingprod)
-
-#                                     addon = Addon.objects.filter(
-#                                         booking_prod_id=bookingprod
-#                                     )
-
-#                                     input_file = render_to_string(
-#                                         "Invoice/invoice.html",
-#                                         {
-#                                             "booking": invoice,
-#                                             "addon": addon,
-#                                             "total": total,
-#                                             "cgst_sgst": cgst_sgst,
-#                                             "grandtotal": grandtotal,
-#                                         },
-#                                     )
-#                                     options = {"enable-local-file-access": ""}
-
-#                                     pdf_data = pdfkit.from_string(
-#                                         input_file, False, options=options
-#                                     )
-
-#                                     if pdf_data:
-#                                         invoice.invoice = pdf_data
-#                                         invoice.save()
-#                                         # invoice.save()
-#                                         print("PDF data saved in invoice successfully.")
-
-#                                     # return Response({'success': True})
-#                                 else:
-#                                     pass
-#                                     # Booking does not exist
-#                                     # return Response({'Error': False, 'error': 'Invoice already created'})
-#                         except Exception as e:
-#                             print(e)
-
-#                     return Response({"success": True})
-#             except Booking.DoesNotExist:
-#                 return Response({"success": False, "message": "Booking not found."})
-#         else:
-#             return Response(
-#                 {"success": False, "message": "Booking id and status are required."}
-#             )
+    except Exception as e:
+        print(f"❌ Background task error for booking {booking_id}:", e)
 
 
 class TaskViewSet(ModelViewSet):
@@ -485,75 +307,6 @@ class TaskViewSet(ModelViewSet):
                     )
                     settlement.save()
 
-                    
-
-                    # ----------------------------------- Invoice Part -----------------------
-
-                    try:
-                        booking = Booking.objects.get(id=booking_id)
-                        booking.status = status
-                        booking.save()
-                        print("helooooo status", booking.status,"booking id",booking.id)
-               
-                        # tax = booking.tax_amount
-                        subtotal = booking.subtotal
-                        tax = Decimal(subtotal) * Decimal(0.18)
-                        total = tax + subtotal
-                        total_amt = Decimal(booking.total_amount) + Decimal(
-                            booking.tax_amount
-                        )
-                        cgst_sgst = Decimal(total_amt) * Decimal(0.09)
-                        grandtotal = total_amt + (cgst_sgst * 2)
-
-                        bkng_id = Booking.objects.filter(id=booking_id)
-                        if booking:
-                            invoice = Invoice.objects.filter(booking_id=booking).first()
-                            if not invoice:
-                                try:
-                                    invoice = Invoice.objects.create(booking_id=booking)
-                                    bookingprod = BookingProduct.objects.filter(
-                                        booking=booking
-                                    ).first()
-
-                                    if not bookingprod:
-                                        print("BookingProduct not found for booking ID:", booking.id)
-                                        raise Exception("BookingProduct not found")
-
-                                    # addon = Addon.objects.filter(booking_prod_id=bookingprod)
-
-                                    addon = Addon.objects.filter(
-                                        booking_prod_id=bookingprod
-                                    )
-
-                                    input_file = render_to_string(
-                                        "Invoice/invoice.html",
-                                        {
-                                            "booking": invoice,
-                                            "addon": addon,
-                                            "total": total,
-                                            "cgst_sgst": cgst_sgst,
-                                            "grandtotal": grandtotal,
-                                        },
-                                    )
-                                    options = {"enable-local-file-access": ""}
-
-                                    pdf_data = pdfkit.from_string(
-                                        input_file, False, options=options
-                                    )
-
-                                    if pdf_data:
-                                        invoice.invoice = pdf_data
-                                        invoice.save()
-                                        print("PDF data saved in invoice successfully.")
-                                    else:
-                                        print("Failed to generate PDF data for invoice")
-                                except Exception as inner_e:
-                                    print("Error creating invoice:", inner_e)
-                            else:
-                                print("Invoice already exists for booking ID:", booking.id)
-                    except Exception as e:
-                        print("Error in invoice creation process:", e)
-
                 if booking.status == "Completed" and booking.cash_on_service == True:
                     
                     booking.status = "Completed"
@@ -605,100 +358,11 @@ class TaskViewSet(ModelViewSet):
                     )
                     settlement.save()
 
-
-                    try:
-                        booking = Booking.objects.get(id=booking_id)
-                        # tax = booking.tax_amount
-                        subtotal = booking.subtotal
-                        tax = Decimal(subtotal) * Decimal(0.18)
-                        total = tax + subtotal
-                        total_amt = Decimal(booking.total_amount) + Decimal(
-                            booking.tax_amount
-                        )
-                        cgst_sgst = Decimal(total_amt) * Decimal(0.09)
-                        grandtotal = total_amt + (cgst_sgst * 2)
-
-                        bkng_id = Booking.objects.filter(id=booking_id)
-                        
-                        if booking:
-                            invoice = Invoice.objects.filter(booking_id=booking).first()
-                            if not invoice:
-                                try:
-                                    invoice = Invoice.objects.create(booking_id=booking)
-                                    bookingprod = BookingProduct.objects.filter(
-                                        booking=booking
-                                    ).first()
-
-                                    if not bookingprod:
-                                        print("BookingProduct not found for booking ID:", booking.id)
-                                        raise Exception("BookingProduct not found")
-
-                                    # addon = Addon.objects.filter(booking_prod_id=bookingprod)
-
-                                    addon = Addon.objects.filter(
-                                        booking_prod_id=bookingprod
-                                    )
-
-                                    input_file = render_to_string(
-                                        "Invoice/invoice.html",
-                                        {
-                                            "booking": invoice,
-                                            "addon": addon,
-                                            "total": total,
-                                            "cgst_sgst": cgst_sgst,
-                                            "grandtotal": grandtotal,
-                                        },
-                                    )
-                                    options = {"enable-local-file-access": ""}
-
-                                    pdf_data = pdfkit.from_string(
-                                        input_file, False, options=options
-                                    )
-
-                                    if pdf_data:
-                                        invoice.invoice = pdf_data
-                                        invoice.save()
-                                        print("PDF data saved in invoice successfully.")
-                                    else:
-                                        print("Failed to generate PDF data for invoice")
-                                except Exception as inner_e:
-                                    print("Error creating invoice:", inner_e)
-                            else:
-                                print("Invoice already exists for booking ID:", booking.id)
-                    except Exception as e:
-                        print("Error in invoice creation process:", e)
-
-
-                
-                # ------------------- Notificationssssssssssss 
-
-                 # ---------------- Notification Block ----------------
-                try:
-                    # Technician ko notification
-                    technician = task.technician
-                   
-                    if technician and hasattr(technician, "fcm_token") and technician.fcm_token:
-                        send_push_notification(
-                            token=technician.fcm_token,
-                            title="Booking Update",
-                            body=f"Booking #{booking.id} status updated to {booking.status}",
-                            data={"booking_id": str(booking.id), "status": booking.status}
-                        )
-                        print("sendginnnnnnnnnnn success")
-
-                    # User ko notification
-                    booking_user = getattr(booking, "user", None)
-                    if booking_user and hasattr(booking_user, "fcm_token") and booking_user.fcm_token:
-                        send_push_notification(
-                            token=booking_user.fcm_token,
-                            title="Booking Update",
-                            body=f"Your booking #{booking.id} is now {booking.status}",
-                            data={"booking_id": str(booking.id), "status": booking.status}
-                        )
-                except Exception as e:
-                    print("Notification error:", e)
-
-                # --------------------------------
+                # Start background task for invoice generation and notifications
+                threading.Thread(
+                    target=generate_invoice_and_notifications,
+                    args=(booking_id, status, task.id)
+                ).start()
 
                 return Response({"success": True})
             
