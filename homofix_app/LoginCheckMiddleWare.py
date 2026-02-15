@@ -11,7 +11,7 @@ class LoginCheckMiddleWare(MiddlewareMixin):
         if request.path == "/" or request.path == "/Login/":
             return None
             
-        allowed_paths = ["/api/", "/admin/", "/static/"]
+        allowed_paths = ["/api/", "/admin/", "/static/", "/media/"]
         if any(request.path.startswith(path) for path in allowed_paths):
             return None
 
