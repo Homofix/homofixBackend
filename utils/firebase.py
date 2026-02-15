@@ -11,7 +11,7 @@ from django.conf import settings
 
 # cred_path = os.path.join(settings.BASE_DIR, 'homofix-app-firebase-adminsdk-fbsvc-1ff7eab745.json')
 cred_path = os.path.join(settings.BASE_DIR, 'homofixexpert-firebase-adminsdk-fbsvc-1321aada02.json')
-print("credddddddd",cred_path)
+
 
 # Initialize only once
 if not firebase_admin._apps:
