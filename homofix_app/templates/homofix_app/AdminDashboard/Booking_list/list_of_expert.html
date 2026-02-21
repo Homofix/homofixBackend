@@ -105,7 +105,7 @@
                      <th>City</th>
                      <th>State</th>
                      <th>Service Area</th>
-                     
+                     <th>Working Mode</th>
                      <th>Active/Inactive</th>
                      <th>Task</th>
                      <th>Action</th>
@@ -124,6 +124,16 @@
                      <td>{{i.city}}</td>
                      <td>{{i.state}}</td>
                      <td>{{i.serving_area}}</td>
+                     
+                     <td>
+                        {% with latest_online=i.showonline_set.last %}
+                            {% if latest_online and latest_online.online %}
+                                <div class="badge rounded-pill bg-success p-2 text-uppercase px-3"><i class='bx bxs-circle me-1'></i>Online</div>
+                            {% else %}
+                                <div class="badge rounded-pill bg-danger p-2 text-uppercase px-3"><i class='bx bxs-circle me-1'></i>Offline</div>
+                            {% endif %}
+                        {% endwith %}
+                     </td>
                      
                      <td>
                         <div class="badge rounded-pill bg-light p-2 text-uppercase px-3"><i

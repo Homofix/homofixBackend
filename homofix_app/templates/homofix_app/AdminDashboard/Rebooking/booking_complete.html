@@ -126,12 +126,10 @@
                             <td>
                                 
                                  {% for invoice in invoices %}
-                                 {% if invoice.booking_id.id == t.booking.id %}
-                                 {{ invoice.updated_at }}
-                                 {% endif %}
-                                
-                                  
-                                {% endfor %} 
+                                     {% if invoice.booking_id.id == t.booking.id %}
+                                         {{ invoice.updated_at|date:"M. d, Y" }}
+                                     {% endif %}
+                                 {% endfor %} 
                             </td>
                             
                             
