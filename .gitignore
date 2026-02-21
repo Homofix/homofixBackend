@@ -166,3 +166,4 @@ backup/
 test.log
 
 homofixexpert-firebase-adminsdk-fbsvc-*.json
+google_sheets_credentials.json
