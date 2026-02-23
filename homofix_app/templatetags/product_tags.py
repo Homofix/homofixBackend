@@ -70,9 +70,9 @@ def get_logo_base64():
             os.path.join(settings.BASE_DIR, 'static', 'logodark.png'),
             os.path.join(settings.BASE_DIR, 'logodark.png'),
             # Fallback for the absolute path previously used on the ubuntu server
-            '/home/ubuntu/homofix/static/logodark.png',
-            '/home/ubuntu/homofix/homofix_app/static/assets/images/logodark.png',
-            '/home/ubuntu/homofix/homofix_app/static/logodark.png'
+            '/home/ubuntu/homofixBackend/static/logodark.png',
+            '/home/ubuntu/homofixBackend/homofix_app/static/assets/images/logodark.png',
+            '/home/ubuntu/homofixBackend/homofix_app/static/logodark.png'
         ]
         
         for logo_path in paths_to_check:
