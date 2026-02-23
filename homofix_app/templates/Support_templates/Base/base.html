@@ -103,7 +103,9 @@
   <script>
 	  
 	$(document).ready(function() {
-	$('#example').DataTable()
+	$('#example').DataTable({
+		"order": []
+	});
   });
 	
   </script>
@@ -111,6 +113,7 @@
 	<script>
 		$(document).ready(function() {
 			var table = $('#example2').DataTable( {
+				"order": [],
 				//lengthChange: false,
 				//buttons: [ 'copy', 'excel', 'pdf', 'print'],
 			} );
