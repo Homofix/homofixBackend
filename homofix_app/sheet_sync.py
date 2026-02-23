@@ -46,13 +46,29 @@ def sync_customer(instance):
     update_or_append_row("Customers", 1, instance.id, row_data)
 
 def get_booking_row_data(booking, status, technician=None):
-    if not technician:
-        expert_id, expert_name = get_assigned_expert_info(booking)
-    else:
-        expert_id = technician.expert_id
-        expert_name = technician.admin.username if technician and technician.admin else "Unknown"
-        
-    expert_display = f"{expert_id} ({expert_name})" if expert_id and expert_id != "N/A" else ""
+    # Try to find all tasks for this booking, ordered by creation time
+    tasks = Task.objects.filter(booking=booking).order_by('created_at')
+    
+    first_expert_id = "N/A"
+    first_expert_name = "N/A"
+    reassigned_expert_id = ""
+    reassigned_expert_name = ""
+
+    if tasks.exists():
+        first_task = tasks.first()
+        first_expert_id = first_task.technician.expert_id
+        first_expert_name = first_task.technician.admin.username if first_task.technician.admin else "Unknown"
+
+        if tasks.count() > 1:
+            last_task = tasks.last()
+            reassigned_expert_id = last_task.technician.expert_id
+            reassigned_expert_name = last_task.technician.admin.username if last_task.technician.admin else "Unknown"
+    
+    # If a specific technician was passed (e.g., from signals on create), we might use them
+    # but the tasks query above is more reliable for checking history (reassignments).
+    
+    first_expert_display = f"{first_expert_id} ({first_expert_name})" if first_expert_id and first_expert_id != "N/A" else ""
+    reassigned_expert_display = f"{reassigned_expert_id} ({reassigned_expert_name})" if reassigned_expert_id else ""
     
     try:
         slot_int = int(booking.slot) if booking.slot is not None else None
@@ -94,7 +110,7 @@ def get_booking_row_data(booking, status, technician=None):
     row_data = [
         booking.id, 
         booking.order_id,
-        expert_display, 
+        first_expert_display, 
         get_subcategory_str(booking),
         get_products_str(booking),
         cust_name, 
@@ -113,7 +129,8 @@ def get_booking_row_data(booking, status, technician=None):
         payment_mode, 
         get_order_by(booking),
         status,
-        booking.cancel_reason if status == "Cancelled" else ""
+        booking.cancel_reason if status == "Cancelled" else "",
+        reassigned_expert_display 
     ]
     return row_data
 
