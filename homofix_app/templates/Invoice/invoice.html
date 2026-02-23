@@ -64,7 +64,8 @@
 <body>
     <section>
         <h1 style="text-align: center;">Invoice</h1>
-        <img src="https://support.homofixcompany.com/static/assets/images/logodark.png" alt="" width="200px">
+        <!-- Using base64 encoding to sidestep localhost/EC2 networking issues in PDFKit -->
+        <img src="{% get_logo_base64 %}" alt="Homofix Logo" width="200px">
         <div class="container">
             <div class="left-side p-2">
                

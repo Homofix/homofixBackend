@@ -50,3 +50,32 @@ def call_amt_invoice(quantity,rate):
 def call_subtotal_invoice(total_amt,coupon_disc):
     amt = float(total_amt + coupon_disc)
     return amt
+
+import base64
+import os
+from django.conf import settings
+
+@register.simple_tag
+def get_logo_base64():
+    """
+    Returns the base64 data URI of the logo for PDF generation 
+    so wkhtmltopdf doesn't need to make network requests.
+    """
+    try:
+        # Check common logo paths in the project
+        paths_to_check = [
+            os.path.join(settings.BASE_DIR, 'static', 'assets', 'images', 'logodark.png'),
+            os.path.join(settings.BASE_DIR, 'static', 'logodark.png'),
+            os.path.join(settings.BASE_DIR, 'logodark.png')
+        ]
+        
+        for logo_path in paths_to_check:
+            if os.path.exists(logo_path):
+                with open(logo_path, "rb") as image_file:
+                    encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+                    return f"data:image/png;base64,{encoded_string}"
+        
+        return "" # If not found, return empty string
+    except Exception as e:
+        print(f"Error encoding logo to base64: {e}")
+        return ""
