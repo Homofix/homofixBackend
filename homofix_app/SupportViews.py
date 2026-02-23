@@ -359,7 +359,7 @@ data = {
 def ViewPDF(request,booking_id):
 
     try:
-        invoice = Invoice.objects.get(booking_id=booking_id)
+        invoice = Invoice.objects.filter(booking_id=booking_id).first()
         invoice_data = invoice.invoice if invoice else None
 
         if invoice_data:
