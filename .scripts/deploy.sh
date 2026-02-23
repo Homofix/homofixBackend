@@ -2,6 +2,7 @@
 set -e
 
 echo "Deployment started ..."
+# Pull the latest version of the app
 
 # Pull the latest version of the app
 echo "Copying New changes...."
