@@ -1966,9 +1966,9 @@ def support_expert_payment_history(request, id):
     support = Support.objects.get(admin=user)
     order_count = Booking.objects.filter(status="New").count()
     technician = Technician.objects.get(id=id)
-    wallet_history = WalletHistory.objects.filter(wallet__technician_id=technician)
-    settlement = Settlement.objects.filter(technician_id=technician)
-    share = Share.objects.filter(task__technician=technician)
+    wallet_history = WalletHistory.objects.filter(wallet__technician_id=technician).order_by('-id')
+    settlement = Settlement.objects.filter(technician_id=technician).order_by('-id')
+    share = Share.objects.filter(task__technician=technician).order_by('-id')
     try:
         wallet = Wallet.objects.get(technician_id=technician)
     except Wallet.DoesNotExist:
