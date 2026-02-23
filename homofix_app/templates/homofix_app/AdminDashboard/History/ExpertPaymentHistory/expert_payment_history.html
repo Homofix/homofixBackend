@@ -119,7 +119,7 @@
                             <td>
                                {{i.description}}
                             </td>
-                            <td data-order="{{ i.date|date:'Y-m-d H:i:s' }}">
+                            <td data-order="{{ i.date|date:'Y-m-d' }}">
                                 {{i.date}}
                             </td>
                            
@@ -222,7 +222,7 @@
                             <td>Offline</td>
                             {% endif %}
                             
-                            <td data-order="{{ i.date|date:'Y-m-d H:i:s' }}">{{i.date}}</td>
+                            <td data-order="{{ i.date|date:'Y-m-d' }}">{{i.date}}</td>
                            
                             
                            
@@ -277,7 +277,7 @@
                             
                            
                             
-                            <td data-order="{{ i.date|date:'Y-m-d H:i:s' }}">{{i.date}}</td>
+                            <td data-order="{{ i.date|date:'Y-m-d' }}">{{i.date}}</td>
                             
                            
                             

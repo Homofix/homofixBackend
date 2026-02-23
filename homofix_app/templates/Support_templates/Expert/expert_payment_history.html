@@ -73,7 +73,7 @@
                             <td>{% if i.type == "bonus" %}Add{% else %}Deduction{% endif %}</td>
                             <td>Rs {{i.amount}}</td>
                             <td>{{i.description}}</td>
-                            <td data-order="{{ i.date|date:'Y-m-d H:i:s' }}">{{i.date}}</td>
+                            <td data-order="{{ i.date|date:'Y-m-d' }}">{{i.date}}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -128,7 +128,7 @@
                             {% else %}
                             <td>Offline</td>
                             {% endif %}
-                            <td data-order="{{ i.date|date:'Y-m-d H:i:s' }}">{{i.date}}</td>
+                            <td data-order="{{ i.date|date:'Y-m-d' }}">{{i.date}}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -155,7 +155,7 @@
                         <tr>
                             <td>{{i.amount}}</td>
                             <td>{{i.settlement}}</td>
-                            <td data-order="{{ i.date|date:'Y-m-d H:i:s' }}">{{i.date}}</td>
+                            <td data-order="{{ i.date|date:'Y-m-d' }}">{{i.date}}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
