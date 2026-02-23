@@ -68,18 +68,41 @@ def get_booking_row_data(booking, status, technician=None):
     completed_date = booking.booking_date.strftime('%b. %d, %Y') if status == "Completed" and booking.booking_date else ""
     payment_mode = "Online" if booking.online else "Cash"
     
+    cust_name = booking.booking_customer or (booking.customer.admin.first_name if booking.customer and hasattr(booking.customer, 'admin') else "")
+    cust_mobile = booking.mobile or (booking.customer.mobile if booking.customer else "")
+    cust_city = booking.city or (booking.customer.city if booking.customer else "")
+    cust_state = booking.state or (booking.customer.state if booking.customer else "")
+    cust_zipcode = booking.zipcode or (booking.customer.zipcode if booking.customer else "")
+    
+    b_addr = booking.booking_address or (booking.customer.address if booking.customer else "")
+    b_area = booking.area or (booking.customer.area if booking.customer else "")
+    
+    b_addr = "" if str(b_addr).strip().lower() == "none" else str(b_addr).strip()
+    b_area = "" if str(b_area).strip().lower() == "none" else str(b_area).strip()
+    
+    if b_addr and b_area:
+        cust_address = f"{b_addr}, {b_area}"
+    else:
+        cust_address = b_addr or b_area or ""
+        
+    cust_name = "" if str(cust_name).lower() == "none" else cust_name
+    cust_city = "" if str(cust_city).lower() == "none" else cust_city
+    cust_state = "" if str(cust_state).lower() == "none" else cust_state
+    cust_zipcode = "" if str(cust_zipcode).lower() == "none" else cust_zipcode
+    cust_mobile = "" if str(cust_mobile).lower() == "none" else cust_mobile
+
     row_data = [
         booking.id, 
         booking.order_id,
         expert_display, 
         get_subcategory_str(booking),
         get_products_str(booking),
-        booking.customer.admin.first_name if booking.customer and booking.customer.admin else "", 
-        booking.customer.mobile if booking.customer else "",
-        booking.customer.city if booking.customer else "",
-        booking.customer.state if booking.customer else "",
-        f"{booking.customer.address}, {booking.customer.area}" if booking.customer else "",
-        booking.customer.zipcode if booking.customer else "",
+        cust_name, 
+        cust_mobile,
+        cust_city,
+        cust_state,
+        cust_address,
+        cust_zipcode,
         booking_amt,
         addons_amt,
         discount_amt,
@@ -126,14 +149,20 @@ def sync_technician(instance):
     except:
         wallet_amt = 0
 
-    try:
-        name = instance.admin.first_name + " " + instance.admin.last_name
-    except:
-        name = instance.admin.username if getattr(instance, 'admin', None) else ""
+    admin = getattr(instance, 'admin', None)
+    username = admin.username if admin else ""
+    first_name = admin.first_name if admin and admin.first_name else ""
+    last_name = admin.last_name if admin and admin.last_name else ""
+    
+    name = f"{first_name} {last_name}".strip()
+    if not name:
+        name = username
+
+    expert_display = f"{instance.expert_id} ({username})" if username and instance.expert_id else str(instance.expert_id or "")
         
     row_data = [
         instance.id,
-        instance.expert_id,
+        expert_display,
         name, 
         subcats,
         instance.state,
@@ -147,9 +176,21 @@ def sync_technician(instance):
     update_or_append_row("Experts", 1, instance.id, row_data)
 
 def sync_recharge(instance):
+    tech = instance.technician_id
+    admin = getattr(tech, 'admin', None)
+    username = admin.username if admin else ""
+    first_name = admin.first_name if admin and admin.first_name else ""
+    last_name = admin.last_name if admin and admin.last_name else ""
+    
+    name = f"{first_name} {last_name}".strip()
+    if not name:
+        name = username
+
+    expert_display = f"{tech.expert_id} ({username})" if username and tech.expert_id else str(tech.expert_id or "")
+
     row_data = [
-        instance.technician_id.expert_id,
-        instance.technician_id.admin.first_name,
+        expert_display,
+        name,
         instance.payment_id,
         instance.amount,
         instance.date

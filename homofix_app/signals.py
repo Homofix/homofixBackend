@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Customer, Booking, Technician, RechargeHistory, Task, Wallet
+from .models import Customer, Booking, Technician, RechargeHistory, Task, Wallet, BookingProduct
 from .sheet_sync import (
     sync_customer, 
     sync_assigned_booking, 
@@ -18,9 +18,8 @@ def sync_customer_to_sheet(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Task)
 def sync_assigned_booking_to_sheet(sender, instance, created, **kwargs):
-    # Trigger when a Task is created (Technician Assigned)
-    if created:
-        sync_assigned_booking(instance.booking, technician=instance.technician)
+    # Trigger when a Task is created (Technician Assigned) or updated (e.g. Reassigned)
+    sync_assigned_booking(instance.booking, technician=instance.technician)
 
 @receiver(post_save, sender=Booking)
 def sync_booking_status_change_to_sheet(sender, instance, created, **kwargs):
@@ -46,3 +45,10 @@ def sync_wallet_to_sheet(sender, instance, created, **kwargs):
 def sync_recharge_to_sheet(sender, instance, created, **kwargs):
     if created:
         sync_recharge(instance)
+
+@receiver(post_save, sender=BookingProduct)
+def sync_bookingproduct_to_sheet(sender, instance, created, **kwargs):
+    # When a product is added to a new booking, we sync the booking again
+    # so that the Google Sheet row is updated with the product name and amounts.
+    if instance.booking and instance.booking.status == 'New':
+        sync_new_booking(instance.booking)
