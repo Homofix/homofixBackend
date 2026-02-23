@@ -62,11 +62,17 @@ def get_logo_base64():
     so wkhtmltopdf doesn't need to make network requests.
     """
     try:
-        # Check common logo paths in the project
+        # Check common logo paths in the project (both local and production paths)
         paths_to_check = [
+            os.path.join(settings.BASE_DIR, 'homofix_app', 'static', 'assets', 'images', 'logodark.png'),
+            os.path.join(settings.BASE_DIR, 'homofix_app', 'static', 'logodark.png'),
             os.path.join(settings.BASE_DIR, 'static', 'assets', 'images', 'logodark.png'),
             os.path.join(settings.BASE_DIR, 'static', 'logodark.png'),
-            os.path.join(settings.BASE_DIR, 'logodark.png')
+            os.path.join(settings.BASE_DIR, 'logodark.png'),
+            # Fallback for the absolute path previously used on the ubuntu server
+            '/home/ubuntu/homofix/static/logodark.png',
+            '/home/ubuntu/homofix/homofix_app/static/assets/images/logodark.png',
+            '/home/ubuntu/homofix/homofix_app/static/logodark.png'
         ]
         
         for logo_path in paths_to_check:
