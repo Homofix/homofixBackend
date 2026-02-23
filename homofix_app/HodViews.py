@@ -881,10 +881,10 @@ def technician_payment_history(request,id):
     technician = Technician.objects.get(id=id)
     
     
-    wallet_history = WalletHistory.objects.filter(wallet__technician_id=technician)
-    settlement = Settlement.objects.filter(technician_id=technician)
+    wallet_history = WalletHistory.objects.filter(wallet__technician_id=technician).order_by('-id')
+    settlement = Settlement.objects.filter(technician_id=technician).order_by('-id')
    
-    share = Share.objects.filter(task__technician=technician)
+    share = Share.objects.filter(task__technician=technician).order_by('-id')
     new_expert_count = Technician.objects.filter(status="New").count()
     booking_count = Booking.objects.filter(status = "New").count()
     rebooking_count = Rebooking.objects.all().count()
