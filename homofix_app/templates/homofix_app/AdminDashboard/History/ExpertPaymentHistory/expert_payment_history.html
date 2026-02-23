@@ -374,7 +374,21 @@
 {% block js %}
 <script>
     $(document).ready(function() {
-        $('#example3').DataTable();
+        // Initialize datatables with default descending sort on the Date/last columns
+        // '#example2' is Wallet History (Date is col index 3)
+        $('#example2').DataTable({
+            "order": [[ 3, "desc" ]]
+        });
+        
+        // '#example' is Share History (Date is col index 12)
+        $('#example').DataTable({
+            "order": [[ 12, "desc" ]]
+        });
+        
+        // '#example3' is Settlement (Date is col index 2)
+        $('#example3').DataTable({
+            "order": [[ 2, "desc" ]]
+        });
     });
 </script>
 {% endblock js %}
