@@ -967,7 +967,8 @@ def support_Task_assign(request):
         technician.save()
 
         messages.success(request, 'Assign Task Successfully')
-        return redirect('support_list_of_task')
+        # return redirect('support_list_of_task')
+        return redirect('support_orders')
 
 
 
