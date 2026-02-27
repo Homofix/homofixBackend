@@ -2,6 +2,7 @@ import logging
 from django.core.management.base import BaseCommand
 from homofix_app.models import Technician
 from homofix_app.sheet_sync import sync_technician
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,7 @@ class Command(BaseCommand):
                 sync_technician(tech)
                 success_count += 1
                 self.stdout.write(f"Synced Technician: {tech.id}")
+                time.sleep(2.0) # Avoid hitting Google Sheets API rate limits
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Failed to sync Technician {tech.id}: {e}"))
 
