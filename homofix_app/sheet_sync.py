@@ -76,12 +76,25 @@ def get_booking_row_data(booking, status, technician=None):
     except:
         slot_display = booking.slot
 
-    booking_amt = booking.total_amount
+    booking_amt = booking.subtotal
+    booking_total_amount = booking.total_amount
     addons_amt = booking.total_addons
     discount_amt = booking.coupon_discount_amount if booking.coupon else 0
     total_amt = booking.final_amount
     
-    completed_date = booking.booking_date.strftime('%b. %d, %Y') if status == "Completed" and booking.booking_date else ""
+    invoice_no = ""
+    if status == "Completed":
+        try:
+            from .models import Invoice
+            invoice = Invoice.objects.filter(booking_id=booking).first()
+            if invoice:
+                invoice_no = invoice.invoice_no
+        except Exception:
+            pass
+        
+    tax_value = getattr(booking, 'tax_amount', 0)
+    
+    completed_date = booking.booking_date.strftime('%Y-%m-%d') if status == "Completed" and booking.booking_date else ""
     payment_mode = "Online" if booking.online else "Cash"
     
     cust_name = booking.booking_customer or (booking.customer.admin.first_name if booking.customer and hasattr(booking.customer, 'admin') else "")
@@ -120,17 +133,21 @@ def get_booking_row_data(booking, status, technician=None):
         cust_address,
         cust_zipcode,
         booking_amt,
+        booking_total_amount,
         addons_amt,
         discount_amt,
+        tax_value,
         total_amt,
-        booking.booking_date.strftime('%b. %d, %Y') if booking.booking_date else "",
+        booking.booking_date.strftime('%Y-%m-%d') if booking.booking_date else "",
         completed_date,
         slot_display, 
         payment_mode, 
         get_order_by(booking),
         status,
         booking.cancel_reason if status == "Cancelled" else "",
-        reassigned_expert_display 
+        reassigned_expert_display,
+        invoice_no
+        
     ]
     return row_data
 
@@ -171,16 +188,19 @@ def sync_technician(instance):
     first_name = admin.first_name if admin and admin.first_name else ""
     last_name = admin.last_name if admin and admin.last_name else ""
     
-    name = f"{first_name} {last_name}".strip()
-    if not name:
-        name = username
+    # Extract Category from Subcategories
+    try:
+        categories = set([sc.Category_id.category_name for sc in instance.subcategories.all() if sc.Category_id])
+        category_str = ", ".join(categories)
+    except:
+        category_str = ""
 
     expert_display = f"{instance.expert_id} ({username})" if username and instance.expert_id else str(instance.expert_id or "")
         
     row_data = [
         instance.id,
         expert_display,
-        name, 
+        category_str, 
         subcats,
         instance.state,
         instance.city,

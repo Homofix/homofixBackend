@@ -116,19 +116,25 @@ def update_or_append_row(tab_name, search_col_idx, search_value, row_data):
             cell = worksheet.find(search_value_str, in_column=search_col_idx)
             
             if cell:
-                # Update the existing row
-                # range "A{row_num}" assuming data starts at col A
-                # We need to know the length of row_data to define range or just update from start
-                # gspread update can take a range or a cell
-                
-                # Check if we are overwriting headers? No, find normally skips execution or we assume IDs are not in header (or header is "S.No" which won't match an int ID usually)
-                
-                # Update the entire row
-                # Construct range string, e.g. "A5:H5"
-                # easier: worksheet.update(range_name, values)
-                # But we just want to update the row starting from col 1.
-                
-                # gspread v6 usage: worksheet.update([formatted_row], f"A{cell.row}")
+                # For 'All Bookings' tab, preserve 'Assigned Expert' on reassignment
+                if tab_name == "All Bookings":
+                    old_row = worksheet.row_values(cell.row)
+                    # index 2 is Assigned Expert, index 22 is Reassigned Expert
+                    if len(old_row) > 2 and old_row[2].strip():
+                        old_expert = old_row[2].strip()
+                        new_expert = str(row_data[2]).strip() if len(row_data) > 2 else ""
+                        
+                        if old_expert and new_expert and old_expert != new_expert:
+                            row_data[2] = old_expert
+                            if len(row_data) > 22:
+                                row_data[22] = new_expert
+                        elif old_expert == new_expert:
+                            # Preserve any existing reassigned expert if re-saved
+                            if len(old_row) > 22 and old_row[22].strip():
+                                if len(row_data) > 22:
+                                    row_data[22] = old_row[22].strip()
+
+                formatted_row = [str(item) if item is not None else "" for item in row_data]
                 worksheet.update(values=[formatted_row], range_name=f"A{cell.row}")
                 logger.info(f"Successfully updated row {cell.row} in {tab_name}")
             else:
