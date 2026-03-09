@@ -253,10 +253,10 @@ def add_admin(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         email = request.POST.get('email')
-        print("email",email)
+        # print("email",email)
         mobile = request.POST.get('mobile')
         password = request.POST.get('password')
-        print(first_name,last_name,email,mobile,password)
+        # print(first_name,last_name,email,mobile,password)
         # if AdminHOD.objects.filter(mobile = mobile,admin__email=email).exists():
         #     return JsonResponse({'status': 'error', 'message': 'Mobile Number is already Taken'})
           
@@ -306,10 +306,10 @@ def delete_admin(request,id):
 def update_admin(request):
 
     if request.method == "POST":  
-        print("helloo posting")
+        # print("helloo posting")
 
         hod_id = request.POST.get('hod_id')
-        print("hodddid",hod_id)
+        # print("hodddid",hod_id)
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         email = request.POST.get('email')
@@ -320,7 +320,7 @@ def update_admin(request):
         hod.last_name = last_name
         hod.email = email
         hod.adminhod.mobile = mobile
-        print("testinggg",first_name,last_name,email,mobile)
+        # print("testinggg",first_name,last_name,email,mobile)
         hod.save()
         messages.success(request,'Admin updated successfully')
         return redirect('admin_list')
@@ -354,10 +354,10 @@ def admin_update_profile(request):
         user.last_name = last_name
         user.email = email
         user.save()
-        print("success")
+        # print("success")
         return JsonResponse({'status':'Save'})
     else:
-        print("erorrrrr")
+        pass
         
     return render(request,'homofix_app/AdminDashboard/profile.html')
 
@@ -490,21 +490,25 @@ def delete_subcategory(request,id):
 
 def technician(request):
     category = Category.objects.all()
-    technician = Technician.objects.all()
-    # user_status = {}
-    # for user in technician:
-    #     # check if user is logged in by looking at their last login time
-    #     if user.admin.last_login is not None and timezone.now() - user.admin.last_login < timezone.timedelta(seconds=1):
-    #         # user is online
-    #         user_status[user.id] = 'online'
-    #     else:
-    #         # user is offline
-    #         user_status[user.id] = 'offline'
-    # print("user status",user_status)
+    q = request.GET.get('q', '').strip()
+    technician_qs = Technician.objects.select_related('admin').prefetch_related('subcategories', 'working_pincode_areas').all().order_by('-id')
+    if q:
+        technician_qs = technician_qs.filter(
+            Q(admin__first_name__icontains=q) |
+            Q(admin__last_name__icontains=q) |
+            Q(admin__username__icontains=q) |
+            Q(mobile__icontains=q) |
+            Q(expert_id__icontains=q) |
+            Q(subcategories__name__icontains=q)
+        ).distinct()
+    paginator = Paginator(technician_qs, 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
     new_expert_count = Technician.objects.filter(status="New").count()
     booking_count = Booking.objects.filter(status = "New").count()
-    rebooking_count = Rebooking.objects.all().count()
-    customer_count = Customer.objects.all().count()
+    rebooking_count = Rebooking.objects.count()
+    customer_count = Customer.objects.count()
     if request.method == "POST":
         
         category_id = request.POST.get('category_id')
@@ -518,7 +522,6 @@ def technician(request):
         
       
         if CustomUser.objects.filter(username = username).exists():
-            # return JsonResponse({'status': 'error', 'message': 'Username is already Taken'})
             messages.error(request,'Username is already Taken')
             return redirect('technician')
             
@@ -526,13 +529,8 @@ def technician(request):
         user.technician.category = ctg
         user.save()
         messages.success(request,'Technician Register Successfully')
-        # if(user.is_active):
-        #     return JsonResponse({'status':'Save'})
-            
-        # else:
-        #     return JsonResponse({'status':0})
 
-    return render(request,'homofix_app/AdminDashboard/Technician/technician.html',{'category':category,'technician':technician,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count})
+    return render(request,'homofix_app/AdminDashboard/Technician/technician.html',{'category':category,'page_obj': page_obj,'search_query': q,'new_expert_count':new_expert_count,'booking_count':booking_count,'rebooking_count':rebooking_count,'customer_count':customer_count})
 
 
 
@@ -964,12 +962,11 @@ def product(request):
     page_obj = paginator.get_page(page)
 
     category = Category.objects.all()
-    categories = Category.objects.all()
     subcategory = SubCategory.objects.all()
     new_expert_count = Technician.objects.filter(status="New").count()
     booking_count = Booking.objects.filter(status="New").count()
-    rebooking_count = Rebooking.objects.all().count()
-    customer_count = Customer.objects.all().count()
+    rebooking_count = Rebooking.objects.count()
+    customer_count = Customer.objects.count()
     if request.method == "POST":
         product_pic = request.FILES.get("product_pic")
         product_name = request.POST.get("product_name")
@@ -1019,13 +1016,13 @@ def product(request):
         "subcategory": subcategory,
         'rebooking_count':rebooking_count,
         'customer_count':customer_count,
-        'categories':categories
+        'categories':category
     }
     return render(request, "homofix_app/AdminDashboard/Product/product.html", context)
 
 def get_subcategories(request):
     category_id = request.GET.get('category_id')
-    print("category_id",category_id)
+    # print("category_id",category_id)
     subcategories = SubCategory.objects.filter(Category_id=category_id)
    
     data = list(subcategories.values('id', 'name'))
@@ -1115,7 +1112,7 @@ def update_product(request):
 
         # print("description",description)
 
-        print("disocunt price",discount_price)
+        # print("disocunt price",discount_price)
         # cat = Category.objects.get(id=category_id)
         subcat = SubCategory.objects.get(id=subcategory_id)
         product = Product.objects.get(id=product_id)
@@ -1209,7 +1206,7 @@ def update_addons(request):
 
     if request.method == "POST":
         addon_id  = request.POST.get('spare_parts_id')
-        print("addon id",addon_id)
+        # print("addon id",addon_id)
         product_id  = request.POST.get('product_id')
         spare_part  = request.POST.get('spare_part')
         price  = request.POST.get('price')
@@ -1292,7 +1289,7 @@ def add_support(request):
         can_rebooking = request.POST.get('can_rebooking')
         can_assign_task = request.POST.get('can_assign_task')
         can_new_expert = request.POST.get('can_new_expert')
-        print("new expert",can_new_expert)
+        # print("new expert",can_new_expert)
         can_customer_enquiry = request.POST.get('can_customer_enquiry')
         
         # if CustomUser.objects.filter(username=username).exists():
@@ -1422,7 +1419,7 @@ def support_update_profile(request):
     if request.method == "POST":
         support_id = request.POST.get('support_id')
         support_nw_id = request.POST.get('support_nw_id')
-        print("fadsfadsfadsfads",support_nw_id)
+        # print("fadsfadsfadsfads",support_nw_id)
        
         profile_pic = request.FILES.get('profile_pic') 
         username = request.POST.get('username')
@@ -1520,7 +1517,7 @@ def support_history(request,id):
     support = Support.objects.get(id=id)
     task = Task.objects.filter(supported_by=support,booking__status='Assign')
     technician = Technician.objects.filter(supported_by=support)
-    print("ddddd",technician)
+    # print("ddddd",technician)
 
     booking = Booking.objects.filter(supported_by=id)    
     new_expert_count = Technician.objects.filter(status="New").count()
@@ -1883,7 +1880,7 @@ from django.utils.dateparse import parse_date
 def booking_list(request):
     if request.method == "POST":
         otp_number = random.randint(0, 9999)
-        print("OTP number:", otp_number)
+        # print("OTP number:", otp_number)
         otp_unique = str(otp_number).zfill(3)
 
         first_name = request.POST.get("full_name")
@@ -1982,7 +1979,7 @@ def admin_verify_otp(request):
             return JsonResponse({'status': 'Save', 'message': 'otp is match'})
             # return redirect('support_orders')
         else:
-            print("show error msg here")
+            # print("show error msg here")
             return JsonResponse({'status': 'Error', 'message': 'wrong otp'})
             # OTP is incorrect, show error message and reload the page
             # messages.error(request, 'Invalid OTP. Please try again.')
@@ -2167,7 +2164,7 @@ def admin_booking(request):
     if request.method == 'POST':
        
         customer_id = request.session.get('customer_id','Default value if key does not exist')
-        print("customer id ",customer_id)
+        # print("customer id ",customer_id)
         
         product_ids = request.POST.getlist('product_id')
         quantities = request.POST.getlist('quantity')
@@ -2181,7 +2178,7 @@ def admin_booking(request):
         description = request.POST.get('description')
         slot = request.POST.get('slot')
         total_amount = int(request.POST.get('total_amount'))
-        print("sss",total_amount)
+        # print("sss",total_amount)
         
         customer = Customer.objects.get(id=customer_id)
         if city:
@@ -2220,11 +2217,11 @@ def admin_booking(request):
 
         for i, product_id in enumerate(product_ids):
             product = Product.objects.get(id=product_id)
-            print("producttttt",product)
+            # print("producttttt",product)
             # print("producttttt",product)
             
             quantity = int(quantities[i])
-            print("quaaaaaa",quantity)
+            # print("quaaaaaa",quantity)
             price = int(request.POST.getlist('price')[i])
             
             BookingProduct.objects.create(
@@ -2258,7 +2255,7 @@ def admin_booking(request):
             "format": "JSON",
         }
         response = requests.get(url, params=payload)
-        print(response.json())
+        # print(response.json())
 
         messages.success(request, 'Booking created successfully.')
         return redirect('booking_list')
@@ -2429,7 +2426,7 @@ def cancel_booking_byadmin(request,booking_id):
         booking = Booking.objects.get(id=booking_id)
         booking.status = 'Cancelled'
         booking.cancel_reason = cancel_reason
-        print("okkkkkk",cancel_reason)
+        # print("okkkkkk",cancel_reason)
         booking.save()
         messages.success(request, 'Booking has been cancelled.')
         return redirect('booking_list')    
@@ -2439,12 +2436,12 @@ def get_available_slots(request):
     from django.http import JsonResponse
     from datetime import time as dt_time
     from homofix_app.models import SLOT_CHOICES_DICT
-    print("helooooooooooooooooo")
+    # print("helooooooooooooooooo")
     
     date_str = request.GET.get('date')
     zipcode = request.GET.get('pincode')
-    print("date",date_str)
-    print("zipcodeeeee",zipcode)
+    # print("date",date_str)
+    # print("zipcodeeeee",zipcode)
 
     # Parse subcategory_ids
     raw_ids = request.GET.get('subcategory_ids')
@@ -2618,8 +2615,8 @@ def task_assign(request):
         booking = Booking.objects.get(id=booking_id)
         technician = Technician.objects.get(id=technician_id)
         
-        print("BOOKING ID",booking_id)
-        print("technician_id",technician_id)
+        # print("BOOKING ID",booking_id)
+        # print("technician_id",technician_id)
         task = Task.objects.create(booking=booking,technician=technician)
         task.save()
         booking.status = "Assign"
@@ -2730,6 +2727,9 @@ def list_of_task(request):
     search_query = request.GET.get('q') or request.GET.get('search', '')
     tasks_qs = Task.objects.filter(
         booking__status__in=["Assign", "Inprocess", "Reached", "Proceed"]
+    ).select_related(
+        'booking', 'booking__customer', 'booking__customer__admin',
+        'technician', 'technician__admin', 'supported_by'
     ).order_by("-created_at")
 
     if search_query:
@@ -2745,13 +2745,24 @@ def list_of_task(request):
     page_obj = paginator.get_page(page_number)
 
     # Build map of matched technicians per task
+    # Pre-build lookup dicts to avoid N+1 queries
     task_technician_map = {}
-    all_techs = (
+    all_techs = list(
         Technician.objects
         .filter(status="Active", showonline__online=True)
+        .select_related('admin')
         .prefetch_related('working_pincode_areas', 'subcategories')
         .distinct()
     )
+
+    # Build pincode -> set of tech objects and subcategory_id -> set of tech objects
+    pincode_to_techs = {}
+    subcat_to_techs = {}
+    for tech in all_techs:
+        for pincode in tech.working_pincode_areas.all():
+            pincode_to_techs.setdefault(pincode.code, set()).add(tech)
+        for subcat in tech.subcategories.all():
+            subcat_to_techs.setdefault(subcat.id, set()).add(tech)
 
     for task in page_obj:
         matched = []
@@ -2764,12 +2775,10 @@ def list_of_task(request):
             subcategory = bps.first().product.subcategory
 
         if zipcode and subcategory:
-            for tech in all_techs:
-                # check zipcode match
-                if tech.working_pincode_areas.filter(code=zipcode).exists():
-                    # check subcategory match
-                    if tech.subcategories.filter(id=subcategory.id).exists():
-                        matched.append(tech)
+            # Intersect techs matching both pincode and subcategory
+            techs_by_pin = pincode_to_techs.get(zipcode, set())
+            techs_by_sub = subcat_to_techs.get(subcategory.id, set())
+            matched = list(techs_by_pin & techs_by_sub)
         # Add even if matched empty
         task_technician_map[task.id] = matched
 
@@ -2789,7 +2798,7 @@ def delete_of_task(request, id):
         task = Task.objects.get(id=id)
         task.booking.status = "Cancelled"
         booking_id_task = task.booking.id
-        print("taskkkk", booking_id_task)
+        # print("taskkkk", booking_id_task)
         booking = Booking.objects.get(id=booking_id_task)
         booking.status = "Cancelled"
         booking.cancel_reason = cancel_reason
@@ -3206,7 +3215,7 @@ def admin_rebooking_update(request):
         # task.booking.save()
         
         rebooking.save()
-        print("successsss",rebooking)
+        # print("successsss",rebooking)
         messages.success(request, 'Rebooking successfully created.')
         return redirect('admin_booking_complete')
 
@@ -3248,7 +3257,7 @@ def carrer_update_Save(request):
         career_title = request.POST.get('career_title')
         carrer_desc = request.POST.get('carrer_desc')
         career_status = request.POST.get('career_status')
-        print("ssss",career_status)
+        # print("ssss",career_status)
 
         
         carrer = Carrer.objects.get(id=carrer_id)
@@ -3710,7 +3719,7 @@ def add_blog(request):
         title = request.POST.get('title')
         feature_img = request.FILES.get('feature_img')
         content = request.POST.get('content')
-        print("feature img",feature_img)
+        # print("feature img",feature_img)
         blog = Blog.objects.create(title=title,feature_img=feature_img,content=content)
         messages.success(request,'Blog Add Successfully')
         return redirect('view_blog')
@@ -3807,7 +3816,7 @@ def add_offers(request):
         offer_name = request.POST.get('offer_name')
         offer_img = request.FILES.get('offer_img')
         offer_url = request.POST.get('offer_url')
-        print("feature img",offer_url)
+        # print("feature img",offer_url)
         offer = Offer.objects.create(name=offer_name,offer_pic=offer_img,url=offer_url)
         messages.success(request,'Offer Add Successfully')
         return redirect('view_offers')
@@ -3879,14 +3888,14 @@ def ViewPDF(request,booking_id):
         f.write(str(last_invoice_number+1))
 
 # Print the new invoice number
-    print("newwwwww",new_invoice_number)
+    # print("newwwwww",new_invoice_number)
     # print("ggggg")
     book_id = Booking.objects.get(id=booking_id)
 
     filename  = f"invoice_{book_id.order_id}.pdf"
     my_path = os.path.join(settings.MEDIA_ROOT, filename)
     # my_path = f"F:\\Homofix\\v75\\invoice_{book_id.order_id}.pdf"
-    print("my path",my_path)
+    # print("my path",my_path)
     # filename = f"invoice_{instance.order_id}.pdf"
     doc = SimpleDocTemplate(my_path, pagesize=letter,topMargin=0)
 
@@ -4071,7 +4080,7 @@ def ViewPDF(request,booking_id):
     booking = Booking.objects.get(id=booking_id)
     tax_rate = 0.18
     total_price = total_price = booking.total_amount
-    print("ttoaalll",total_price)
+    # print("ttoaalll",total_price)
     gst = int(total_price * 18)/100
     total = total_price + Decimal(str(gst))
     # print("gsstttt",gst)
@@ -4166,7 +4175,7 @@ def add_mostViewed(request):
         subcategory_ids = request.POST.getlist('subcategory_id[]')
         most_view_pics = request.FILES.getlist('most_img[]')
 
-        print("mooss",most_view_pics)
+        # print("mooss",most_view_pics)
         # prod = Product.objects.get(id=product_ids)
         # print("hello")
 
@@ -4242,7 +4251,7 @@ def add_homepage_service(request):
         # product_ids = request.POST.get('product_id')
         category_ids = request.POST.getlist('category_id[]')
         title = request.POST.getlist('title[]')
-        print("category idss",category_ids,"title",title)
+        # print("category idss",category_ids,"title",title)
 
         # print("mooss",most_view_pics)
         # prod = Product.objects.get(id=product_ids)
@@ -4275,7 +4284,7 @@ def edit_homepage_service(request,id):
     homepageservice = HomePageService.objects.get(id=id)
     
     category = Category.objects.all()
-    print("Category",category)
+    # print("Category",category)
     context= {
         'homepageservice':homepageservice,
         'category':category
@@ -4384,7 +4393,7 @@ def add_page_legal(request):
         if subcategory_id:
             try:
                 subcat = SubCategory.objects.get(id=subcategory_id)
-                print(f"subcategory {subcategory_id} contact {can_contact} home {home}")
+                # print(f"subcategory {subcategory_id} contact {can_contact} home {home}")
             except SubCategory.DoesNotExist:
                 messages.error(request, "Invalid subcategory selected.")
                 return redirect('page_legal_list')
@@ -4471,7 +4480,7 @@ def edit_page_legal(request,id):
 
 def update_page_legal_save(request):
     if request.method == "POST":
-        print("ehlooooo")
+        # print("ehlooooo")
         
         legal_page_id = request.POST.get('legalpage_id')    
         title = request.POST.get('title')    
@@ -4506,7 +4515,7 @@ def update_page_legal_save(request):
         legalpage.subcategory = subcat
         legalpage.save()
 
-        print("id", legal_page_id, "title", title, 'content', content, "subcategory", subcat, "home", home, "contact", can_contact)
+        # print("id", legal_page_id, "title", title, 'content', content, "subcategory", subcat, "home", home, "contact", can_contact)
         
         messages.success(request, 'Page Legal Updated Successfully')
         return redirect('page_legal_list')
@@ -5048,11 +5057,11 @@ def ajax_check_slot_availability(request):
     """
 
     zipcode = request.GET.get("zipcode")
-    print("zipcodee",zipcode)
+    # print("zipcodee",zipcode)
     date_str = request.GET.get("date")
-    print("date:",date_str)
+    # print("date:",date_str)
     subcategory_ids = request.GET.getlist("subcategory_ids[]")  # from jQuery AJAX
-    print("subcategory_ids",subcategory_ids)
+    # print("subcategory_ids",subcategory_ids)
 
     if not zipcode or not date_str or not subcategory_ids:
         return JsonResponse({"error": "Missing required parameters."}, status=400)
