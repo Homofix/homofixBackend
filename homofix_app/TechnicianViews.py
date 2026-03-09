@@ -167,7 +167,7 @@ def expert_task_addon(request, booking_id):
 
 
 def update_rebooking_status(request,booking_id):
-    print("heloooooo")
+    # print("heloooooo")
     task = Rebooking.objects.get(id=booking_id)
     
     # user = request.user.id

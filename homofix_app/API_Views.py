@@ -131,9 +131,10 @@ def create_invoice(self, booking):
             if pdf_data:
                 invoice.invoice = pdf_data
                 invoice.save()
-                print("PDF data saved in invoice successfully.")
+                # print("PDF data saved in invoice successfully.")
     except Exception as e:
-        print("Error in creating invoice:", e)
+        pass
+        # print("Error in creating invoice:", e)
 
 
 from django.db import transaction
@@ -186,15 +187,19 @@ def generate_invoice_and_notifications(booking_id, status, task_id):
                     if pdf_data:
                         invoice.invoice = pdf_data
                         invoice.save()
-                        print(f"✅ PDF data saved in invoice successfully for booking {booking_id}.")
+                        # print(f"✅ PDF data saved in invoice successfully for booking {booking_id}.")
                     else:
-                        print(f"❌ Failed to generate PDF data for invoice {booking_id}")
+                        pass
+                        # print(f"❌ Failed to generate PDF data for invoice {booking_id}")
                 else:
-                    print(f"⚠ BookingProduct not found for booking ID: {booking.id}")
+                    pass
+                    # print(f"⚠ BookingProduct not found for booking ID: {booking.id}")
             else:
-                print(f"ℹ Invoice already exists for booking ID: {booking.id}")
+                pass
+                # print(f"ℹ Invoice already exists for booking ID: {booking.id}")
         except Exception as e:
-            print(f"❌ Error in invoice creation process for booking {booking_id}:", e)
+            pass
+            # print(f"❌ Error in invoice creation process for booking {booking_id}:", e)
 
         # ---------------- Notification Block ----------------
         try:
@@ -218,10 +223,12 @@ def generate_invoice_and_notifications(booking_id, status, task_id):
                     data={"booking_id": str(booking.id), "status": status}
                 )
         except Exception as e:
-            print(f"❌ Notification error for booking {booking_id}:", e)
+            pass
+            # print(f"❌ Notification error for booking {booking_id}:", e)
 
     except Exception as e:
-        print(f"❌ Background task error for booking {booking_id}:", e)
+        pass
+        # print(f"❌ Background task error for booking {booking_id}:", e)
 
 
 class TaskViewSet(ModelViewSet):
@@ -242,11 +249,11 @@ class TaskViewSet(ModelViewSet):
     # @action(detail=False, methods=['PATCH'])
     def put(self, request):
         booking_id = request.data.get("booking_id")
-        print("bookinggggg idddd",booking_id)
+        # print("bookinggggg idddd",booking_id)
         
         status = request.data.get("status")
         if booking_id and status:
-            print(booking_id)
+            # print(booking_id)
             try:
                 booking = Booking.objects.get(id=booking_id)
                 if booking.status == "Completed":
@@ -269,17 +276,17 @@ class TaskViewSet(ModelViewSet):
 
                     hod_share = booking_amount * (hod_share_percentage_value / 100)
 
-                    print("new hod share0", hod_share)
+                    # print("new hod share0", hod_share)
                     technician_share = booking_amount - hod_share
-                    print("technicia sare", technician_share)
+                    # print("technicia sare", technician_share)
 
                     # hod_share_with_tax = hod_share + tax_amt
                     hod_share_with_tax = float(str(hod_share)) + tax_amt
-                    print("hod_share_with_tax", hod_share_with_tax)
+                    # print("hod_share_with_tax", hod_share_with_tax)
 
                     wallet_tecnician = technician_share
                     # wallet_tecnician = Decimal(technician_share) - Decimal(tax_amt)
-                    print("wallet technician", wallet_tecnician)
+                    # print("wallet technician", wallet_tecnician)
 
                     # technician_share = booking_amount - hod_share
 
@@ -313,7 +320,7 @@ class TaskViewSet(ModelViewSet):
                     booking.save()
                     tax_rate = 0.18
                     booking_amount = booking.total_amount
-                    print("final amount", booking_amount)
+                    # print("final amount", booking_amount)
 
                     tax_amt = booking.tax_amount
 
@@ -322,16 +329,16 @@ class TaskViewSet(ModelViewSet):
                     hod_share = booking_amount * (hod_share_percentage_value / 100)
 
                     acbb = Decimal(hod_share) * Decimal(0.18)
-                    print(round(acbb, 2))
-                    print("eeeeee", hod_share)
+                    # print(round(acbb, 2))
+                    # print("eeeeee", hod_share)
                     wallet_tecnician = Decimal(hod_share) + Decimal(tax_amt)
-                    print("helloooo", wallet_tecnician)
+                    # print("helloooo", wallet_tecnician)
 
                     technician_share = booking_amount - hod_share
 
-                    print("technicia sare", technician_share)
+                    # print("technicia sare", technician_share)
 
-                    print("eeeeeeeeeeeee", wallet_tecnician)
+                    # print("eeeeeeeeeeeee", wallet_tecnician)
                     final_amt = booking.final_amount - wallet_tecnician
 
                     hod_share_with_tax = final_amt
@@ -423,11 +430,11 @@ class TechniciantaskViewSet(ModelViewSet):
     # @action(detail=False, methods=['PATCH'])
     def put(self, request):
         booking_id = request.data.get("booking_id")
-        print("bookinggggg idddd",booking_id)
+        # print("bookinggggg idddd",booking_id)
         
         status = request.data.get("status")
         if booking_id and status:
-            print(booking_id)
+            # print(booking_id)
             try:
                 booking = Booking.objects.get(id=booking_id)
                 if booking.status == "Completed":
@@ -450,17 +457,17 @@ class TechniciantaskViewSet(ModelViewSet):
 
                     hod_share = booking_amount * (hod_share_percentage_value / 100)
 
-                    print("new hod share0", hod_share)
+                    # print("new hod share0", hod_share)
                     technician_share = booking_amount - hod_share
-                    print("technicia sare", technician_share)
+                    # print("technicia sare", technician_share)
 
                     # hod_share_with_tax = hod_share + tax_amt
                     hod_share_with_tax = float(str(hod_share)) + tax_amt
-                    print("hod_share_with_tax", hod_share_with_tax)
+                    # print("hod_share_with_tax", hod_share_with_tax)
 
                     wallet_tecnician = technician_share
                     # wallet_tecnician = Decimal(technician_share) - Decimal(tax_amt)
-                    print("wallet technician", wallet_tecnician)
+                    # print("wallet technician", wallet_tecnician)
 
                     # technician_share = booking_amount - hod_share
 
@@ -541,7 +548,7 @@ class TechniciantaskViewSet(ModelViewSet):
                                     invoice.invoice = pdf_data
                                     invoice.save()
                                     # invoice.save()
-                                    print("PDF data saved in invoice successfully.")
+                                    # print("PDF data saved in invoice successfully.")
 
                                 # return Response({'success': True})
                             else:
@@ -549,7 +556,8 @@ class TechniciantaskViewSet(ModelViewSet):
                                 # Booking does not exist
                                 # return Response({'Error': False, 'error': 'Invoice already created'})
                     except Exception as e:
-                        print(e)
+                        pass
+                        # print(e)
 
                 if booking.status == "Completed" and booking.cash_on_service == True:
                     
@@ -557,7 +565,7 @@ class TechniciantaskViewSet(ModelViewSet):
                     booking.save()
                     tax_rate = 0.18
                     booking_amount = booking.total_amount
-                    print("final amount", booking_amount)
+                    # print("final amount", booking_amount)
 
                     tax_amt = booking.tax_amount
 
@@ -566,16 +574,16 @@ class TechniciantaskViewSet(ModelViewSet):
                     hod_share = booking_amount * (hod_share_percentage_value / 100)
 
                     acbb = Decimal(hod_share) * Decimal(0.18)
-                    print(round(acbb, 2))
-                    print("eeeeee", hod_share)
+                    # print(round(acbb, 2))
+                    # print("eeeeee", hod_share)
                     wallet_tecnician = Decimal(hod_share) + Decimal(tax_amt)
-                    print("helloooo", wallet_tecnician)
+                    # print("helloooo", wallet_tecnician)
 
                     technician_share = booking_amount - hod_share
 
-                    print("technicia sare", technician_share)
+                    # print("technicia sare", technician_share)
 
-                    print("eeeeeeeeeeeee", wallet_tecnician)
+                    # print("eeeeeeeeeeeee", wallet_tecnician)
                     final_amt = booking.final_amount - wallet_tecnician
 
                     hod_share_with_tax = final_amt
@@ -650,7 +658,7 @@ class TechniciantaskViewSet(ModelViewSet):
                                     invoice.invoice = pdf_data
                                     invoice.save()
                                     # invoice.save()
-                                    print("PDF data saved in invoice successfully.")
+                                    # print("PDF data saved in invoice successfully.")
 
                                 # return Response({'success': True})
                             else:
@@ -658,7 +666,8 @@ class TechniciantaskViewSet(ModelViewSet):
                                 # Booking does not exist
                                 # return Response({'Error': False, 'error': 'Invoice already created'})
                     except Exception as e:
-                        print(e)
+                        pass
+                        # print(e)
 
                 return Response({"success": True})
             except Booking.DoesNotExist:
@@ -761,7 +770,7 @@ def technicianRebookingStatusUpdated(request):
             })
 
     except Exception as e:
-        print("Error:", e)
+        # print("Error:", e)
         return Response({
             'status': False,
             'message': 'An error occurred',
@@ -835,7 +844,7 @@ class BkingProductViewSet(viewsets.ModelViewSet):
 def create_booking_manually(request):
     data = request.data
     # serializer = BookingCreateManuallySerailizer(data=data)
-    print("ggggggggggggggg",data)
+    # print("ggggggggggggggg",data)
     return Response({
         'status':"ok",
         'message':data
@@ -933,7 +942,7 @@ def create_booking_manually(request):
 def RebookingStatusUpdated(request):
     try:
         data = request.data
-        print("data", data)
+        # print("data", data)
         
         # Technician ID validation
         if not data.get("technician_id"):
@@ -970,7 +979,7 @@ def RebookingStatusUpdated(request):
         })
     
     except Exception as e:
-        print("Error:", e)
+        # print("Error:", e)
         return Response({
             'status': False,
             'message': 'An error occurred',
@@ -1101,11 +1110,11 @@ def create_booking(request):
             # demo = booking_product_data.booking
             # print("ssss",demo)
             testo = booking_product_data['booking']
-            print("demoooo datasaa",booking_product_data['booking']) 
+            # print("demoooo datasaa",booking_product_data['booking']) 
             booking_product_serializer = BkingProductSerializer(data=booking_product_data)
-            print("demooooo",booking_product_serializer)
+            # print("demooooo",booking_product_serializer)
             if booking_product_serializer.is_valid():
-                print("gggg")
+                # print("gggg")
                 booking_product_serializer.save()
             else:
                 # If there are any errors in BookingProduct data, delete the created Booking instance
@@ -1134,7 +1143,7 @@ class KycViewSet(ModelViewSet):
     serializer_class  = KycSerializer
     def get_queryset(self):
         technician_id = self.request.query_params.get('technician_id')
-        print("techincian id",technician_id)
+        # print("techincian id",technician_id)
         if technician_id is not None:
             queryset = Kyc.objects.filter(technician_id=technician_id)
         else:
@@ -1224,9 +1233,9 @@ def ExpertTaskCountViewSet(request):
     booking_completed = Task.objects.filter(technician_id=technician_id,booking__status="Completed").count()
     
     new_booking_count = queryset2.filter(technician=technician_id,booking__status="Assign").count()
-    print(queryset)
+    # print(queryset)
     rebooking_count = rebooking.filter(technician=technician_id,status="Assign").count()
-    print("sss",rebooking_count)
+    # print("sss",rebooking_count)
     # serializer=TaskSerializer(queryset,many=True)
     return Response({
         'status':True,
@@ -1323,7 +1332,7 @@ class TechnicianLocationViewSet(ModelViewSet):
     def post(self, request):
         booking_id = request.data.get('booking_id')
         location = request.data.get('location')
-        print("booking id",booking_id)
+        # print("booking id",booking_id)
         if booking_id and location:
             try:
                 booking = Booking.objects.get(id=booking_id)
@@ -1462,7 +1471,7 @@ class TechnicianOnlineViewSet(viewsets.ViewSet):
 
 @api_view(['GET'])
 def get_RechargeHistory(request):
-    print("helooooooo")
+    # print("helooooooo")
     technician_id = request.GET.get('technician_id') # retrieve the technician_id query parameter
     queryset = RechargeHistory.objects.all()
     if technician_id is not None:
@@ -1500,7 +1509,7 @@ def post_rechargeHistory(request):
             'data': serializer.errors  
         })
     except Exception as e:
-        print(e)
+        # print(e)
         return Response({
             'status': False,
             'message': "Something went wrong",  
@@ -1513,7 +1522,7 @@ def post_rechargeHistory(request):
 @api_view(['GET'])
 def get_Wallet(request):
     technician_id = request.GET.get('technician_id') # retrieve the technician_id query parameter
-    print("hellooo",technician_id)
+    # print("hellooo",technician_id)
     queryset = Wallet.objects.all()
     if technician_id is not None:
         queryset = queryset.filter(technician_id=technician_id) 
@@ -1572,7 +1581,7 @@ def post_withdraw_req(request):
             'data': serializer.errors  
         })
     except Exception as e:
-        print(e)
+        # print(e)
         return Response({
             'status': False,
             'message': "Something went wrong",  
@@ -1687,7 +1696,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
 
         # Check if the current user is the owner of the customer object
         if instance.admin == request.user:
-            print("useerrrrrrr",request.user)
+            # print("useerrrrrrr",request.user)
             # serializer = self.get_serializer(instance, data=request.data, partial=True)
             # serializer.is_valid(raise_exception=True)
             # serializer.save()
@@ -1872,7 +1881,8 @@ class CustomerLoginAPI(APIView):
                 'data':serializer.errors
             })
         except Exception as e:
-            print(e)
+            pass
+            # print(e)
 
 
 
@@ -2013,10 +2023,10 @@ class CustomerVerifyOtp(CreateAPIView):
     def post(self, request, *args, **kwargs):
         data = request.data
         Otp = data.get('OTPP')
-        print("hellooooo")
+        # print("hellooooo")
         
         otp_nUMB = request.session.get('otp', 'Default value if key does not exist')
-        print("OTP from session:", otp_nUMB)
+        # print("OTP from session:", otp_nUMB)
         mobile = request.session.get('phone_number', 'Default value if key does not exist')
         
         return Response({
@@ -2196,7 +2206,7 @@ class LoginAPI(APIView):
                 password = serializer.data['password']
                 cus = Customer.objects.get(mobile=password)
                 username = cus.admin.username
-                print("usernameee",username)
+                # print("usernameee",username)
 
                 user = authenticate(password=password,username=username)
                 if user is None:
@@ -2218,7 +2228,8 @@ class LoginAPI(APIView):
                 'data':serializer.errors
             })
         except Exception as e:
-            print(e)
+            pass
+            # print(e)
 
 
 class BlogByTitleViewSet(viewsets.ReadOnlyModelViewSet):
@@ -2256,7 +2267,7 @@ class CustomerLogin(APIView):
             
                 cust = Customer.objects.get(mobile=phone_number)
                 username = cust.admin.username
-                print("usernameeee",username)
+                # print("usernameeee",username)
                 
                 user=authenticate(request,username=username, password = phone_number)
                 # return Response({'message': 'Logged in successfully.'}, status=status.HTTP_200_OK)
@@ -2280,7 +2291,7 @@ class CustomerLogin(APIView):
                 
                         # return Response({'message': 'Logged in successfully.','user': user_data}, status=status.HTTP_200_OK)
             else:
-                print("nooooo")
+                # print("nooooo")
                 last_three_digits = phone_number[-3:]
                 userr = "user"
                 user = CustomUser.objects.create(username=phone_number, user_type='4')    
@@ -2292,7 +2303,7 @@ class CustomerLogin(APIView):
                     
                 custm = Customer.objects.get(mobile=phone_number)
                 usernme = custm.admin.username
-                print("usernammeee",usernme)
+                # print("usernammeee",usernme)
                 usrr=authenticate(request,username=usernme, password = phone_number)
                 if usrr!=None:
                     login(request,user)
@@ -2385,7 +2396,7 @@ class LegalPageViewSet(ReadOnlyModelViewSet):
 # ------------------- generate PDF ------------------     
 @api_view(['GET'])
 def generate_invoice_pdf(request):
-    print("helloooo")
+    # print("helloooo")
     category_objs = Category.objects.all()
     params = {
         # 'today':datetime
@@ -2605,7 +2616,7 @@ class TskListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         technician_id = self.kwargs['technician_id']  # Assumes the technician ID is passed as a URL parameter
-        print("tidd",technician_id)
+        # print("tidd",technician_id)
         return Task.objects.filter(technician_id=technician_id)
 
 
@@ -2736,7 +2747,7 @@ class CustomerBookingDetailsViewSet(ModelViewSet):
         if user.is_authenticated:
             # Filter bookings based on the authenticated customer
             queryset = Booking.objects.filter(customer__admin=user)
-            print("query set",queryset)
+            # print("query set",queryset)
         else:
             # If there is no authenticated user, return an empty queryset
             queryset = Booking.objects.none()

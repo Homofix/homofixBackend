@@ -567,7 +567,7 @@ def support_orders(request):
     total_price = 0
 
     if request.method == "POST":
-        print("testing")
+        # print("testing")
         otp_number = random.randint(0, 9999)
         otp_unique = str(otp_number).zfill(3)
 
@@ -764,7 +764,7 @@ def support_booking(request):
     if request.method == 'POST':
        
         customer_id = request.session.get('customer_id','Default value if key does not exist')
-        print("customer id ",customer_id)
+        # print("customer id ",customer_id)
         
         product_ids = request.POST.getlist('product_id')
         quantities = request.POST.getlist('quantity')
@@ -814,7 +814,7 @@ def support_booking(request):
 
         for i, product_id in enumerate(product_ids):
             product = Product.objects.get(id=product_id)
-            print("producttttt",product)
+            # print("producttttt",product)
             # print("producttttt",product)
             
             quantity = int(quantities[i])
@@ -849,7 +849,7 @@ def support_booking(request):
             "format": "JSON",
         }
         response = requests.get(url, params=payload)
-        print(response.json())
+        # print(response.json())
         
 
         messages.success(request, 'Booking created successfully.')
@@ -1010,7 +1010,7 @@ def support_List_of_expert(request,id):
 
 def support_task_counting(request,expert_id):
     technician = Technician.objects.get(id=expert_id)
-    print(technician)
+    # print(technician)
     task = Task.objects.filter(id=technician)
    
     return render(request,'test.html')
@@ -1312,7 +1312,7 @@ def support_rebooking_update(request):
         task.booking.save()
         
         rebooking.save()
-        print("successsss",rebooking)
+        # print("successsss",rebooking)
         messages.success(request, 'Rebooking successfully created.')
         return redirect('support_booking_complete')
 
@@ -1629,7 +1629,7 @@ def support_rebooking_product(request, task_id):
     task = get_object_or_404(Task, id=task_id)
     booking_id = task.booking.id
     booking_prod = BookingProduct.objects.filter(booking_id=booking_id)
-    print(booking_prod)
+    # print(booking_prod)
     return render(request, 'Support_templates/Rebooking/rebooking_product.html', {'booking_prod': booking_prod})
 
 
@@ -1904,7 +1904,7 @@ def support_contact_us(request):
     user = request.user
     support = Support.objects.get(admin=user)   
     contact_us = ContactUs.objects.all()
-    print("contact usssss",contact_us)
+    # print("contact usssss",contact_us)
     context = {
         'contact_us':contact_us,
         'support':support
@@ -2064,7 +2064,7 @@ def delete_of_task(request, id):
     task = Task.objects.get(id=id)
     task.booking.status = "Cancelled"
     booking_id_task = task.booking.id
-    print("taskkkk", booking_id_task)
+    # print("taskkkk", booking_id_task)
     booking = Booking.objects.get(id=booking_id_task)
     booking.status = "Cancelled"
     booking.save()
