@@ -208,7 +208,8 @@ def sync_technician(instance):
         pincodes,
         instance.status,
         "Active", 
-        str(wallet_amt)
+        str(wallet_amt),
+        instance.mobile
     ]
     update_or_append_row("Experts", 1, instance.id, row_data)
 

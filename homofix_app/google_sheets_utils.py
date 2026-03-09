@@ -119,20 +119,20 @@ def update_or_append_row(tab_name, search_col_idx, search_value, row_data):
                 # For 'All Bookings' tab, preserve 'Assigned Expert' on reassignment
                 if tab_name == "All Bookings":
                     old_row = worksheet.row_values(cell.row)
-                    # index 2 is Assigned Expert, index 22 is Reassigned Expert
+                    # index 2 is Assigned Expert, index 24 is Reassigned Expert
                     if len(old_row) > 2 and old_row[2].strip():
                         old_expert = old_row[2].strip()
                         new_expert = str(row_data[2]).strip() if len(row_data) > 2 else ""
                         
                         if old_expert and new_expert and old_expert != new_expert:
                             row_data[2] = old_expert
-                            if len(row_data) > 22:
-                                row_data[22] = new_expert
+                            if len(row_data) > 24:
+                                row_data[24] = new_expert
                         elif old_expert == new_expert:
                             # Preserve any existing reassigned expert if re-saved
-                            if len(old_row) > 22 and old_row[22].strip():
-                                if len(row_data) > 22:
-                                    row_data[22] = old_row[22].strip()
+                            if len(old_row) > 24 and old_row[24].strip():
+                                if len(row_data) > 24:
+                                    row_data[24] = old_row[24].strip()
 
                 formatted_row = [str(item) if item is not None else "" for item in row_data]
                 worksheet.update(values=[formatted_row], range_name=f"A{cell.row}")
