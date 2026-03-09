@@ -3656,10 +3656,24 @@ def attendence(request,id):
 
 
 def recharge_technicianwise(request,id):
-    recharge = RechargeHistory.objects.filter(technician_id=id)
+    q = request.GET.get('q', '').strip()
+    recharge_qs = RechargeHistory.objects.filter(technician_id=id).order_by('-id')
+    if q:
+        recharge_qs = recharge_qs.filter(
+            Q(technician_id__expert_id__icontains=q) |
+            Q(technician_id__admin__username__icontains=q) |
+            Q(technician_id__admin__first_name__icontains=q) |
+            Q(technician_id__admin__last_name__icontains=q) |
+            Q(technician_id__mobile__icontains=q)
+        ).order_by('-id')
+        
+    paginator = Paginator(recharge_qs, 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
 
     context = {
-        'recharge':recharge
+        'page_obj': page_obj,
+        'search_query': q,
     }
     return render(request,'homofix_app/AdminDashboard/Recharge/list_of_recharge.html',context)
 
