@@ -501,7 +501,7 @@ def technician(request):
             Q(expert_id__icontains=q) |
             Q(subcategories__name__icontains=q)
         ).distinct()
-    paginator = Paginator(technician_qs, 10)
+    paginator = Paginator(technician_qs, 25)
     page = request.GET.get('page')
     page_obj = paginator.get_page(page)
 
