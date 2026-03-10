@@ -2760,7 +2760,7 @@ def list_of_task(request):
     subcat_to_techs = {}
     for tech in all_techs:
         for pincode in tech.working_pincode_areas.all():
-            pincode_to_techs.setdefault(pincode.code, set()).add(tech)
+            pincode_to_techs.setdefault(str(pincode.code), set()).add(tech)
         for subcat in tech.subcategories.all():
             subcat_to_techs.setdefault(subcat.id, set()).add(tech)
 
