@@ -22,7 +22,7 @@
                     <tbody>
                         
                         {% for addon in addons %}
-                                {% if addon.booking_prod_id.booking.id == task.booking.id %}
+                                {% if addon.booking_prod_id.booking.id == t.booking.id %}
                                     <tr>
                                           <!-- Use forloop.counter -->
                                         <td>{{ addon.spare_parts_id.spare_part }}</td>

@@ -4087,12 +4087,9 @@ def ViewPDF(request,booking_id):
     
     # Create the table for invoice totals
     booking = Booking.objects.get(id=booking_id)
-    tax_rate = 0.18
-    total_price = total_price = booking.total_amount
-    # print("ttoaalll",total_price)
-    gst = int(total_price * 18)/100
-    total = total_price + Decimal(str(gst))
-    # print("gsstttt",gst)
+    total_price = booking.total_amount
+    gst = booking.tax_amount
+    total = booking.final_amount
 
     invoice_totals_data = [    ['Subtotal:', f'{total_price:.2f}'],
         ['CGST @9%:', f'{gst/2:.2f}'],
