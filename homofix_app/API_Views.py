@@ -111,8 +111,7 @@ def create_invoice(self, booking):
         invoice = Invoice.objects.filter(booking_id=booking).first()
         if not invoice:
             invoice = Invoice.objects.create(booking_id=booking)
-            bookingprod = BookingProduct.objects.filter(booking=booking).first()
-            addon = Addon.objects.filter(booking_prod_id=bookingprod)
+            addon = Addon.objects.filter(booking_prod_id__booking=booking)
             
             input_file = render_to_string(
                 "Invoice/invoice.html",
@@ -167,33 +166,27 @@ def generate_invoice_and_notifications(booking_id, status, task_id):
             invoice = Invoice.objects.filter(booking_id=booking).first()
             if not invoice:
                 invoice = Invoice.objects.create(booking_id=booking)
-                bookingprod = BookingProduct.objects.filter(booking=booking).first()
+                addon = Addon.objects.filter(booking_prod_id__booking=booking)
+                input_file = render_to_string(
+                    "Invoice/invoice.html",
+                    {
+                        "booking": invoice,
+                        "addon": addon,
+                        "total": total,
+                        "cgst_sgst": cgst_sgst,
+                        "grandtotal": grandtotal,
+                    },
+                )
+                options = {"enable-local-file-access": ""}
+                pdf_data = pdfkit.from_string(input_file, False, options=options)
 
-                if bookingprod:
-                    addon = Addon.objects.filter(booking_prod_id=bookingprod)
-                    input_file = render_to_string(
-                        "Invoice/invoice.html",
-                        {
-                            "booking": invoice,
-                            "addon": addon,
-                            "total": total,
-                            "cgst_sgst": cgst_sgst,
-                            "grandtotal": grandtotal,
-                        },
-                    )
-                    options = {"enable-local-file-access": ""}
-                    pdf_data = pdfkit.from_string(input_file, False, options=options)
-
-                    if pdf_data:
-                        invoice.invoice = pdf_data
-                        invoice.save()
-                        # print(f"✅ PDF data saved in invoice successfully for booking {booking_id}.")
-                    else:
-                        pass
-                        # print(f"❌ Failed to generate PDF data for invoice {booking_id}")
+                if pdf_data:
+                    invoice.invoice = pdf_data
+                    invoice.save()
+                    # print(f"✅ PDF data saved in invoice successfully for booking {booking_id}.")
                 else:
                     pass
-                    # print(f"⚠ BookingProduct not found for booking ID: {booking.id}")
+                    # print(f"❌ Failed to generate PDF data for invoice {booking_id}")
             else:
                 pass
                 # print(f"ℹ Invoice already exists for booking ID: {booking.id}")
@@ -518,15 +511,7 @@ class TechniciantaskViewSet(ModelViewSet):
                             invoice = Invoice.objects.filter(booking_id=booking).first()
                             if not invoice:
                                 invoice = Invoice.objects.create(booking_id=booking)
-                                bookingprod = BookingProduct.objects.filter(
-                                    booking=booking
-                                ).first()
-
-                                # addon = Addon.objects.filter(booking_prod_id=bookingprod)
-
-                                addon = Addon.objects.filter(
-                                    booking_prod_id=bookingprod
-                                )
+                                addon = Addon.objects.filter(booking_prod_id__booking=booking)
 
                                 input_file = render_to_string(
                                     "Invoice/invoice.html",
@@ -628,15 +613,7 @@ class TechniciantaskViewSet(ModelViewSet):
                             invoice = Invoice.objects.filter(booking_id=booking).first()
                             if not invoice:
                                 invoice = Invoice.objects.create(booking_id=booking)
-                                bookingprod = BookingProduct.objects.filter(
-                                    booking=booking
-                                ).first()
-
-                                # addon = Addon.objects.filter(booking_prod_id=bookingprod)
-
-                                addon = Addon.objects.filter(
-                                    booking_prod_id=bookingprod
-                                )
+                                addon = Addon.objects.filter(booking_prod_id__booking=booking)
 
                                 input_file = render_to_string(
                                     "Invoice/invoice.html",

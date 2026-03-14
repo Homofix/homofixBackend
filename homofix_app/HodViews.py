@@ -4001,6 +4001,10 @@ def ViewPDF(request,booking_id):
     bookingProd=BookingProduct.objects.filter(booking=booking_id)
     adon = Addon.objects.filter(booking_prod_id__booking=booking_id)
     # stu = Booking.objects.all()
+    
+    for i in adon:
+        addon.append([i.spare_parts_id.spare_part, i.quantity, i.spare_parts_id.price, '18%', f'{i.quantity * i.spare_parts_id.price * 1.18:.2f}'])
+
     for bookingprod in bookingProd:
 
         price = 0
@@ -4010,15 +4014,6 @@ def ViewPDF(request,booking_id):
             price = bookingprod.product.price
         
         data.append([bookingprod.product.name, bookingprod.quantity,price,'18%',f'{bookingprod.quantity*price*1.18:.2f}'])
-        # data.append([bookingprod.product.name, bookingprod.quantity,price,'18%',bookingprod.quantity*price*1.18])
-        for i in adon:
-            if i.spare_parts_id.product == bookingprod.product:
-                # addon.append([i.spare_parts_id.spare_part,i.quantity,i.spare_parts_id.price,'18%',i.quantity*i.spare_parts_id.price*1.18])
-                addon.append([i.spare_parts_id.spare_part, i.quantity, i.spare_parts_id.price, '18%', f'{i.quantity * i.spare_parts_id.price * 1.18:.2f}'])
-
-
-        # if i.spare_parts_id.product ==  bookingprod.product:
-        #     addon.append([i.spare_parts_id.spare_part])
             
         
 #     data.append(['Ac Repairing', '2','100','18%','200'])
