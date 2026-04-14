@@ -357,20 +357,43 @@ data = {
 
 
 def ViewPDF(request,booking_id):
-
+    import pdfkit
+    from decimal import Decimal
+    from django.template.loader import render_to_string
     try:
-        invoice = Invoice.objects.filter(booking_id=booking_id).first()
-        invoice_data = invoice.invoice if invoice else None
+        booking = get_object_or_404(Booking, id=booking_id)
+        invoice, created = Invoice.objects.get_or_create(booking_id=booking)
+        addon = Addon.objects.filter(booking_prod_id__booking=booking)
+        
+        total_amt = booking.total_amount
+        tax_amount = booking.tax_amount
+        grandtotal = booking.final_amount
+        cgst_sgst = Decimal(grandtotal) * Decimal('0.09')
 
-        if invoice_data:
-            response = HttpResponse(content_type='application/pdf')
+        html_content = render_to_string(
+            "Invoice/invoice.html",
+            {
+                "booking": invoice,
+                "addon": addon,
+                "total": total_amt,
+                "cgst_sgst": cgst_sgst,
+                "grandtotal": grandtotal,
+            },
+        )
+        options = {"enable-local-file-access": ""}
+
+        pdf_data = pdfkit.from_string(html_content, False, options=options)
+
+        if pdf_data:
+            invoice.invoice = pdf_data
+            invoice.save()
+            response = HttpResponse(pdf_data, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
-            response.write(invoice_data)
             return response
         else:
-            return HttpResponse("Invoice not found.")
-    except Invoice.DoesNotExist:
-        return HttpResponse("Invoice not found.")
+            return HttpResponse("Failed to generate PDF.")
+    except Exception as e:
+        return HttpResponse(f"Invoice not found. Error: {str(e)}")
     
    
 #Automaticly downloads to PDF file
