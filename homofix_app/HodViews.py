@@ -4566,7 +4566,7 @@ def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
     html  = template.render(context_dict)
     result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)#, link_callback=fetch_resources)
+    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result, encoding='utf-8')#, link_callback=fetch_resources)
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
@@ -4647,7 +4647,7 @@ def invoice_download(request, booking_id):
         grandtotal = booking.final_amount
         cgst_sgst = Decimal(grandtotal) * Decimal('0.09')
 
-        html_content = render_to_string(
+        pdf_response = render_to_pdf(
             "Invoice/invoice.html",
             {
                 "booking": invoice,
@@ -4657,16 +4657,12 @@ def invoice_download(request, booking_id):
                 "grandtotal": grandtotal,
             },
         )
-        options = {"enable-local-file-access": ""}
 
-        pdf_data = pdfkit.from_string(html_content, False, options=options)
-
-        if pdf_data:
-            invoice.invoice = pdf_data
+        if pdf_response:
+            invoice.invoice = pdf_response.content
             invoice.save()
-            response = HttpResponse(pdf_data, content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
-            return response
+            pdf_response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
+            return pdf_response
         else:
             return HttpResponse("Failed to generate PDF.")
     except Exception as e:

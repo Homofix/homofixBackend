@@ -18,13 +18,12 @@
         .header-title {
             text-align: center;
             font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             letter-spacing: 2px;
         }
         .logo {
             width: 150px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         table {
             width: 100%;
@@ -32,12 +31,11 @@
         }
         .info-table td {
             border: 1px solid #000;
-            padding: 5px;
+            padding: 8px;
             vertical-align: top;
-            line-height: 1.4;
         }
         .item-table {
-            margin-top: 5px;
+            margin-top: 15px;
         }
         .item-table th, .item-table td {
             border: 1px solid #000;
@@ -46,35 +44,39 @@
         }
         .item-table th {
             font-weight: bold;
-            background-color: #f8f9fa;
+        }
+        .summary-wrapper {
+            width: 35%;
+            margin-left: 65%;
+            margin-top: 10px;
         }
         .summary-table {
             width: 100%;
             border-collapse: collapse;
         }
         .summary-table td {
-            padding: 6px;
+            padding: 6px 0;
             font-size: 12px;
         }
         .summary-table .amount {
             text-align: left;
         }
+        .tax-row td {
+            border-bottom: 1px solid #000;
+        }
+        .total-row td {
+            border-bottom: 1px solid #000;
+        }
         .footer {
-            margin-top: 20px;
+            margin-top: 40px;
             text-align: center;
             font-size: 11px;
-            line-height: 1.4;
+            line-height: 1.6;
+            margin-bottom: 20px;
         }
         .footer-line {
             border-top: 1px solid #000;
             margin-bottom: 15px;
-        }
-        .section-title {
-            text-align: center;
-            font-weight: bold;
-            margin-top: 15px;
-            margin-bottom: 5px;
-            font-size: 13px;
         }
     </style>
 </head>
@@ -83,16 +85,16 @@
     
     <div>
         {% get_logo_base64 as logo_base64 %}
-        <img src="{{ logo_base64 }}" class="logo" alt="Homofix Logo">
+        <img src="{{ logo_base64 }}" class="logo">
     </div>
 
     <table class="info-table">
         <tr>
             <td style="width: 60%;">
-                <b>Homofix Technologies Private Limited</b><br>
-                <b>Office Address:</b> 2nd Floor, WP-501-D, Unit 209,<br>
+                <b>Homofix Technologies Private Limited</b><br><br>
+                <b>Office Address:</b> 2 nd Floor, WP - 501 D, Unit No. 209,<br>
                 Shiv Market, Wazirpur Village, Ashok Vihar, New Delhi,<br>
-                Delhi - 110052<br>
+                Delhi – 110052<br><br>
                 <b>GST :</b> 07AAGCH4863F1ZI
             </td>
             <td style="width: 40%;">
@@ -103,7 +105,7 @@
         </tr>
         <tr>
             <td style="width: 60%;">
-                <b>Invoice To</b><br>
+                <b>Invoice To</b><br><br>
                 <b>Name :</b> {{booking.booking_id.customer.admin.first_name}}<br>
                 <b>Address :</b> {{booking.booking_id.customer.address}}<br>
                 <b>Pin code :</b> {{booking.booking_id.customer.zipcode}}<br>
@@ -118,7 +120,7 @@
     </table>
 
     <!-- Items Section -->
-    <div class="section-title">LIST OF ITEMS</div>
+    <div style="text-align: center; font-weight: bold; margin-top: 15px; margin-bottom: 5px;">LIST OF ITEMS</div>
     <table class="item-table">
         <tr>
             <th style="width: 5%;">#</th>
@@ -139,8 +141,7 @@
     </table>
 
     <!-- Addons Section -->
-    {% if addon %}
-    <div class="section-title">LIST OF Addon</div>
+    <div style="text-align: center; font-weight: bold; margin-top: 15px; margin-bottom: 5px;">LIST OF Addon</div>
     <table class="item-table">
         <tr>
             <th style="width: 5%;">#</th>
@@ -158,48 +159,51 @@
             <td>{% call_addon_amt_invoice adon.quantity adon.spare_parts_id.price %}</td>
         </tr>
         {% endfor %}
+        {% if not addon %}
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        {% endif %}
     </table>
-    {% endif %}
 
     <!-- Totals Section -->
-    <table style="width: 100%; border: none; margin-top: 10px;">
-        <tr>
-            <td style="width: 60%; border: none;"></td>
-            <td style="width: 40%; border: none; padding: 0;">
-                <table class="summary-table">
-                    <tr>
-                        <td style="border-bottom: 1px solid #ccc;">Subtotal</td>
-                        <td class="amount" style="border-bottom: 1px solid #ccc;">{% call_subtotal_invoice booking.booking_id.total_amount booking.booking_id.coupon_discount_amount|default:"0" %}</td>
-                    </tr>
-                    <tr>
-                        <td style="border-bottom: 1px solid #ccc;">Coupon Discount</td>
-                        <td class="amount" style="border-bottom: 1px solid #ccc;">{{booking.booking_id.coupon_discount_amount|default:"0"}}</td>
-                    </tr>
-                    <tr>
-                        <td style="border-bottom: 1px solid #ccc;">Net Amount</td>
-                        <td class="amount" style="border-bottom: 1px solid #ccc;">{{booking.booking_id.total_amount}}</td>
-                    </tr>
-                    <tr>
-                        <td style="border-bottom: 1px solid #000;">Tax</td>
-                        <td class="amount" style="border-bottom: 1px solid #000;">{{booking.booking_id.tax_amount}}</td>
-                    </tr>
-                    <tr>
-                        <td style="border-bottom: 1px solid #000;">Total</td>
-                        <td class="amount" style="border-bottom: 1px solid #000;">{{booking.booking_id.final_amount}}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+    <div class="summary-wrapper">
+        <table class="summary-table">
+            <tr>
+                <td>Subtotal</td>
+                <td class="amount">{% call_subtotal_invoice booking.booking_id.total_amount booking.booking_id.coupon_discount_amount|default:"0" %}</td>
+            </tr>
+            <tr>
+                <td>Coupon Discount</td>
+                <td class="amount">{{booking.booking_id.coupon_discount_amount|default:"0"}}</td>
+            </tr>
+            <tr>
+                <td>Net Amount</td>
+                <td class="amount">{{booking.booking_id.total_amount}}</td>
+            </tr>
+            <tr class="tax-row">
+                <td>Tax</td>
+                <td class="amount">{{booking.booking_id.tax_amount}}</td>
+            </tr>
+            <tr class="total-row">
+                <td>Total</td>
+                <td class="amount">{{booking.booking_id.final_amount}}</td>
+            </tr>
+        </table>
+    </div>
 
     <!-- Company Footer -->
     <div class="footer">
         <div class="footer-line"></div>
-        <div style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">Homofix Technologies PVT Ltd</div>
-        <div style="margin-bottom: 5px;">Corporate Office: 2nd Floor, WP-501-D, Unit 209, Shiv Market, Wazirpur Village ,</div>
-        <div style="margin-bottom: 5px;">Ashok Vihar, New Delhi, Central Delhi, Delhi - 110052</div>
-        <div style="margin-bottom: 5px;">Regd Office: 5139, Awas Vikas 3, Kalyanpur,Kanpur,Uttar Pradesh, India,208017</div>
-        <div style="margin-bottom: 5px;">Email: info@homofixcompany.com</div>
+        <div style="font-size: 14px; margin-bottom: 10px;">Homofix Technologies PVT Ltd</div>
+        <div>Corporate Office: 2nd Floor, WP-501-D, Unit 209, Shiv Market, Wazirpur Village ,</div>
+        <div>Ashok Vihar, New Delhi, Central Delhi, Delhi - 110052</div><br>
+        <div>Regd Office: 5139, Awas Vikas 3, Kalyanpur,Kanpur,Uttar Pradesh, India,208017</div><br>
+        <div>Email: info@homofixcompany.com</div><br>
         <div>Contact no- 8130105760</div>
     </div>
 </body>

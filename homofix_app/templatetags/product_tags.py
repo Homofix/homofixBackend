@@ -48,8 +48,11 @@ def call_amt_invoice(quantity,rate):
 
 @register.simple_tag
 def call_subtotal_invoice(total_amt,coupon_disc):
-    amt = float(total_amt + coupon_disc)
-    return amt
+    try:
+        amt = float(total_amt) + float(coupon_disc)
+        return amt
+    except (ValueError, TypeError):
+        return total_amt
 
 import base64
 import os

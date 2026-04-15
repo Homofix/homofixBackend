@@ -100,6 +100,7 @@ class ExpertViewSet(ModelViewSet):
    
 # Helper method to create invoice (this method should already be in your class)
 def create_invoice(self, booking):
+    from .HodViews import render_to_pdf
     try:
         invoice, created = Invoice.objects.get_or_create(booking_id=booking)
         addon = Addon.objects.filter(booking_prod_id__booking=booking)
@@ -108,9 +109,9 @@ def create_invoice(self, booking):
         total_amt = booking.total_amount
         tax_amount = booking.tax_amount
         grandtotal = booking.final_amount
-        cgst_sgst = Decimal(grandtotal) * Decimal(0.09) # For template display if needed
+        cgst_sgst = Decimal(grandtotal) * Decimal('0.09') # For template display if needed
 
-        input_file = render_to_string(
+        pdf_response = render_to_pdf(
             "Invoice/invoice.html",
             {
                 "booking": invoice,
@@ -120,12 +121,9 @@ def create_invoice(self, booking):
                 "grandtotal": grandtotal,
             },
         )
-        options = {"enable-local-file-access": ""}
 
-        pdf_data = pdfkit.from_string(input_file, False, options=options)
-
-        if pdf_data:
-            invoice.invoice = pdf_data
+        if pdf_response:
+            invoice.invoice = pdf_response.content
             invoice.save()
             return True
         return False
