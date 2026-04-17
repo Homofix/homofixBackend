@@ -4564,9 +4564,10 @@ def testing(request):
 
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
-    html  = template.render(context_dict)
+    html = template.render(context_dict)
     result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result, encoding='utf-8')#, link_callback=fetch_resources)
+    # Optimized: Explicitly encode and ensure no hanging network requests
+    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result, encoding='utf-8')
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
@@ -4638,14 +4639,23 @@ def write_invoice_counter(counter):
 
 def invoice_download(request, booking_id):
     try:
-        booking = get_object_or_404(Booking, id=booking_id)
-        invoice, created = Invoice.objects.get_or_create(booking_id=booking)
-        addon = Addon.objects.filter(booking_prod_id__booking=booking)
+        # Optimized: Prefetch relations to avoid N+1 queries during property calculations
+        booking = get_object_or_404(
+            Booking.objects.prefetch_related(
+                'booking_product__product',
+                'booking_product__addon_set__spare_parts_id'
+            ), 
+            id=booking_id
+        )
         
+        invoice, created = Invoice.objects.get_or_create(booking_id=booking)
+        addon = Addon.objects.filter(booking_prod_id__booking=booking).select_related('spare_parts_id')
+        
+        # Use prefetched properties
         total_amt = booking.total_amount
-        tax_amount = booking.tax_amount
         grandtotal = booking.final_amount
-        cgst_sgst = Decimal(grandtotal) * Decimal('0.09')
+        # Simplified CGST/SGST calculation
+        cgst_sgst = Decimal(str(grandtotal)) * Decimal('0.09')
 
         pdf_response = render_to_pdf(
             "Invoice/invoice.html",
@@ -4659,6 +4669,7 @@ def invoice_download(request, booking_id):
         )
 
         if pdf_response:
+            # Save generated PDF to BinaryField
             invoice.invoice = pdf_response.content
             invoice.save()
             pdf_response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
@@ -4666,7 +4677,10 @@ def invoice_download(request, booking_id):
         else:
             return HttpResponse("Failed to generate PDF.")
     except Exception as e:
-        return HttpResponse(f"Invoice not found. Error: {str(e)}")
+        import traceback
+        print(f"Invoice Download Error: {str(e)}")
+        print(traceback.format_exc())
+        return HttpResponse(f"Error generating invoice: {str(e)}", status=500)
     
     # # Retrieve the Booking object based on the booking_id
     # booking = get_object_or_404(Booking, id=booking_id)

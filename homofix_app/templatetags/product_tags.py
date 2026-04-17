@@ -35,13 +35,19 @@ def call_gsthalf(price, quantity):
 
 @register.simple_tag
 def call_addon_amt_invoice(quantity,rate):
-    amt = quantity*rate
-    return amt
+    try:
+        amt = (quantity or 0) * (rate or 0)
+        return amt
+    except (TypeError, ValueError):
+        return 0
 
 @register.simple_tag
 def call_amt_invoice(quantity,rate):
-    amt = quantity*rate
-    return amt
+    try:
+        amt = (quantity or 0) * (rate or 0)
+        return amt
+    except (TypeError, ValueError):
+        return 0
     
     
     

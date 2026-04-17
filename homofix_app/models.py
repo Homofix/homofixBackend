@@ -461,13 +461,11 @@ class Booking(models.Model):
         super().save(*args, **kwargs)
     @property
     def total_amount(self):
-        booking_products_prefetch = Prefetch('booking_product', queryset=BookingProduct.objects.select_related('product'))
-        addons_prefetch = Prefetch('booking_product__addon_set', queryset=Addon.objects.select_related('spare_parts_id'))
-        booking = Booking.objects.prefetch_related(booking_products_prefetch, addons_prefetch).get(id=self.id)
+        # Optimized: Use self.booking_product.all() which benefits from prefetch_related in views
         total = sum(booking_product.quantity * (booking_product.selling_price or booking_product.price) 
-                    for booking_product in booking.booking_product.all())
+                    for booking_product in self.booking_product.all())
         total += sum(addon.quantity * addon.spare_parts_id.price 
-                     for booking_product in booking.booking_product.all() 
+                     for booking_product in self.booking_product.all() 
                      for addon in booking_product.addon_set.all())
         if self.coupon:
             total -= self.coupon.discount_amount
@@ -476,28 +474,27 @@ class Booking(models.Model):
 
     @property
     def tax_amount(self):
-        hod_share_percentage = HodSharePercentage.objects.latest('id')
+        try:
+            # Optimized: Fetch share percentage once
+            hod_share_percentage = HodSharePercentage.objects.latest('id')
+            percentage = hod_share_percentage.percentage
+        except (HodSharePercentage.DoesNotExist, AttributeError):
+            percentage = Decimal('0.00')
+            
+        total_amt = Decimal(self.total_amount)
+        comp_val = total_amt * (percentage / 100)
+        comp_tax = comp_val * Decimal('0.18')
+        exp_val = total_amt * (1 - (percentage / 100))
+        exp_tax = exp_val * Decimal('0.05')
         
-        
-        # tax_rate = Decimal('0.18')  # replace with your actual tax rate
-        # return round(self.total_amount * tax_rate, 2)
-        # comp_val = float(self.total_amount * (hod_share_percentage/100))
-        comp_val = float(self.total_amount * (hod_share_percentage.percentage / 100))
-
-        comp_tax = float(comp_val * (0.18))
-        # exp_val = float(self.total_amount * ((1 - hod_share_percentage)/100))
-        exp_val = float(self.total_amount * ((1 - hod_share_percentage.percentage/100)))
-
-        exp_tax = float(exp_val * (0.05))
         tax_rate = comp_tax + exp_tax 
-        return(round(tax_rate, 2))
+        return round(tax_rate, 2)
 
     @property
     def total_addons(self):
-        addons_prefetch = Prefetch('booking_product__addon_set', queryset=Addon.objects.select_related('spare_parts_id'))
-        booking = Booking.objects.prefetch_related(addons_prefetch).get(id=self.id)
+        # Optimized: Benefit from prefetching in view
         total = sum(addon.quantity * addon.spare_parts_id.price 
-                    for booking_product in booking.booking_product.all() 
+                    for booking_product in self.booking_product.all() 
                     for addon in booking_product.addon_set.all())
         return total
 
@@ -938,7 +935,7 @@ class LegalPage(models.Model):
 class Invoice(models.Model):
     booking_id = models.ForeignKey(Booking, on_delete=models.SET_NULL, null=True, blank=True)
     invoice = models.BinaryField(null=True, blank=True)
-    invoice_no =  models.IntegerField(default=1)
+    invoice_no =  models.IntegerField(default=1, db_index=True)
     updated_at = models.DateField(auto_now=True)
 
     def save(self, *args, **kwargs):

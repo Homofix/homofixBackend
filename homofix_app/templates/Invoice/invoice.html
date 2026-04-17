@@ -133,7 +133,7 @@
             <td>{{i.product.name}}</td>
             <td>{{i.quantity}}</td>
             <td>{{ i.product.selling_price|default:i.product.price }}</td>
-            <td>{% call_amt_invoice i.quantity i.product.selling_price %}</td>
+            <td>{% call_amt_invoice i.quantity i.product.selling_price|default:i.product.price %}</td>
         </tr>
         {% endfor %}
     </table>
@@ -193,13 +193,13 @@
     </table>
 
     <!-- Company Footer -->
-    <div class="footer">
+    <div class="footer" style="margin-top: 10px;">
         <div class="footer-line"></div>
-        <div style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">Homofix Technologies PVT Ltd</div>
-        <div style="margin-bottom: 5px;">Corporate Office: 2nd Floor, WP-501-D, Unit 209, Shiv Market, Wazirpur Village ,</div>
-        <div style="margin-bottom: 5px;">Ashok Vihar, New Delhi, Central Delhi, Delhi - 110052</div>
-        <div style="margin-bottom: 5px;">Regd Office: 5139, Awas Vikas 3, Kalyanpur,Kanpur,Uttar Pradesh, India,208017</div>
-        <div style="margin-bottom: 5px;">Email: info@homofixcompany.com</div>
+        <div style="font-size: 13px; font-weight: bold; margin-bottom: 1px;">Homofix Technologies PVT Ltd</div>
+        <div style="margin-bottom: 1px;">Corporate Office: 2nd Floor, WP-501-D, Unit 209, Shiv Market, Wazirpur Village ,</div>
+        <div style="margin-bottom: 1px;">Ashok Vihar, New Delhi, Central Delhi, Delhi - 110052</div>
+        <div style="margin-bottom: 1px;">Regd Office: 5139, Awas Vikas 3, Kalyanpur,Kanpur,Uttar Pradesh, India,208017</div>
+        <div style="margin-bottom: 1px;">Email: info@homofixcompany.com</div>
         <div>Contact no- 8130105760</div>
     </div>
 </body>
