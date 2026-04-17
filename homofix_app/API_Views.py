@@ -99,17 +99,24 @@ class ExpertViewSet(ModelViewSet):
 
    
 # Helper method to create invoice (this method should already be in your class)
-def create_invoice(self, booking):
+def create_invoice(self, booking_id):
     from .HodViews import render_to_pdf
     try:
+        # Optimized: Prefetch relations
+        booking = get_object_or_404(
+            Booking.objects.prefetch_related(
+                'booking_product__product',
+                'booking_product__addon_set__spare_parts_id'
+            ), 
+            id=booking_id
+        )
         invoice, created = Invoice.objects.get_or_create(booking_id=booking)
-        addon = Addon.objects.filter(booking_prod_id__booking=booking)
+        addon = Addon.objects.filter(booking_prod_id__booking=booking).select_related('spare_parts_id')
         
-        # Use model properties for consistency
+        # Use model properties
         total_amt = booking.total_amount
-        tax_amount = booking.tax_amount
         grandtotal = booking.final_amount
-        cgst_sgst = Decimal(grandtotal) * Decimal('0.09') # For template display if needed
+        cgst_sgst = Decimal(str(grandtotal)) * Decimal('0.09')
 
         pdf_response = render_to_pdf(
             "Invoice/invoice.html",
@@ -128,6 +135,9 @@ def create_invoice(self, booking):
             return True
         return False
     except Exception as e:
+        import traceback
+        print(f"API create_invoice error: {e}")
+        print(traceback.format_exc())
         return False
 
 
@@ -145,19 +155,23 @@ def generate_invoice_and_notifications(booking_id, status, task_id):
         import pdfkit
         from utils.firebase import send_push_notification
 
-        booking = Booking.objects.get(id=booking_id)
+        # Optimized: Prefetch relations
+        booking = Booking.objects.prefetch_related(
+            'booking_product__product',
+            'booking_product__addon_set__spare_parts_id'
+        ).get(id=booking_id)
+        
         task = Task.objects.get(id=task_id)
 
         # ----------------------------------- Invoice Part -----------------------
         try:
             invoice, created = Invoice.objects.get_or_create(booking_id=booking)
-            addon = Addon.objects.filter(booking_prod_id__booking=booking)
+            addon = Addon.objects.filter(booking_prod_id__booking=booking).select_related('spare_parts_id')
             
-            # Use model properties for consistency
+            # Use model properties
             total_amt = booking.total_amount
-            tax_amount = booking.tax_amount
             grandtotal = booking.final_amount
-            cgst_sgst = Decimal(grandtotal) * Decimal(0.09)
+            cgst_sgst = Decimal(str(grandtotal)) * Decimal('0.09')
 
             input_file = render_to_string(
                 "Invoice/invoice.html",
@@ -175,13 +189,12 @@ def generate_invoice_and_notifications(booking_id, status, task_id):
             if pdf_data:
                 invoice.invoice = pdf_data
                 invoice.save()
-                # print(f"✅ PDF data updated for booking {booking_id}.")
             else:
-                pass
-                # print(f"❌ Failed to generate PDF data for invoice {booking_id}")
+                print(f"❌ Failed to generate PDF data for invoice {booking_id}")
         except Exception as e:
-            pass
-            # print(f"❌ Error in invoice creation process for booking {booking_id}:", e)
+            import traceback
+            print(f"❌ Error in background invoice creation for booking {booking_id}: {e}")
+            print(traceback.format_exc())
 
         # ---------------- Notification Block ----------------
         try:
