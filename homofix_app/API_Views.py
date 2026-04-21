@@ -252,6 +252,7 @@ class TaskViewSet(ModelViewSet):
             return super().list(request, *args, **kwargs)
 
     # @action(detail=False, methods=['PATCH'])
+    @transaction.atomic
     def put(self, request):
         booking_id = request.data.get("booking_id")
         # print("bookinggggg idddd",booking_id)
@@ -260,7 +261,7 @@ class TaskViewSet(ModelViewSet):
         if booking_id and status:
             # print(booking_id)
             try:
-                booking = Booking.objects.get(id=booking_id)
+                booking = Booking.objects.select_for_update().get(id=booking_id)
                 if booking.status == "Completed":
                     return Response({"success": False, "message": "Booking already processed."})
                 task = Task.objects.get(booking=booking)
@@ -433,6 +434,7 @@ class TechniciantaskViewSet(ModelViewSet):
     #         )
 
     # @action(detail=False, methods=['PATCH'])
+    @transaction.atomic
     def put(self, request):
         booking_id = request.data.get("booking_id")
         # print("bookinggggg idddd",booking_id)
@@ -441,7 +443,7 @@ class TechniciantaskViewSet(ModelViewSet):
         if booking_id and status:
             # print(booking_id)
             try:
-                booking = Booking.objects.get(id=booking_id)
+                booking = Booking.objects.select_for_update().get(id=booking_id)
                 if booking.status == "Completed":
                     return Response({"success": False, "message": "Booking already processed."})
                 task = Task.objects.get(booking=booking)
