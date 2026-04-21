@@ -110,7 +110,12 @@ def create_invoice(self, booking_id):
             ), 
             id=booking_id
         )
-        invoice, created = Invoice.objects.get_or_create(booking_id=booking)
+        invoice = Invoice.objects.filter(booking_id=booking).last()
+        if not invoice:
+            invoice = Invoice.objects.create(booking_id=booking)
+            created = True
+        else:
+            created = False
         addon = Addon.objects.filter(booking_prod_id__booking=booking).select_related('spare_parts_id')
         
         # Use model properties
@@ -165,7 +170,12 @@ def generate_invoice_and_notifications(booking_id, status, task_id):
 
         # ----------------------------------- Invoice Part -----------------------
         try:
-            invoice, created = Invoice.objects.get_or_create(booking_id=booking)
+            invoice = Invoice.objects.filter(booking_id=booking).last()
+            if not invoice:
+                invoice = Invoice.objects.create(booking_id=booking)
+                created = True
+            else:
+                created = False
             addon = Addon.objects.filter(booking_prod_id__booking=booking).select_related('spare_parts_id')
             
             # Use model properties
@@ -276,7 +286,7 @@ class TaskViewSet(ModelViewSet):
                     # print("technicia sare", technician_share)
 
                     # hod_share_with_tax = hod_share + tax_amt
-                    hod_share_with_tax = float(str(hod_share)) + tax_amt
+                    hod_share_with_tax = Decimal(str(hod_share)) + Decimal(str(tax_amt))
                     # print("hod_share_with_tax", hod_share_with_tax)
 
                     wallet_tecnician = technician_share
@@ -457,7 +467,7 @@ class TechniciantaskViewSet(ModelViewSet):
                     # print("technicia sare", technician_share)
 
                     # hod_share_with_tax = hod_share + tax_amt
-                    hod_share_with_tax = float(str(hod_share)) + tax_amt
+                    hod_share_with_tax = Decimal(str(hod_share)) + Decimal(str(tax_amt))
                     # print("hod_share_with_tax", hod_share_with_tax)
 
                     wallet_tecnician = technician_share
@@ -490,17 +500,62 @@ class TechniciantaskViewSet(ModelViewSet):
                     )
                     settlement.save()
 
-                    # Background task already handles invoice generation and notifications
-                    pass
-
+                if booking.status == "Completed" and booking.cash_on_service == True:
+                    
                     booking.status = "Completed"
                     booking.save()
-                    
-                    # Background task will handle invoice generation
-                    threading.Thread(
-                        target=generate_invoice_and_notifications,
-                        args=(booking_id, status, task.id)
-                    ).start()
+                    tax_rate = 0.18
+                    booking_amount = booking.total_amount
+                    # print("final amount", booking_amount)
+
+                    tax_amt = booking.tax_amount
+
+                    hod_share_percentage = HodSharePercentage.objects.latest("id")
+                    hod_share_percentage_value = hod_share_percentage.percentage
+                    hod_share = booking_amount * (hod_share_percentage_value / 100)
+
+                    acbb = Decimal(hod_share) * Decimal(0.18)
+                    # print(round(acbb, 2))
+                    # print("eeeeee", hod_share)
+                    wallet_tecnician = Decimal(hod_share) + Decimal(tax_amt)
+                    # print("helloooo", wallet_tecnician)
+
+                    technician_share = booking_amount - hod_share
+
+                    # print("technicia sare", technician_share)
+
+                    # print("eeeeeeeeeeeee", wallet_tecnician)
+                    final_amt = booking.final_amount - wallet_tecnician
+
+                    hod_share_with_tax = final_amt
+
+                    share = Share.objects.create(
+                        task=task,
+                        hod_share_percentage=hod_share_percentage,
+                        technician_share=hod_share_with_tax,
+                        company_share=wallet_tecnician,
+                    )
+                    share.save()
+                    technician = task.technician
+                    wallet, created = Wallet.objects.get_or_create(
+                        technician_id=technician
+                    )
+                    wallet.total_share -= Decimal(str(wallet_tecnician))
+
+                    wallet.save()
+
+                    settlement = Settlement.objects.create(
+                        technician_id=technician,
+                        amount=wallet_tecnician,
+                        settlement="Settlement Deduction",
+                    )
+                    settlement.save()
+
+                # Start background task for invoice generation and notifications
+                threading.Thread(
+                    target=generate_invoice_and_notifications,
+                    args=(booking_id, status, task.id)
+                ).start()
 
                 return Response({"success": True})
             except Booking.DoesNotExist:
@@ -2278,7 +2333,7 @@ def generate_invoice_pdf(request):
 @api_view(['GET'])
 def invoice_pdf(request, booking_id):
     try:
-        invoice = Invoice.objects.get(booking_id=booking_id)
+        invoice = Invoice.objects.filter(booking_id=booking_id).last()
         invoice_data = invoice.invoice if invoice else None
 
         if invoice_data:
@@ -2304,7 +2359,7 @@ def invoice_pdf(request, booking_id):
 @api_view(['GET'])
 def invoice_download(request, booking_id):
     try:
-        invoice = Invoice.objects.get(booking_id=booking_id)
+        invoice = Invoice.objects.filter(booking_id=booking_id).last()
         invoice_data = invoice.invoice if invoice else None
 
         if invoice_data:
@@ -2330,7 +2385,7 @@ def invoice_download(request, booking_id):
 @api_view(['GET'])
 def expert_invoice_pdf(request, booking_id):
     try:
-        invoice = Invoice.objects.get(booking_id=booking_id)
+        invoice = Invoice.objects.filter(booking_id=booking_id).last()
         invoice_data = invoice.invoice if invoice else None
 
         if invoice_data:
@@ -2359,7 +2414,7 @@ def expert_invoice_pdf(request, booking_id):
 
 def expert_invoice_download(request, booking_id):
     try:
-        invoice = Invoice.objects.get(booking_id=booking_id)
+        invoice = Invoice.objects.filter(booking_id=booking_id).last()
         invoice_data = invoice.invoice if invoice else None
 
         if invoice_data:

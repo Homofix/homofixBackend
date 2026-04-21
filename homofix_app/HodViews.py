@@ -4648,7 +4648,12 @@ def invoice_download(request, booking_id):
             id=booking_id
         )
         
-        invoice, created = Invoice.objects.get_or_create(booking_id=booking)
+        invoice = Invoice.objects.filter(booking_id=booking).last()
+        if not invoice:
+            invoice = Invoice.objects.create(booking_id=booking)
+            created = True
+        else:
+            created = False
         addon = Addon.objects.filter(booking_prod_id__booking=booking).select_related('spare_parts_id')
         
         # Use prefetched properties

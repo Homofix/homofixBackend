@@ -360,7 +360,12 @@ def ViewPDF(request,booking_id):
     from decimal import Decimal
     try:
         booking = get_object_or_404(Booking, id=booking_id)
-        invoice, created = Invoice.objects.get_or_create(booking_id=booking)
+        invoice = Invoice.objects.filter(booking_id=booking).last()
+        if not invoice:
+            invoice = Invoice.objects.create(booking_id=booking)
+            created = True
+        else:
+            created = False
         addon = Addon.objects.filter(booking_prod_id__booking=booking)
         
         total_amt = booking.total_amount
