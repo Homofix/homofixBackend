@@ -452,7 +452,8 @@ class Booking(models.Model):
             year_month = today.strftime('%Y%m')
             last_order = Booking.objects.filter(order_id__startswith=year_month).order_by('-id').first()
             if last_order:
-                last_id = int(last_order.order_id[-4:])
+                # Extract the numeric part after 'YYYYMM' (length 6)
+                last_id = int(last_order.order_id[6:])
             else:
                 last_id = 0
             new_id = last_id + 1
