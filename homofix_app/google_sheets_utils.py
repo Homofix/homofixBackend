@@ -142,12 +142,7 @@ def update_or_append_row(tab_name, search_col_idx, search_value, row_data):
                 logger.info(f"Value {search_value} not found, appended new row to {tab_name}")
 
         except Exception as e:
-             # If find fails or other error, try append?
-             # find raises generic exception? No, usually returns None or raises CellNotFound (in older versions). 
-             # In newer gspread, find returns None if not found? 
-             # Actually, creating a fallback to append is safer.
-             logger.warning(f"Error updating row in {tab_name}, falling back to append: {e}")
-             worksheet.append_row(formatted_row)
+             logger.error(f"Error updating/appending row in {tab_name} for value {search_value}: {e}")
 
     except Exception as e:
         logger.error(f"Error processing Google Sheet '{tab_name}': {e}")
