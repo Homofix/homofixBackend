@@ -280,7 +280,7 @@ class TaskViewSet(ModelViewSet):
                     hod_share_percentage = HodSharePercentage.objects.latest("id")
                     hod_share_percentage_value = hod_share_percentage.percentage
 
-                    hod_share = booking_amount * (hod_share_percentage_value / 100)
+                    hod_share = Decimal(str(booking.subtotal)) * (hod_share_percentage_value / 100)
 
                     # print("new hod share0", hod_share)
                     technician_share = booking_amount - hod_share
@@ -332,7 +332,7 @@ class TaskViewSet(ModelViewSet):
 
                     hod_share_percentage = HodSharePercentage.objects.latest("id")
                     hod_share_percentage_value = hod_share_percentage.percentage
-                    hod_share = booking_amount * (hod_share_percentage_value / 100)
+                    hod_share = Decimal(str(booking.subtotal)) * (hod_share_percentage_value / 100)
 
                     acbb = Decimal(hod_share) * Decimal(0.18)
                     # print(round(acbb, 2))
@@ -462,7 +462,7 @@ class TechniciantaskViewSet(ModelViewSet):
                     hod_share_percentage = HodSharePercentage.objects.latest("id")
                     hod_share_percentage_value = hod_share_percentage.percentage
 
-                    hod_share = booking_amount * (hod_share_percentage_value / 100)
+                    hod_share = Decimal(str(booking.subtotal)) * (hod_share_percentage_value / 100)
 
                     # print("new hod share0", hod_share)
                     technician_share = booking_amount - hod_share
@@ -514,7 +514,7 @@ class TechniciantaskViewSet(ModelViewSet):
 
                     hod_share_percentage = HodSharePercentage.objects.latest("id")
                     hod_share_percentage_value = hod_share_percentage.percentage
-                    hod_share = booking_amount * (hod_share_percentage_value / 100)
+                    hod_share = Decimal(str(booking.subtotal)) * (hod_share_percentage_value / 100)
 
                     acbb = Decimal(hod_share) * Decimal(0.18)
                     # print(round(acbb, 2))
@@ -1663,7 +1663,8 @@ class CustomerLoginViewSet(CreateAPIView):
     serializer_class = CustomerLoginSerliazer
     
     def post(self, request, *args, **kwargs):
-        otp_number = random.randint(0, 9999)
+        # otp_number = random.randint(0, 9999)
+        otp_number = 12345
         otp_unique = str(otp_number).zfill(3)
         phone_number = request.data.get('phone_number')
        

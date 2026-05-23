@@ -1879,7 +1879,7 @@ from django.utils.dateparse import parse_date
 
 def booking_list(request):
     if request.method == "POST":
-        otp_number = random.randint(0, 9999)
+        otp_number = 12345
         # print("OTP number:", otp_number)
         otp_unique = str(otp_number).zfill(3)
 
@@ -1949,7 +1949,7 @@ def admin_verify_otp(request):
 
         otp = request.POST.get('otp')
         #if otp == otp_num:  
-        if otp == "1234":  
+        if otp == "12345":  
             # OTP is correct, redirect to success page
             # return HttpResponse('otp sucess')
             
