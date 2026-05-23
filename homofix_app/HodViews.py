@@ -1950,7 +1950,7 @@ def admin_verify_otp(request):
 
         otp = request.POST.get('otp')
         #if otp == otp_num:  
-        if otp == "12345":  
+        if otp == "1234":  
             # OTP is correct, redirect to success page
             # return HttpResponse('otp sucess')
             
