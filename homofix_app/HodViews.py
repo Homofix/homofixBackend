@@ -1879,6 +1879,7 @@ from django.utils.dateparse import parse_date
 
 def booking_list(request):
     if request.method == "POST":
+        # otp_number = random.randint(0, 9999)
         otp_number = 12345
         # print("OTP number:", otp_number)
         otp_unique = str(otp_number).zfill(3)
