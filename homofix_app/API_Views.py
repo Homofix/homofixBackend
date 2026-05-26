@@ -1686,6 +1686,7 @@ class CustomerLoginViewSet(CreateAPIView):
         # url = f"https://sms.webtextsolution.com/sms-panel/api/http/index.php?username=Homofix&apikey=21141-B77C6&apirequest=Text&sender={sender}&mobile={mobile}&message={urllib.parse.quote(message)}&route=TRANS&TemplateID=1407169087502258386&format=JSON"
         url = f"https://sms.webtextsolution.com/sms-panel/api/http/index.php?username=Homofix&apikey=21141-B77C6&apirequest=Text&sender={sender}&mobile={mobile}&message={urllib.parse.quote(message)}&route=TRANS&TemplateID=1407177952423175592&format=JSON"
         
+        # response = requests.get(url) 
         response = requests.get(url) 
         
         
