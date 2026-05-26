@@ -1681,7 +1681,7 @@ class CustomerLoginViewSet(CreateAPIView):
         mobile = phone_number
         #message = f"Dear User {otp_unique} is the OTP for your login at Trygon. In case you have not requested this, please contact us at info@trygon.in"
         message =f"Your OTP for logging in to HOMOFIX COMPANY account is {otp_unique}. Do not share this OTP with anyone for security reasons. - HOMOFIX COMPANY PVT LTD"
-        template_id = "1407177952423175592"
+        template_id = "1407177952423175592" #thios s the new one ok 
         
         # url = f"https://sms.webtextsolution.com/sms-panel/api/http/index.php?username=Homofix&apikey=21141-B77C6&apirequest=Text&sender={sender}&mobile={mobile}&message={urllib.parse.quote(message)}&route=TRANS&TemplateID=1407169087502258386&format=JSON"
         url = f"https://sms.webtextsolution.com/sms-panel/api/http/index.php?username=Homofix&apikey=21141-B77C6&apirequest=Text&sender={sender}&mobile={mobile}&message={urllib.parse.quote(message)}&route=TRANS&TemplateID=1407177952423175592&format=JSON"
