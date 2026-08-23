@@ -194,7 +194,11 @@ def logout_user(request):
             pass
 
     logout(request)
-    return redirect("login")
+    response = redirect("login")
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 

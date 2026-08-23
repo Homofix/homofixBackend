@@ -8,10 +8,10 @@ class LoginCheckMiddleWare(MiddlewareMixin):
         modulename = view_func.__module__
         user = request.user
         # Allow access to API endpoints and authentication paths without authentication
-        if request.path == "/" or request.path == "/Login/":
+        if request.path == "/" or request.path == "/Login/" or request.path == "/user/logout":
             return None
             
-        allowed_paths = ["/api/", "/admin/", "/static/", "/media/", "/Accounts/"]
+        allowed_paths = ["/api/", "/admin/", "/static/", "/media/", "/Accounts/password_reset/", "/Accounts/reset/"]
         if any(request.path.startswith(path) for path in allowed_paths):
             return None
 
@@ -22,7 +22,7 @@ class LoginCheckMiddleWare(MiddlewareMixin):
         # Define allowed modules for each user type
         user_modules = {
             "1": {  # HOD
-                "allowed": ["homofix_app.HodViews", "homofix_app.views", "django.views.static", "django.contrib.admin"],
+                "allowed": ["homofix_app.HodViews", "homofix_app.views", "accounts.views", "django.views.static", "django.contrib.admin"],
                 "redirect": "admin_dashboard"
             },
             "2": {  # Technician
@@ -51,3 +51,12 @@ class LoginCheckMiddleWare(MiddlewareMixin):
 
         # Redirect to appropriate dashboard
         return HttpResponseRedirect(reverse(user_config["redirect"]))
+
+    def process_response(self, request, response):
+        # Prevent browser caching of protected views so hitting Back after logout revalidates with server
+        if not request.path.startswith(("/static/", "/media/")):
+            response["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+            response["Pragma"] = "no-cache"
+            response["Expires"] = "0"
+        return response
+
