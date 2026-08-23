@@ -186,3 +186,32 @@ def append_rows_to_sheet(tab_name, rows_data):
     except Exception as e:
         logger.error(f"Error appending rows to Google Sheet '{tab_name}': {e}")
 
+
+def trim_worksheet_blank_rows(tab_name=None, buffer_rows=200):
+    """
+    Trims unused trailing blank rows across all worksheets (or a specific worksheet)
+    in the spreadsheet to prevent reaching Google Sheets' 10 million total cell limit.
+    """
+    client = get_gspread_client()
+    if not client:
+        return
+
+    try:
+        sheet = client.open_by_key(SPREADSHEET_ID)
+        worksheets = [sheet.worksheet(tab_name)] if tab_name else sheet.worksheets()
+        
+        for w in worksheets:
+            try:
+                col_vals = w.col_values(1)
+                used_rows = len(col_vals)
+                target_rows = max(used_rows + buffer_rows, 100)
+                if w.row_count > target_rows:
+                    logger.info(f"Trimming {w.title} rows: {w.row_count} -> {target_rows}")
+                    w.resize(rows=target_rows)
+            except Exception as e:
+                logger.error(f"Error trimming worksheet {w.title}: {e}")
+                
+    except Exception as e:
+        logger.error(f"Error opening spreadsheet for trimming: {e}")
+
+
