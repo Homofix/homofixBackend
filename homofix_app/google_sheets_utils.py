@@ -116,8 +116,8 @@ def update_or_append_row(tab_name, search_col_idx, search_value, row_data):
             cell = worksheet.find(search_value_str, in_column=search_col_idx)
             
             if cell:
-                # For 'All Bookings' tab, preserve 'Assigned Expert' on reassignment
-                if tab_name == "All Bookings":
+                # For 'All Bookings' and 'All Old Bookings' tabs, preserve 'Assigned Expert' on reassignment
+                if tab_name in ["All Bookings", "All Old Bookings"]:
                     old_row = worksheet.row_values(cell.row)
                     # index 2 is Assigned Expert, index 24 is Reassigned Expert
                     if len(old_row) > 2 and old_row[2].strip():
@@ -146,3 +146,43 @@ def update_or_append_row(tab_name, search_col_idx, search_value, row_data):
 
     except Exception as e:
         logger.error(f"Error processing Google Sheet '{tab_name}': {e}")
+
+
+def append_rows_to_sheet(tab_name, rows_data):
+    """
+    Appends multiple rows of data to the specified tab in Google Sheets in a single API call.
+    
+    Args:
+        tab_name (str): The name of the worksheet/tab.
+        rows_data (list of lists): A list of row values to append.
+    """
+    if not rows_data:
+        return
+
+    client = get_gspread_client()
+    if not client:
+        return
+
+    try:
+        sheet = client.open_by_key(SPREADSHEET_ID)
+        try:
+            worksheet = sheet.worksheet(tab_name)
+        except gspread.exceptions.WorksheetNotFound:
+            try:
+                sheet = client.open_by_key('1UwskHVXLjzKzlXslKIG3eTPTG6sO1zaFjWn1_pSpLbs')
+                worksheet = sheet.worksheet(tab_name)
+            except Exception as e:
+                logger.error(f"Worksheet '{tab_name}' not found in either spreadsheet: {e}")
+                return
+
+        formatted_rows = [
+            [str(item) if item is not None else "" for item in row]
+            for row in rows_data
+        ]
+        
+        worksheet.append_rows(formatted_rows)
+        logger.info(f"Successfully appended {len(rows_data)} rows to {tab_name}")
+        
+    except Exception as e:
+        logger.error(f"Error appending rows to Google Sheet '{tab_name}': {e}")
+

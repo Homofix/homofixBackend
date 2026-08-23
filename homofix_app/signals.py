@@ -7,6 +7,7 @@ from .sheet_sync import (
     sync_completed_booking, 
     sync_cancelled_booking, 
     sync_new_booking,
+    sync_old_booking,
     sync_technician, 
     sync_recharge
 )
@@ -20,15 +21,19 @@ def sync_customer_to_sheet(sender, instance, created, **kwargs):
 def sync_assigned_booking_to_sheet(sender, instance, created, **kwargs):
     # Trigger when a Task is created (Technician Assigned) or updated (e.g. Reassigned)
     sync_assigned_booking(instance.booking, technician=instance.technician)
+    sync_old_booking(instance.booking)
 
 @receiver(post_save, sender=Booking)
 def sync_booking_status_change_to_sheet(sender, instance, created, **kwargs):
     if created:
         sync_new_booking(instance)
+        sync_old_booking(instance)
     elif instance.status == 'Completed':
         sync_completed_booking(instance)
+        sync_old_booking(instance)
     elif instance.status == 'Cancelled':
         sync_cancelled_booking(instance)
+        sync_old_booking(instance)
 
 @receiver(post_save, sender=Technician)
 def sync_expert_to_sheet(sender, instance, created, **kwargs):
@@ -52,3 +57,4 @@ def sync_bookingproduct_to_sheet(sender, instance, created, **kwargs):
     # so that the Google Sheet row is updated with the product name and amounts.
     if instance.booking and instance.booking.status == 'New':
         sync_new_booking(instance.booking)
+        sync_old_booking(instance.booking)

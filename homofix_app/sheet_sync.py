@@ -1,5 +1,16 @@
+import time
+import logging
 from .models import Customer, Booking, Technician, RechargeHistory, Task, SLOT_CHOICES_DICT
-from .google_sheets_utils import append_to_sheet, update_or_append_row
+from .google_sheets_utils import (
+    append_to_sheet,
+    update_or_append_row,
+    append_rows_to_sheet,
+    get_gspread_client,
+    SPREADSHEET_ID,
+)
+
+logger = logging.getLogger(__name__)
+
 
 # --- Helpers ---
 
@@ -234,3 +245,85 @@ def sync_recharge(instance):
         instance.date
     ]
     append_to_sheet("Recharge", row_data)
+
+
+def sync_old_booking(booking, tab_name="All Old Bookings"):
+    """
+    Syncs a single booking to the specified tab (default: 'All Old Bookings').
+    Data format is identical to 'All Bookings'.
+    """
+    row_data = get_booking_row_data(booking, booking.status)
+    update_or_append_row(tab_name, 1, booking.id, row_data)
+
+
+def sync_all_old_bookings(tab_name="All Old Bookings", batch_size=100, delay=1.0):
+    """
+    Syncs all bookings from the database into the specified Google Sheet tab (default: 'All Old Bookings').
+    Data entry structure is identical to 'All Bookings'.
+    Uses batch processing for high efficiency and quota safety.
+    """
+    bookings = Booking.objects.all().order_by('id')
+    total_count = bookings.count()
+    logger.info(f"Starting bulk sync of {total_count} bookings to '{tab_name}'...")
+
+    client = get_gspread_client()
+    if not client:
+        logger.error("Failed to authenticate with Google Sheets client.")
+        return 0
+
+    try:
+        sheet = client.open_by_key(SPREADSHEET_ID)
+        try:
+            worksheet = sheet.worksheet(tab_name)
+        except gspread.exceptions.WorksheetNotFound:
+            try:
+                sheet = client.open_by_key('1UwskHVXLjzKzlXslKIG3eTPTG6sO1zaFjWn1_pSpLbs')
+                worksheet = sheet.worksheet(tab_name)
+            except Exception as e:
+                logger.error(f"Worksheet '{tab_name}' not found: {e}")
+                return 0
+
+        # Check existing row IDs in column A
+        existing_col1 = worksheet.col_values(1)
+        existing_ids = set()
+        for val in existing_col1[1:]:
+            val_str = str(val).strip()
+            if val_str.isdigit():
+                existing_ids.add(int(val_str))
+            elif val_str:
+                existing_ids.add(val_str)
+
+        rows_to_append = []
+        synced_count = 0
+
+        for booking in bookings:
+            row_data = get_booking_row_data(booking, booking.status)
+            if booking.id in existing_ids or str(booking.id) in existing_ids:
+                # Update existing row
+                update_or_append_row(tab_name, 1, booking.id, row_data)
+                synced_count += 1
+                if delay > 0:
+                    time.sleep(delay)
+            else:
+                # Batch append new rows
+                rows_to_append.append([str(item) if item is not None else "" for item in row_data])
+                synced_count += 1
+
+                if len(rows_to_append) >= batch_size:
+                    worksheet.append_rows(rows_to_append)
+                    logger.info(f"Appended batch of {len(rows_to_append)} rows to '{tab_name}'.")
+                    rows_to_append = []
+                    if delay > 0:
+                        time.sleep(delay)
+
+        if rows_to_append:
+            worksheet.append_rows(rows_to_append)
+            logger.info(f"Appended final batch of {len(rows_to_append)} rows to '{tab_name}'.")
+
+        logger.info(f"Finished sync of {synced_count} bookings to '{tab_name}'.")
+        return synced_count
+
+    except Exception as e:
+        logger.error(f"Error syncing all old bookings to '{tab_name}': {e}")
+        return 0
+
