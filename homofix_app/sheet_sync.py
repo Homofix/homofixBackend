@@ -1,5 +1,6 @@
 import time
 import logging
+import gspread
 from .models import Customer, Booking, Technician, RechargeHistory, Task, SLOT_CHOICES_DICT
 from .google_sheets_utils import (
     append_to_sheet,
