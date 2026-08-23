@@ -257,11 +257,11 @@ def sync_old_booking(booking, tab_name="All Old Bookings"):
     update_or_append_row(tab_name, 1, booking.id, row_data)
 
 
-def sync_all_old_bookings(tab_name="All Old Bookings", batch_size=100, delay=1.0):
+def sync_all_old_bookings(tab_name="All Old Bookings", batch_size=500, delay=1.0):
     """
     Syncs all bookings from the database into the specified Google Sheet tab (default: 'All Old Bookings').
     Data entry structure is identical to 'All Bookings'.
-    Uses batch processing for high efficiency and quota safety.
+    Uses bulk matrix fetching and chunked updates with 429 quota auto-retry to prevent API limits.
     """
     bookings = Booking.objects.all().order_by('id')
     total_count = bookings.count()
@@ -272,59 +272,110 @@ def sync_all_old_bookings(tab_name="All Old Bookings", batch_size=100, delay=1.0
         logger.error("Failed to authenticate with Google Sheets client.")
         return 0
 
+    def retry_api_call(func, *args, max_retries=5, initial_wait=10, **kwargs):
+        for attempt in range(max_retries):
+            try:
+                return func(*args, **kwargs)
+            except gspread.exceptions.APIError as e:
+                if '429' in str(e) or 'Quota exceeded' in str(e):
+                    wait_time = initial_wait * (2 ** attempt)
+                    logger.warning(f"Google API Quota exceeded (429). Waiting {wait_time} seconds before retry (attempt {attempt + 1}/{max_retries})...")
+                    time.sleep(wait_time)
+                else:
+                    raise e
+        raise Exception("Max retries exceeded for Google Sheets API call.")
+
     try:
-        sheet = client.open_by_key(SPREADSHEET_ID)
+        sheet = retry_api_call(client.open_by_key, SPREADSHEET_ID)
         try:
             worksheet = sheet.worksheet(tab_name)
         except gspread.exceptions.WorksheetNotFound:
             try:
-                sheet = client.open_by_key('1UwskHVXLjzKzlXslKIG3eTPTG6sO1zaFjWn1_pSpLbs')
+                sheet = retry_api_call(client.open_by_key, '1UwskHVXLjzKzlXslKIG3eTPTG6sO1zaFjWn1_pSpLbs')
                 worksheet = sheet.worksheet(tab_name)
             except Exception as e:
                 logger.error(f"Worksheet '{tab_name}' not found: {e}")
                 return 0
 
-        # Check existing row IDs in column A
-        existing_col1 = worksheet.col_values(1)
-        existing_ids = set()
-        for val in existing_col1[1:]:
-            val_str = str(val).strip()
-            if val_str.isdigit():
-                existing_ids.add(int(val_str))
-            elif val_str:
-                existing_ids.add(val_str)
+        # FETCH ALL EXISTING ROWS IN A SINGLE API CALL
+        all_rows = retry_api_call(worksheet.get_all_values)
+        
+        # Index existing booking IDs in sheet
+        existing_map = {}
+        if len(all_rows) > 1:
+            for idx, row in enumerate(all_rows[1:], start=1):
+                if row:
+                    b_id_str = str(row[0]).strip()
+                    if b_id_str:
+                        existing_map[b_id_str] = idx
 
-        rows_to_append = []
+        header = all_rows[0] if all_rows else [
+            "S.No", "Order ID", "Assigned Expert", "Sub Category", "Product Name",
+            "Customer Name", "Customer Mobile", "City", "State", "Address",
+            "Pincode", "Booking Amount", "Total Amount", "Addons Amount",
+            "Discount Amount", "Tax Value", "Final Amount", "Booking Date",
+            "Completed Date", "Slot", "Payment Mode", "Order By", "Status",
+            "Cancel Reason", "Reassigned Expert", "Invoice No"
+        ]
+
+        new_rows_matrix = [header]
         synced_count = 0
 
         for booking in bookings:
             row_data = get_booking_row_data(booking, booking.status)
-            if booking.id in existing_ids or str(booking.id) in existing_ids:
-                # Update existing row
-                update_or_append_row(tab_name, 1, booking.id, row_data)
-                synced_count += 1
-                if delay > 0:
-                    time.sleep(delay)
-            else:
-                # Batch append new rows
-                rows_to_append.append([str(item) if item is not None else "" for item in row_data])
-                synced_count += 1
+            formatted_row = [str(item) if item is not None else "" for item in row_data]
+            booking_id_str = str(booking.id).strip()
 
-                if len(rows_to_append) >= batch_size:
-                    worksheet.append_rows(rows_to_append)
-                    logger.info(f"Appended batch of {len(rows_to_append)} rows to '{tab_name}'.")
-                    rows_to_append = []
-                    if delay > 0:
-                        time.sleep(delay)
+            if booking_id_str in existing_map:
+                row_idx = existing_map[booking_id_str]
+                if row_idx < len(all_rows):
+                    old_row = all_rows[row_idx]
+                    # Preserve 'Assigned Expert' and handle 'Reassigned Expert'
+                    if len(old_row) > 2 and old_row[2].strip():
+                        old_expert = old_row[2].strip()
+                        new_expert = str(row_data[2]).strip() if len(row_data) > 2 else ""
+                        
+                        if old_expert and new_expert and old_expert != new_expert:
+                            formatted_row[2] = old_expert
+                            if len(formatted_row) > 24:
+                                formatted_row[24] = new_expert
+                        elif old_expert == new_expert:
+                            if len(old_row) > 24 and old_row[24].strip():
+                                if len(formatted_row) > 24:
+                                    formatted_row[24] = old_row[24].strip()
 
-        if rows_to_append:
-            worksheet.append_rows(rows_to_append)
-            logger.info(f"Appended final batch of {len(rows_to_append)} rows to '{tab_name}'.")
+            new_rows_matrix.append(formatted_row)
+            synced_count += 1
 
-        logger.info(f"Finished sync of {synced_count} bookings to '{tab_name}'.")
+        total_rows_needed = len(new_rows_matrix)
+        total_cols_needed = max(len(r) for r in new_rows_matrix) if new_rows_matrix else 26
+
+        # Resize worksheet if needed
+        if worksheet.row_count < total_rows_needed or worksheet.col_count < total_cols_needed:
+            logger.info(f"Resizing worksheet '{tab_name}' to {total_rows_needed} rows x {total_cols_needed} cols...")
+            retry_api_call(worksheet.resize, rows=total_rows_needed, cols=total_cols_needed)
+
+        # WRITE MATRIX IN CHUNKS
+        start_row = 1
+        for i in range(0, len(new_rows_matrix), batch_size):
+            chunk = new_rows_matrix[i:i + batch_size]
+            end_row = start_row + len(chunk) - 1
+            range_name = f"A{start_row}:Z{end_row}"
+            logger.info(f"Updating rows {start_row} to {end_row} in '{tab_name}'...")
+            retry_api_call(worksheet.update, values=chunk, range_name=range_name)
+            start_row = end_row + 1
+            if delay > 0 and (i + batch_size) < len(new_rows_matrix):
+                time.sleep(delay)
+
+        # Trim trailing blank rows
+        if worksheet.row_count > total_rows_needed + 10:
+            retry_api_call(worksheet.resize, rows=total_rows_needed + 10, cols=total_cols_needed)
+
+        logger.info(f"Successfully synced {synced_count} bookings to '{tab_name}' in bulk.")
         return synced_count
 
     except Exception as e:
         logger.error(f"Error syncing all old bookings to '{tab_name}': {e}")
         return 0
+
 
