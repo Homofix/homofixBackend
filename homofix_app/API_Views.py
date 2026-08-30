@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.decorators import api_view,authentication_classes, permission_classes
 from .models import CustomUser,Technician,Task,Rebooking,JobEnquiry,Product,Booking,Kyc,SpareParts,Addon,TechnicianLocation,showonline,RechargeHistory,Wallet,WalletHistory,WithdrawRequest,HodSharePercentage,Share,AllTechnicianLocation,Blog,MostViewed,Customer,Category,SubCategory,feedback,Offer,BookingProduct,HomePageService,ApplicantCarrer,Carrer,LegalPage,FAQ,Invoice,Coupon,Payment,Settlement,Pincode,Slot,UniversalCredential,UniversalSlotTracker,WorkingStateCity
+from django.db.models import Q
 from decimal import Decimal
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
@@ -2081,13 +2082,21 @@ class SubcategoryGetViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SubcategorySerializer
     lookup_field = 'name' 
 
-    
-    # def get_queryset(self):
-    #     queryset = super().get_queryset()
-    #     subcategory_name  = self.request.query_params.get('name')
-    #     if subcategory_name  is not None:
-    #         queryset = queryset.filter(name=subcategory_name)
-    #     return queryset
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        cat_param = (
+            self.request.query_params.get('cat') or 
+            self.request.query_params.get('category') or 
+            self.request.query_params.get('name')
+        )
+        if cat_param:
+            queryset = queryset.filter(
+                Q(name__iexact=cat_param) | 
+                Q(Category_id__category_name__iexact=cat_param) |
+                Q(name__icontains=cat_param) |
+                Q(Category_id__category_name__icontains=cat_param)
+            ).distinct()
+        return queryset
         
 
 class LoginAPI(APIView):

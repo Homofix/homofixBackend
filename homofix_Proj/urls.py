@@ -42,6 +42,7 @@ router.register('Blog', API_Views.BlogGetViewSet, basename='Blog')
 router.register('MostViewed-Get', API_Views.MostViewedGetViewSet, basename='MostViewed')
 router.register('Category-Get', API_Views.CategoryGetViewSet, basename='CategoryGetViewSet')
 router.register('Subcategory-Get', API_Views.SubcategoryGetViewSet, basename='SubcategoryGetViewSet')
+router.register('subcat', API_Views.SubcategoryGetViewSet, basename='subcat')
 router.register('Customer', API_Views.CustomerViewSet, basename='Customer')
 router.register('Customer/Booking/Details', API_Views.CustomerBookingViewSet, basename='CustomerBookingViewSet')
 router.register('Feedback', API_Views.FeedbackViewSet, basename='feedback')
@@ -87,6 +88,7 @@ urlpatterns = [
     path('api/Verify/otp/',API_Views.CustomerVerifyOtp.as_view(),name="verify_otp"),
     path('api/Custom/Login/',API_Views.CustomerLoginAPI.as_view(),name="customer_login"),
     
+    path('api/subcat', API_Views.SubcategoryGetViewSet.as_view({'get': 'list'}), name='subcat_no_slash'),
     path('api/',include(router.urls),name="api"),
     path('api/RechargeHistory/Post/',API_Views.post_rechargeHistory,name="recharge_history"),
     path('api/RechargeHistory/GET/',API_Views.get_RechargeHistory,name="recharge_history_get"),
